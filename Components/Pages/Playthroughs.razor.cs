@@ -1,22 +1,22 @@
 using GameLogBook.Data;
-using GameLogBook.Models.Library;
+using GameLogBook.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameLogBook.Components.Pages;
 
-public partial class Library
+public partial class Playthroughs : ComponentBase
 {
     [Inject]
     private GameLogBookDbContext DbContext { get; set; } = null!;
     
-    private List<Game> games = [];
+    private List<Playthrough> playthroughs = [];
 
     private bool isAddPopupOpen;
     
     protected override async Task OnInitializedAsync()
     {
-        games = await DbContext.Games.ToListAsync();
+        playthroughs = await DbContext.Playthroughs.ToListAsync();
     }
 
     private void OpenAddPopup()
@@ -29,20 +29,20 @@ public partial class Library
         isAddPopupOpen = false;
     }
 
-    private async Task AddGame(Game game)
+    private async Task AddPlaythrough(Playthrough playthrough)
     {
-        DbContext.Games.Add(game);
+        DbContext.Playthroughs.Add(playthrough);
         await DbContext.SaveChangesAsync();
 
-        games.Add(game);
+        playthroughs.Add(playthrough);
         CloseAddPopup();
     }
 
-    private async Task HandleRemove(Game game)
+    private async Task HandleRemove(Playthrough playthrough)
     {
-        DbContext.Games.Remove(game);
+        DbContext.Playthroughs.Remove(playthrough);
         await DbContext.SaveChangesAsync();
 
-        games.Remove(game);
+        playthroughs.Remove(playthrough);
     }
 }

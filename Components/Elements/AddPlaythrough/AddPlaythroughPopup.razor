@@ -1,0 +1,39 @@
+<div class="popup-backdrop">
+    <div class="popup">
+        <div class="popup-header">
+            <h3>Add Game</h3>
+            <button class="close-button"
+                    type="button"
+                    title="Close"
+                    @onclick="HandleClose">
+                X
+            </button>
+        </div>
+        
+        <div class="popup-content">
+            <div class="playthrough-details-form">
+                <label class="form-field form-field-full">
+                    <span>Name</span>
+                    <input class="playthrough-detail-input"
+                           @bind="playthroughName"
+                           @bind:event="oninput"
+                           placeholder="Enter name..."/>
+                </label>
+
+                <div class="form-actions form-field-full">
+                    <button class="save-button"
+                            type="button"
+                            @onclick="HandleSavePlaythrough"
+                            disabled="@string.IsNullOrWhiteSpace(playthroughName)">
+                        Add to Library
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            <p class="error-message">@errorMessage</p>
+        }
+    </div>
+</div>

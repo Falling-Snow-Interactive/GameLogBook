@@ -44,6 +44,20 @@ namespace GameLogBook.Migrations
                 {
                     table.PrimaryKey("PK_Platforms", x => x.id);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "Playthroughs",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    name = table.Column<string>(type: "TEXT", nullable: false),
+                    game = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Playthroughs", x => x.id);
+                });
         }
 
         /// <inheritdoc />
@@ -54,6 +68,9 @@ namespace GameLogBook.Migrations
 
             migrationBuilder.DropTable(
                 name: "Platforms");
+
+            migrationBuilder.DropTable(
+                name: "Playthroughs");
         }
     }
 }

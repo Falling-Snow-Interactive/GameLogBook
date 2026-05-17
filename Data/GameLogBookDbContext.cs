@@ -9,6 +9,7 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
 {
     public DbSet<Game> Games => Set<Game>();
     public DbSet<Platform> Platforms => Set<Platform>();
+    public DbSet<Playthrough> Playthroughs => Set<Playthrough>();
 
     // public DbSet<User> Users => Set<User>();
     // public DbSet<Playthrough> Playthroughs => Set<Playthrough>();

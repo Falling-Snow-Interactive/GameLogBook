@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GameLogBook.Migrations
 {
     [DbContext(typeof(GameLogBookDbContext))]
-    [Migration("20260517231734_InitialCreate")]
+    [Migration("20260517234429_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -64,6 +64,24 @@ namespace GameLogBook.Migrations
                     b.HasKey("id");
 
                     b.ToTable("Platforms");
+                });
+
+            modelBuilder.Entity("GameLogBook.Models.Playthrough", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("game")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("id");
+
+                    b.ToTable("Playthroughs");
                 });
 
             modelBuilder.Entity("GameLogBook.Models.Library.Game", b =>

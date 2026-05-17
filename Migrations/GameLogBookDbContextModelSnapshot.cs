@@ -63,6 +63,24 @@ namespace GameLogBook.Migrations
                     b.ToTable("Platforms");
                 });
 
+            modelBuilder.Entity("GameLogBook.Models.Playthrough", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("game")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("id");
+
+                    b.ToTable("Playthroughs");
+                });
+
             modelBuilder.Entity("GameLogBook.Models.Library.Game", b =>
                 {
                     b.OwnsOne("GameLogBook.Models.Library.Cover", "Cover", b1 =>
