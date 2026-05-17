@@ -1,0 +1,55 @@
+# Build
+bin/
+obj/
+
+# Rider
+.idea/
+*.sln.iml
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.rsuser
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# ASP.NET / Blazor
+appsettings.Development.json
+
+# NuGet
+*.nupkg
+packages/
+
+# Test results
+TestResults/
+
+# Coverage
+coverage/
+
+# Publish output
+publish/
+
+# Node
+node_modules/
+
+# Temporary files
+tmp/
+temp/
+
+# VS Code
+.vscode/
+
+# Visual Studio
+.vs/
+
+# JetBrains Rider cache
+.idea_modules/
+
+# Resharper
+_ReSharper*/
+*.DotSettings.user

@@ -1,0 +1,15 @@
+<div class="popup-backdrop">
+    <div class="popup">
+        <h3>Add Game</h3>
+
+        <input class="game-name-input"
+               placeholder="Enter game name"
+               @bind="gameNameInput"
+               @bind:event="oninput" />
+
+        <div>
+            <button @onclick="HandleSave">Save</button>
+            <button @onclick="HandleClose">Close</button>
+        </div>
+    </div>
+</div>

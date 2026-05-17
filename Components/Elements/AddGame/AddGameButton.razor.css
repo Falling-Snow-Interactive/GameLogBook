@@ -1,0 +1,41 @@
+.floating-add-button {
+    position: fixed;
+    right: 2rem;
+    bottom: 2rem;
+
+    width: 4rem;
+    height: 4rem;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #6750a4;
+    color: #ffffff;
+
+    font-size: 1.5rem;
+
+    box-shadow: 0 12px 24px rgba(103, 80, 164, 0.35);
+
+    cursor: pointer;
+
+    transition:
+            transform 0.15s ease,
+            box-shadow 0.15s ease,
+            background 0.15s ease;
+
+    z-index: 1000;
+}
+
+.floating-add-button:hover {
+    background: #5b4696;
+    box-shadow: 0 16px 32px rgba(103, 80, 164, 0.45);
+    transform: translateY(-2px);
+}
+
+.floating-add-button:active {
+    transform: translateY(0);
+}

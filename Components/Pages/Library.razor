@@ -1,0 +1,36 @@
+@page "/Library"
+@rendermode InteractiveServer
+@using GameLogBook.Components.Elements.AddGame
+
+<PageTitle>Library</PageTitle>
+
+<div class="library-page">
+    <div class="library-header">
+        <h3>Library</h3>
+        <p>Your saved games.</p>
+    </div>
+
+    @if (games.Count == 0)
+    {
+        <div class="empty-state">
+            <h4>No games added yet</h4>
+            <p>Use the add button to add your first game.</p>
+        </div>
+    }
+    else
+    {
+        <ul class="game-list">
+            @foreach (string game in games)
+            {
+                <li class="game-list-item">@game</li>
+            }
+        </ul>
+    }
+    
+    <AddGameButton OnClick="OpenAddPopup" />
+</div>
+
+@if (isAddPopupOpen)
+{
+    <AddGamePopup OnSave="SaveGame" OnClose="CloseAddPopup"/>
+}
