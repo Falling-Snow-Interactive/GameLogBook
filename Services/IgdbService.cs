@@ -1,8 +1,9 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using GameLogBook.Models.Igdb;
 using GameLogBook.Models.Configuration;
-using GameLogBook.Models.Games;
+using GameLogBook.Models.Library;
 using Microsoft.Extensions.Options;
 
 namespace GameLogBook.Services;
@@ -35,9 +36,11 @@ public class IgdbService(HttpClient httpClient, IOptions<IgdbSettings> options)
         response.EnsureSuccessStatusCode();
 
         string json = await response.Content.ReadAsStringAsync();
-        List<Game>? results = JsonSerializer.Deserialize<List<Game>>(json, JsonOptions);
+        List<Igdb>? results = JsonSerializer.Deserialize<List<Igdb>>(json, JsonOptions);
 
-        return results ?? [];
+        return results?
+               .Select(igdbGame => igdbGame.ToLibraryGame())
+               .ToList() ?? [];
     }
 
     private async Task<string> GetAccessTokenAsync()
@@ -72,31 +75,9 @@ public class IgdbService(HttpClient httpClient, IOptions<IgdbSettings> options)
 
         return $"""
                search "{escapedSearchText}";
-               fields name, first_release_date, summary, cover.url;
+               fields name, first_release_date, summary, cover.url, cover.width, cover.game, involved_companies.developer, involved_companies.publisher, involved_companies.company.name;
                limit 10;
                """;
-    }
-
-    private static DateOnly? ConvertUnixTimeToDateOnly(long? unixTime)
-    {
-        if (unixTime is null)
-        {
-            return null;
-        }
-
-        return DateOnly.FromDateTime(DateTimeOffset.FromUnixTimeSeconds(unixTime.Value).DateTime);
-    }
-
-    private static string? NormalizeCoverUrl(string? coverUrl)
-    {
-        if (string.IsNullOrWhiteSpace(coverUrl))
-        {
-            return null;
-        }
-
-        return coverUrl.StartsWith("//")
-                   ? $"https:{coverUrl}"
-                   : coverUrl;
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()

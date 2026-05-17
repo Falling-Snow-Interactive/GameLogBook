@@ -1,40 +1,66 @@
-<button class="game-entry-content"
-        type="button"
-        @onclick="HandleClick">
-    
-    <img class="game-cover"
-         src="@Game.Cover?.CoverBig"
-         alt="@Game.Title cover"/>
+@using GameLogBook.Models
+<div class="game-entry-content"
+     role="button"
+     tabindex="0"
+     @onclick="HandleClick">
+
+    @if (!string.IsNullOrWhiteSpace(Game.Cover?.CoverBig))
+    { 
+        <img class="game-cover"
+         src="@Game.Cover.CoverBig"
+         alt="@Game.Name cover" />
+    }
+    else
+    {
+        <div class="game-cover game-cover-placeholder">
+            No Cover
+        </div>
+    }
 
     <div class="game-information">
-        <label class="game-title">@Game.Title</label>
-        <label class="game-release-date">@Game.ReleaseDateString</label>
-        @if (Game.Companies != null)
+        <label class="game-title">@Game.Name</label>
+        @if (!string.IsNullOrWhiteSpace(Game.ReleaseDateString))
         {
-            foreach (int company in Game.Companies)
-            {
-                <label class="game-company">@company</label>
-            }
+            <label class="game-release-date">@Game.ReleaseDateString</label>
+        }
+        
+        @if (!string.IsNullOrWhiteSpace(Game.Developer)
+             && !string.IsNullOrWhiteSpace(Game.Publisher))
+        {
+            <label class="game-developer">@Game.Developer - @Game.Publisher</label>
+        }
+        else if (!string.IsNullOrWhiteSpace(Game.Developer))
+        {
+            <label class="game-developer">@Game.Developer</label>
         }
 
-        <p class="game-summary">@Game.Summary</p>
+        @if (!string.IsNullOrWhiteSpace(Game.Summary))
+        { 
+            <p class="game-summary">@Game.Summary</p>
+        }
     </div>
     
     @if (ShowButtons)
     {
         <div class="game-buttons">
             <button class="game-button-playthroughs"
-                    @onclick="HandlePlaythroughs">
+                    type="button"
+                    @onclick="HandlePlaythroughs"
+                    @onclick:stopPropagation="true">
                 Playthroughs
             </button>
             <button class="game-button-logs"
-                    @onclick="HandleLogs">
+                    type="button"
+                    @onclick="HandleLogs"
+                    @onclick:stopPropagation="true">
                 Logs
             </button>
             <button class="game-button-remove"
-                    @onclick="HandleRemove">
+                    type="button"
+                    @onclick="HandleRemove"
+                    @onclick:stopPropagation="true">
                 Remove
             </button>
         </div>
     }
-</button>
+</div>

@@ -1,20 +1,25 @@
-using System.Text.Json;
+using GameLogBook.Data;
+using GameLogBook.Models;
 using GameLogBook.Models.Games;
+using GameLogBook.Models.Library;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
+using Microsoft.EntityFrameworkCore;
 
 namespace GameLogBook.Components.Pages;
 
 public partial class Library
 {
-    private const string SessionStorageKey = "game-log-book-library";
-
     [Inject]
-    private IJSRuntime JsRuntime { get; set; } = null!;
+    private GameLogBookDbContext DbContext { get; set; } = null!;
     
-    private readonly List<Game> games = [];
+    private List<Game> games = [];
 
     private bool isAddPopupOpen;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        games = await DbContext.Games.ToListAsync();
+    }
 
     private void OpenAddPopup()
     {
@@ -28,50 +33,18 @@ public partial class Library
 
     private async Task AddGame(Game game)
     {
+        DbContext.Games.Add(game);
+        await DbContext.SaveChangesAsync();
+
         games.Add(game);
         CloseAddPopup();
-
-        await SaveLibraryToSessionStorageAsync();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private async Task HandleRemove(Game game)
     {
-        if (!firstRender)
-        {
-            return;
-        }
+        DbContext.Games.Remove(game);
+        await DbContext.SaveChangesAsync();
 
-        await LoadLibraryFromSessionStorageAsync();
-        StateHasChanged();
-    }
-
-    private async Task LoadLibraryFromSessionStorageAsync()
-    {
-        string? json = await JsRuntime.InvokeAsync<string?>("sessionStorage.getItem",
-                                                            SessionStorageKey);
-
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return;
-        }
-
-        List<Game>? savedGames = JsonSerializer.Deserialize<List<Game>>(json);
-
-        if (savedGames is null)
-        {
-            return;
-        }
-
-        games.Clear();
-        games.AddRange(savedGames);
-    }
-
-    private async Task SaveLibraryToSessionStorageAsync()
-    {
-        string json = JsonSerializer.Serialize(games);
-
-        await JsRuntime.InvokeVoidAsync("sessionStorage.setItem",
-                                        SessionStorageKey,
-                                        json);
+        games.Remove(game);
     }
 }

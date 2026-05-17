@@ -1,4 +1,4 @@
-@using GameLogBook.Models.Games
+@using GameLogBook.Models.Library
 @using GameLogBook.Components.Elements.GameEntry
 
 <div class="popup-backdrop">
@@ -12,37 +12,103 @@
                 X
             </button>
         </div>
+        
+        <div class="popup-content">
+            <div class="search-container">
+                <div class="search-row">
+                    <input class="game-name-input"
+                           placeholder="Search for a game"
+                           @bind="searchInput"
+                           @bind:event="oninput"
+                           @onkeydown="HandleKeyDown" />
 
-        <div class="search-row">
-            <input class="game-name-input"
-                   placeholder="Search for a game"
-                   @bind="searchInput"
-                   @bind:event="oninput"
-                   @onkeydown="HandleKeyDown" />
+                    <button class="search-button"
+                            type="button"
+                            @onclick="HandleSearch"
+                            disabled="@isSearching">
+                        @(isSearching ? "Searching..." : "Search")
+                    </button>
+                </div>
 
-            <button class="search-button" 
-                    type="button" 
-                    @onclick="HandleSearch" 
-                    disabled="@isSearching">
-                @(isSearching ? "Searching..." : "Search")
-            </button>
+                @if (searchResults.Count > 0)
+                {
+                    <div class="search-results-dropdown">
+                        @foreach (Game game in searchResults)
+                        {
+                            <GameEntry Game="game"
+                                       ShowButtons="false"
+                                       OnClick="@(() => HandleGameSelected(game))" />
+                        }
+                    </div>
+                }
+            </div>
+
+            <hr class="popup-divider"/>
+
+            <div class="game-details-form">
+                <label class="form-field form-field-full">
+                    <span>Name</span>
+                    <input class="game-detail-input"
+                           @bind="gameName"
+                           @bind:event="oninput"
+                           placeholder="Game name"/>
+                </label>
+
+                <label class="form-field">
+                    <span>Developer</span>
+                    <input class="game-detail-input"
+                           @bind="developer"
+                           @bind:event="oninput"
+                           placeholder="Developer"/>
+                </label>
+
+                <label class="form-field">
+                    <span>Publisher</span>
+                    <input class="game-detail-input"
+                           @bind="publisher"
+                           @bind:event="oninput"
+                           placeholder="Publisher"/>
+                </label>
+
+                <label class="form-field">
+                    <span>Release Date</span>
+                    <input class="game-detail-input"
+                           type="date"
+                           @bind="releaseDate"
+                           @bind:event="oninput"
+                           placeholder="Release date"/>
+                </label>
+
+                <label class="form-field form-field-full">
+                    <span>Cover URL</span>
+                    <input class="game-detail-input"
+                           @bind="coverUrl"
+                           @bind:event="oninput"
+                           placeholder="Cover image URL"/>
+                </label>
+
+                <label class="form-field form-field-full">
+                    <span>Summary</span>
+                    <textarea class="game-detail-textarea"
+                          @bind="summary"
+                          @bind:event="oninput"
+                          placeholder="Summary"></textarea>
+                </label>
+
+                <div class="form-actions form-field-full">
+                    <button class="save-button"
+                            type="button"
+                            @onclick="HandleSaveGame"
+                            disabled="@string.IsNullOrWhiteSpace(gameName)">
+                        Add to Library
+                    </button>
+                </div>
+            </div>
         </div>
 
         @if (!string.IsNullOrWhiteSpace(errorMessage))
         {
             <p class="error-message">@errorMessage</p>
-        }
-
-        @if (searchResults.Count > 0)
-        {
-            <div class="search-results">
-                @foreach (Game game in searchResults)
-                {
-                    <GameEntry Game="game"
-                               ShowButtons="false"
-                               OnClick="() => HandleGameSelected(game)" />
-                }
-            </div>
         }
     </div>
 </div>

@@ -3,6 +3,8 @@
 @using GameLogBook.Components.Elements.AddGame
 @using GameLogBook.Models.Games
 @using GameLogBook.Components.Elements.GameEntry
+@using GameLogBook.Models
+@using GameLogBook.Models.Library
 
 <PageTitle>Library</PageTitle>
 
@@ -23,7 +25,10 @@
         <ul class="game-list">
             @foreach (Game game in games)
             {
-                <GameEntry Game="game" ShowButtons="true"/>
+                <GameEntry 
+                    Game="game" 
+                    ShowButtons="true" 
+                    OnRemove="() => HandleRemove(game)"/>
             }
         </ul>
     }

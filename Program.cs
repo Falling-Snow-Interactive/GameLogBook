@@ -1,8 +1,10 @@
 using GameLogBook.Components;
 using GameLogBook.Models.Configuration;
 using GameLogBook.Services;
+using GameLogBook.Data;
+using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -11,7 +13,16 @@ builder.Services.AddRazorComponents()
 builder.Services.Configure<IgdbSettings>(builder.Configuration.GetSection("Igdb"));
 builder.Services.AddHttpClient<IgdbService>();
 
+builder.Services.AddDbContext<GameLogBookDbContext>(options =>
+                                                        options.UseSqlite("Data Source=GameLogBook.db"));
+
 WebApplication app = builder.Build();
+
+using (IServiceScope scope = app.Services.CreateScope())
+{
+    GameLogBookDbContext dbContext = scope.ServiceProvider.GetRequiredService<GameLogBookDbContext>();
+    dbContext.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

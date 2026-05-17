@@ -44,11 +44,12 @@
     aspect-ratio: 3 / 4;
 
     flex-shrink: 0;
+    flex-grow: 0;
 
     border-radius: 0.75rem;
     border: 1px solid #e5e7eb;
 
-    object-fit: contain;
+    object-fit: cover;
     background: #f1f3f5;
 }
 
@@ -76,7 +77,8 @@
 .game-release-date,
 .game-company,
 .game-developer,
-.game-publisher {
+.game-publisher,
+.game-rating {
     color: #6c757d;
 
     font-size: 0.8125rem;

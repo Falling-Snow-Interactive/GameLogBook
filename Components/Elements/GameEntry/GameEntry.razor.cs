@@ -1,4 +1,4 @@
-using GameLogBook.Models.Games;
+using GameLogBook.Models.Library;
 using Microsoft.AspNetCore.Components;
 
 namespace GameLogBook.Components.Elements.GameEntry;
@@ -21,7 +21,7 @@ public partial class GameEntry
     public EventCallback OnLogs { get; set; }
     
     [Parameter]
-    public EventCallback OnRemove { get; set; }
+    public EventCallback<Game> OnRemove { get; set; }
 
     private async Task HandleClick()
     {
@@ -40,6 +40,6 @@ public partial class GameEntry
 
     private async Task HandleRemove()
     {
-        await OnRemove.InvokeAsync();
+        await OnRemove.InvokeAsync(Game);
     }
 }
