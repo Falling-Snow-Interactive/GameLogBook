@@ -79,6 +79,15 @@
                            placeholder="Release date"/>
                 </label>
 
+                <label class="form-field">
+                    <span>IGDB ID</span>
+                    <input class="game-detail-input"
+                           type="number"
+                           @bind="id"
+                           @bind:event="oninput"
+                           placeholder="id"/>
+                </label>
+
                 <label class="form-field form-field-full">
                     <span>Cover URL</span>
                     <input class="game-detail-input"

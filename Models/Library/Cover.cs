@@ -1,6 +1,4 @@
-using System.Text.Json.Serialization;
-
-namespace GameLogBook.Models;
+namespace GameLogBook.Models.Library;
 
 public class Cover
 {
@@ -9,7 +7,7 @@ public class Cover
 
     public int Id { get; set; }
 
-    public string Url { get; set; } = string.Empty;
+    public string Url { get; init; } = string.Empty;
 
     public int Width { get; set; }
 

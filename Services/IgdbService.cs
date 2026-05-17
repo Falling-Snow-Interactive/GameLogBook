@@ -75,7 +75,7 @@ public class IgdbService(HttpClient httpClient, IOptions<IgdbSettings> options)
 
         return $"""
                search "{escapedSearchText}";
-               fields name, first_release_date, summary, cover.url, cover.width, cover.game, involved_companies.developer, involved_companies.publisher, involved_companies.company.name;
+               fields id, name, first_release_date, summary, cover.url, cover.width, cover.game, involved_companies.developer, involved_companies.publisher, involved_companies.company.name;
                limit 10;
                """;
     }

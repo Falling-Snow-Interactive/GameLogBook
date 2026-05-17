@@ -17,30 +17,6 @@ namespace GameLogBook.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.8");
 
-            modelBuilder.Entity("GameLogBook.Models.Cover", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("GameId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Width")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GameId")
-                        .IsUnique();
-
-                    b.ToTable("Cover");
-                });
-
             modelBuilder.Entity("GameLogBook.Models.Library.Game", b =>
                 {
                     b.Property<int>("Id")
@@ -87,17 +63,31 @@ namespace GameLogBook.Migrations
                     b.ToTable("Platforms");
                 });
 
-            modelBuilder.Entity("GameLogBook.Models.Cover", b =>
-                {
-                    b.HasOne("GameLogBook.Models.Library.Game", null)
-                        .WithOne("Cover")
-                        .HasForeignKey("GameLogBook.Models.Cover", "GameId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("GameLogBook.Models.Library.Game", b =>
                 {
+                    b.OwnsOne("GameLogBook.Models.Library.Cover", "Cover", b1 =>
+                        {
+                            b1.Property<int>("GameId")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<int>("Id")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<string>("Url")
+                                .IsRequired()
+                                .HasColumnType("TEXT");
+
+                            b1.Property<int>("Width")
+                                .HasColumnType("INTEGER");
+
+                            b1.HasKey("GameId");
+
+                            b1.ToTable("Games");
+
+                            b1.WithOwner()
+                                .HasForeignKey("GameId");
+                        });
+
                     b.Navigation("Cover");
                 });
 #pragma warning restore 612, 618

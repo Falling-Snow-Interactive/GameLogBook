@@ -8,6 +8,9 @@ public class Igdb
     [JsonPropertyName("id")]
     public int Id { get; set; }
 
+    [JsonPropertyName("checksum")]
+    public Guid Checksum { get; set; }
+
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
 
@@ -27,6 +30,7 @@ public class Igdb
     {
         return new Game
                {
+                   Id = Id,
                    Name = Name,
                    Summary = Summary,
                    ReleaseDate = ToDateOnly(FirstReleaseDate),
@@ -36,9 +40,11 @@ public class Igdb
                };
     }
 
-    private static DateOnly ToDateOnly(long? unix)
+    private static DateOnly? ToDateOnly(long? unix)
     {
-        return DateOnly.FromDateTime(unix.HasValue ? DateTimeOffset.FromUnixTimeSeconds(unix.Value).UtcDateTime : DateTimeOffset.FromUnixTimeSeconds(0).UtcDateTime);
+        return unix.HasValue
+                   ? DateOnly.FromDateTime(DateTimeOffset.FromUnixTimeSeconds(unix.Value).UtcDateTime)
+                   : null;
     }
 
     private string GetCompanyNames(Func<IgdbInvolvedCompany, bool> predicate)

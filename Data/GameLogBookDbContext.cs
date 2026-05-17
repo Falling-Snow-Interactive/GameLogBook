@@ -13,4 +13,12 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
     // public DbSet<User> Users => Set<User>();
     // public DbSet<Playthrough> Playthroughs => Set<Playthrough>();
     // public DbSet<GameLog> Logs => Set<GameLog>();
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Game>()
+                    .OwnsOne(game => game.Cover);
+    }
 }

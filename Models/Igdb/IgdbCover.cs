@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using GameLogBook.Models.Library;
 
 namespace GameLogBook.Models.Igdb;
 

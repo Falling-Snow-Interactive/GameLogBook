@@ -23,6 +23,7 @@ public partial class AddGamePopup
     private string? errorMessage;
 
     private string gameName = string.Empty;
+    private int id;
     private string? developer = string.Empty;
     private string? publisher = string.Empty;
     private DateOnly? releaseDate;
@@ -64,6 +65,7 @@ public partial class AddGamePopup
 
     private Task HandleGameSelected(Game game)
     {
+        id = game.Id;
         gameName = game.Name;
         developer = game.Developer;
         publisher = game.Publisher;
@@ -80,6 +82,7 @@ public partial class AddGamePopup
     {
         Game game = new()
                     {
+                        Id = id,
                         Name = gameName.Trim(),
                         Developer = developer?.Trim(),
                         Publisher = publisher?.Trim(),
