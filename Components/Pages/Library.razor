@@ -1,13 +1,14 @@
 @page "/Library"
 @rendermode InteractiveServer
 @using GameLogBook.Components.Elements.AddGame
+@using GameLogBook.Models.Games
+@using GameLogBook.Components.Elements.GameEntry
 
 <PageTitle>Library</PageTitle>
 
 <div class="library-page">
     <div class="library-header">
         <h3>Library</h3>
-        <p>Your saved games.</p>
     </div>
 
     @if (games.Count == 0)
@@ -20,17 +21,18 @@
     else
     {
         <ul class="game-list">
-            @foreach (string game in games)
+            @foreach (Game game in games)
             {
-                <li class="game-list-item">@game</li>
+                <GameEntry Game="game" ShowButtons="true"/>
             }
         </ul>
     }
-    
+
     <AddGameButton OnClick="OpenAddPopup" />
 </div>
 
 @if (isAddPopupOpen)
 {
-    <AddGamePopup OnSave="SaveGame" OnClose="CloseAddPopup"/>
+    <AddGamePopup OnClose="CloseAddPopup"
+                  OnGameSelected="AddGame" />
 }

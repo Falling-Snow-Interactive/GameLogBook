@@ -1,0 +1,151 @@
+
+.game-entry-content {
+    width: 100%;
+    min-height: 10rem;
+
+    display: flex;
+    align-items: stretch;
+    gap: 1rem;
+
+    padding: 1rem;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
+
+    background: #ffffff;
+    color: inherit;
+
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+
+    text-align: left;
+    cursor: pointer;
+
+    transition:
+        transform 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease,
+        background 0.15s ease;
+}
+
+.game-entry-content:hover {
+    border-color: rgba(103, 80, 164, 0.35);
+    background: #fbf9ff;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.10);
+    transform: translateY(-1px);
+}
+
+.game-entry-content:focus-visible {
+    outline: 3px solid rgba(103, 80, 164, 0.22);
+    outline-offset: 2px;
+}
+
+.game-cover {
+    width: 6rem;
+    aspect-ratio: 3 / 4;
+
+    flex-shrink: 0;
+
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+
+    object-fit: contain;
+    background: #f1f3f5;
+}
+
+.game-information {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+
+    flex: 1;
+}
+
+.game-title {
+    margin: 0;
+
+    color: #212529;
+
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.game-release-date,
+.game-company,
+.game-developer,
+.game-publisher {
+    color: #6c757d;
+
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.35;
+}
+
+.game-summary {
+    display: -webkit-box;
+
+    margin: 0.5rem 0 0;
+    overflow: hidden;
+
+    color: #495057;
+
+    font-size: 0.875rem;
+    line-height: 1.4;
+
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+}
+
+.game-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    flex-shrink: 0;
+}
+
+.game-button-playthroughs,
+.game-button-logs,
+.game-button-remove {
+    min-width: 7rem;
+
+    padding: 0.5rem 0.875rem;
+
+    border: none;
+    border-radius: 999px;
+
+    font-size: 0.8125rem;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        box-shadow 0.15s ease,
+        transform 0.15s ease;
+}
+
+.game-button-playthroughs {
+    background: #ede7f6;
+    color: #4f378b;
+}
+
+.game-button-logs {
+    background: #e3f2fd;
+    color: #0b57d0;
+}
+
+.game-button-remove {
+    background: #fce8e6;
+    color: #b3261e;
+}
+
+.game-button-playthroughs:hover,
+.game-button-logs:hover,
+.game-button-remove:hover {
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+    transform: translateY(-1px);
+}

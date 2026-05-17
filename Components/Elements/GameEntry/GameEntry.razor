@@ -1,0 +1,40 @@
+<button class="game-entry-content"
+        type="button"
+        @onclick="HandleClick">
+    
+    <img class="game-cover"
+         src="@Game.Cover?.CoverBig"
+         alt="@Game.Title cover"/>
+
+    <div class="game-information">
+        <label class="game-title">@Game.Title</label>
+        <label class="game-release-date">@Game.ReleaseDateString</label>
+        @if (Game.Companies != null)
+        {
+            foreach (int company in Game.Companies)
+            {
+                <label class="game-company">@company</label>
+            }
+        }
+
+        <p class="game-summary">@Game.Summary</p>
+    </div>
+    
+    @if (ShowButtons)
+    {
+        <div class="game-buttons">
+            <button class="game-button-playthroughs"
+                    @onclick="HandlePlaythroughs">
+                Playthroughs
+            </button>
+            <button class="game-button-logs"
+                    @onclick="HandleLogs">
+                Logs
+            </button>
+            <button class="game-button-remove"
+                    @onclick="HandleRemove">
+                Remove
+            </button>
+        </div>
+    }
+</button>

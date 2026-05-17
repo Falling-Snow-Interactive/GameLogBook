@@ -35,11 +35,9 @@ public class IgdbService(HttpClient httpClient, IOptions<IgdbSettings> options)
         response.EnsureSuccessStatusCode();
 
         string json = await response.Content.ReadAsStringAsync();
-        List<IgdbGameDto>? results = JsonSerializer.Deserialize<List<IgdbGameDto>>(json, JsonOptions);
+        List<Game>? results = JsonSerializer.Deserialize<List<Game>>(json, JsonOptions);
 
-        return results?
-               .Select(ToGame)
-               .ToList() ?? [];
+        return results ?? [];
     }
 
     private async Task<string> GetAccessTokenAsync()
@@ -79,18 +77,6 @@ public class IgdbService(HttpClient httpClient, IOptions<IgdbSettings> options)
                """;
     }
 
-    private static Game ToGame(IgdbGameDto dto)
-    {
-        return new Game
-               {
-                   IgdbId = dto.Id,
-                   Title = dto.Name ?? string.Empty,
-                   ReleaseDate = ConvertUnixTimeToDateOnly(dto.FirstReleaseDate),
-                   Summary = dto.Summary,
-                   CoverUrl = NormalizeCoverUrl(dto.Cover?.Url)
-               };
-    }
-
     private static DateOnly? ConvertUnixTimeToDateOnly(long? unixTime)
     {
         if (unixTime is null)
@@ -124,19 +110,5 @@ public class IgdbService(HttpClient httpClient, IOptions<IgdbSettings> options)
         public string AccessToken { get; set; } = string.Empty;
         public int ExpiresIn { get; set; }
         public string TokenType { get; set; } = string.Empty;
-    }
-
-    private sealed class IgdbGameDto
-    {
-        public int Id { get; set; }
-        public string? Name { get; set; }
-        public long? FirstReleaseDate { get; set; }
-        public string? Summary { get; set; }
-        public IgdbCoverDto? Cover { get; set; }
-    }
-
-    private sealed class IgdbCoverDto
-    {
-        public string? Url { get; set; }
     }
 }
