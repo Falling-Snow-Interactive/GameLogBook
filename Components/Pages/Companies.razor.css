@@ -246,10 +246,53 @@
         box-shadow 0.15s ease;
 }
 
+
 .company-search-result:hover {
     background: #f4effa;
     box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1);
     transform: translateY(-1px);
+}
+
+.load-more-container {
+    display: flex;
+    justify-content: center;
+    padding: 0.35rem 0 0.1rem;
+}
+
+.load-more-button {
+    min-height: 2.75rem;
+    border: none;
+    border-radius: 999px;
+    padding: 0.7rem 1.35rem;
+    background: #ede7f6;
+    color: #4f378b;
+    box-shadow: 0 4px 12px rgba(103, 80, 164, 0.16);
+    font-size: 0.9rem;
+    font-weight: 800;
+    transition:
+        transform 0.15s ease,
+        background 0.15s ease,
+        box-shadow 0.15s ease,
+        opacity 0.15s ease;
+}
+
+.load-more-button:hover:not(:disabled) {
+    background: #e3d7f4;
+    box-shadow: 0 8px 20px rgba(103, 80, 164, 0.24);
+    transform: translateY(-1px);
+}
+
+.load-more-button:focus-visible {
+    outline: none;
+    box-shadow:
+        0 0 0 0.22rem rgba(103, 80, 164, 0.18),
+        0 8px 20px rgba(103, 80, 164, 0.24);
+}
+
+.load-more-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    box-shadow: none;
 }
 
 .company-search-result img,

@@ -20,7 +20,12 @@ public partial class Companies : CollectionPageBase<Company>
     private List<Game> games = [];
     private HashSet<int> selectedGameIds = [];
 
+    private const int SearchPageSize = 10;
+
     private bool isSearching;
+    private bool isLoadingMore;
+    private bool canLoadMore;
+    private int searchOffset;
     private string searchInput = string.Empty;
     private string? searchErrorMessage;
     private List<Company> searchResults = [];
@@ -58,6 +63,9 @@ public partial class Companies : CollectionPageBase<Company>
         searchInput = args.Value?.ToString() ?? string.Empty;
         string trimmedSearchInput = searchInput.Trim();
 
+        searchOffset = 0;
+        canLoadMore = false;
+
         searchCancellationTokenSource?.Cancel();
         searchCancellationTokenSource = new CancellationTokenSource();
 
@@ -71,7 +79,7 @@ public partial class Companies : CollectionPageBase<Company>
         try
         {
             await Task.Delay(300, searchCancellationTokenSource.Token);
-            await SearchCompanies(trimmedSearchInput, searchCancellationTokenSource.Token);
+            await SearchCompanies(trimmedSearchInput, searchCancellationTokenSource.Token, appendResults: false);
         }
         catch (OperationCanceledException)
         {
@@ -81,7 +89,20 @@ public partial class Companies : CollectionPageBase<Company>
     private async Task HandleSearch()
     {
         searchCancellationTokenSource?.Cancel();
-        await SearchCompanies(searchInput.Trim(), CancellationToken.None);
+        searchOffset = 0;
+        canLoadMore = false;
+        await SearchCompanies(searchInput.Trim(), CancellationToken.None, appendResults: false);
+    }
+
+    private async Task HandleLoadMore()
+    {
+        if (!canLoadMore || isSearching || isLoadingMore)
+        {
+            return;
+        }
+
+        searchCancellationTokenSource?.Cancel();
+        await SearchCompanies(searchInput.Trim(), CancellationToken.None, appendResults: true);
     }
 
     private async Task HandleSearchKeyDown(KeyboardEventArgs args)
@@ -89,15 +110,18 @@ public partial class Companies : CollectionPageBase<Company>
         if (args.Key is "Enter" or "NumpadEnter")
         {
             searchCancellationTokenSource?.Cancel();
-            await SearchCompanies(searchInput.Trim(), CancellationToken.None);
+            searchOffset = 0;
+            canLoadMore = false;
+            await SearchCompanies(searchInput.Trim(), CancellationToken.None, appendResults: false);
         }
     }
 
-    private async Task SearchCompanies(string trimmedSearchInput, CancellationToken cancellationToken)
+    private async Task SearchCompanies(string trimmedSearchInput, CancellationToken cancellationToken, bool appendResults)
     {
         if (string.IsNullOrWhiteSpace(trimmedSearchInput))
         {
             searchResults.Clear();
+            canLoadMore = false;
             return;
         }
 
@@ -105,10 +129,19 @@ public partial class Companies : CollectionPageBase<Company>
         {
             searchErrorMessage = "Search unavailable: IGDB credentials are not configured.";
             searchResults.Clear();
+            canLoadMore = false;
             return;
         }
 
-        isSearching = true;
+        if (appendResults)
+        {
+            isLoadingMore = true;
+        }
+        else
+        {
+            isSearching = true;
+        }
+
         searchErrorMessage = null;
 
         try
@@ -124,7 +157,8 @@ public partial class Companies : CollectionPageBase<Company>
                                                                query: $"""
                                                                        fields id, name, developed.id, published.id, logo.url;
                                                                        where name ~ *"{escapedSearchInput}"*;
-                                                                       limit 10;
+                                                                       limit {SearchPageSize};
+                                                                       offset {searchOffset};
                                                                        """);
 
             if (cancellationToken.IsCancellationRequested)
@@ -132,9 +166,21 @@ public partial class Companies : CollectionPageBase<Company>
                 return;
             }
 
-            searchResults = igdbResults
-                            .Select(ToLocalCompany)
-                            .ToList();
+            List<Company> newResults = igdbResults
+                                       .Select(ToLocalCompany)
+                                       .ToList();
+
+            if (appendResults)
+            {
+                searchResults.AddRange(newResults);
+            }
+            else
+            {
+                searchResults = newResults;
+            }
+
+            searchOffset += newResults.Count;
+            canLoadMore = newResults.Count == SearchPageSize;
         }
         catch (OperationCanceledException)
         {
@@ -145,12 +191,14 @@ public partial class Companies : CollectionPageBase<Company>
                                      ? "Search failed: IGDB credentials were rejected. Check the configured client ID and client secret."
                                      : $"Search failed: {exception.Message}";
             searchResults.Clear();
+            canLoadMore = false;
         }
         finally
         {
             if (!cancellationToken.IsCancellationRequested)
             {
                 isSearching = false;
+                isLoadingMore = false;
             }
         }
     }
@@ -164,6 +212,7 @@ public partial class Companies : CollectionPageBase<Company>
         selectedGameIds = company.GameIds.ToHashSet();
         searchInput = company.Name;
         searchResults.Clear();
+        canLoadMore = false;
         searchErrorMessage = null;
     }
 
@@ -233,6 +282,9 @@ public partial class Companies : CollectionPageBase<Company>
         searchErrorMessage = null;
         searchResults.Clear();
         isSearching = false;
+        isLoadingMore = false;
+        canLoadMore = false;
+        searchOffset = 0;
         newCompanyName = string.Empty;
         newCompanyCoverUrl = string.Empty;
         newCompanyIsPublisher = false;

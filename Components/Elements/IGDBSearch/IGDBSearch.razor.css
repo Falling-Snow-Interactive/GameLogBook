@@ -1,6 +1,8 @@
 .igdb-search {
     display: grid;
     gap: 0.65rem;
+    
+    margin:1rem;
 }
 
 .igdb-search-label {

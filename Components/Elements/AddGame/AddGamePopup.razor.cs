@@ -21,9 +21,14 @@ public partial class AddGamePopup
     [Parameter]
     public EventCallback<Game> OnGameSelected { get; set; }
 
+    private const int SearchPageSize = 10;
+
     private string searchInput = string.Empty;
     private List<Game> searchResults = [];
     private bool isSearching;
+    private bool isLoadingMore;
+    private bool canLoadMore;
+    private int searchOffset;
     private string? errorMessage;
 
     private string gameName = string.Empty;
@@ -41,6 +46,25 @@ public partial class AddGamePopup
 
     private async Task HandleSearch()
     {
+        searchOffset = 0;
+        canLoadMore = false;
+        searchResults.Clear();
+
+        await SearchGamesAsync(appendResults: false);
+    }
+
+    private async Task HandleLoadMore()
+    {
+        if (!canLoadMore || isSearching || isLoadingMore)
+        {
+            return;
+        }
+
+        await SearchGamesAsync(appendResults: true);
+    }
+
+    private async Task SearchGamesAsync(bool appendResults)
+    {
         string trimmedSearchInput = searchInput.Trim();
 
         if (string.IsNullOrWhiteSpace(trimmedSearchInput))
@@ -48,14 +72,22 @@ public partial class AddGamePopup
             return;
         }
 
-        isSearching = true;
+        if (appendResults)
+        {
+            isLoadingMore = true;
+        }
+        else
+        {
+            isSearching = true;
+        }
+
         errorMessage = null;
-        searchResults.Clear();
 
         if (!IgdbClientProvider.IsConfigured)
         {
             errorMessage = "Search unavailable: IGDB credentials are not configured.";
             isSearching = false;
+            isLoadingMore = false;
             return;
         }
 
@@ -66,18 +98,31 @@ public partial class AddGamePopup
                                         .Replace("\"", "\\\"");
 
             IgdbGame[] igdbResults = await IgdbClientProvider
-                                      .GetClient()
-                                      .QueryAsync<IgdbGame>(
-                                                            IGDBClient.Endpoints.Games,
-                                                            query: $"""
-                                                                    search "{escapedSearchInput}";
-                                                                    fields id, name, summary, first_release_date, cover.url;
-                                                                    limit 10;
-                                                                    """);
+                                           .GetClient()
+                                           .QueryAsync<IgdbGame>(
+                                                                 IGDBClient.Endpoints.Games,
+                                                                 query: $"""
+                                                                         search "{escapedSearchInput}";
+                                                                         fields id, name, summary, first_release_date, cover.url;
+                                                                         limit {SearchPageSize};
+                                                                         offset {searchOffset};
+                                                                         """);
 
-            searchResults = igdbResults
-                            .Select(ToLocalGame)
-                            .ToList();
+            List<Game> newResults = igdbResults
+                                    .Select(ToLocalGame)
+                                    .ToList();
+
+            if (appendResults)
+            {
+                searchResults.AddRange(newResults);
+            }
+            else
+            {
+                searchResults = newResults;
+            }
+
+            searchOffset += newResults.Count;
+            canLoadMore = newResults.Count == SearchPageSize;
         }
         catch (Exception exception)
         {
@@ -88,6 +133,7 @@ public partial class AddGamePopup
         finally
         {
             isSearching = false;
+            isLoadingMore = false;
         }
     }
 

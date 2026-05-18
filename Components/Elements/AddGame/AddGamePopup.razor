@@ -29,6 +29,17 @@
                                        ShowButtons="false"
                                        OnClick="@(() => HandleGameSelected(game))" />
                         }
+                        @if (canLoadMore)
+                        {
+                            <div class="load-more-container">
+                                <button class="load-more-button"
+                                        type="button"
+                                        @onclick="HandleLoadMore"
+                                        disabled="@isLoadingMore">
+                                    @(isLoadingMore ? "Loading..." : "Load more")
+                                </button>
+                            </div>
+                        }
                     </div>
                 }
             </IGDBSearch>
