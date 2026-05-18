@@ -1,6 +1,7 @@
 using GameLogBook.Data;
 using GameLogBook.Models.Companies;
 using GameLogBook.Models.Games;
+using GameLogBook.Services;
 using IGDB;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -14,7 +15,7 @@ namespace GameLogBook.Components.Pages;
 public partial class Companies : CollectionPageBase<Company>
 {
     [Inject]
-    private IGDBClient IgdbClient { get; set; } = null!;
+    private IgdbClientProvider IgdbClientProvider { get; set; } = null!;
 
     private List<Game> games = [];
     private HashSet<int> selectedGameIds = [];
@@ -100,6 +101,13 @@ public partial class Companies : CollectionPageBase<Company>
             return;
         }
 
+        if (!IgdbClientProvider.IsConfigured)
+        {
+            searchErrorMessage = "Search unavailable: IGDB credentials are not configured.";
+            searchResults.Clear();
+            return;
+        }
+
         isSearching = true;
         searchErrorMessage = null;
 
@@ -109,13 +117,15 @@ public partial class Companies : CollectionPageBase<Company>
                                         .Replace("\\", "\\\\")
                                         .Replace("\"", "\\\"");
 
-            IgdbCompany[] igdbResults = await IgdbClient.QueryAsync<IgdbCompany>(
-                                                                                 IGDBClient.Endpoints.Companies,
-                                                                                 query: $"""
-                                                                                         fields id, name, developed.id, published.id, logo.url;
-                                                                                         where name ~ *"{escapedSearchInput}"*;
-                                                                                         limit 10;
-                                                                                         """);
+            IgdbCompany[] igdbResults = await IgdbClientProvider
+                                         .GetClient()
+                                         .QueryAsync<IgdbCompany>(
+                                                               IGDBClient.Endpoints.Companies,
+                                                               query: $"""
+                                                                       fields id, name, developed.id, published.id, logo.url;
+                                                                       where name ~ *"{escapedSearchInput}"*;
+                                                                       limit 10;
+                                                                       """);
 
             if (cancellationToken.IsCancellationRequested)
             {
@@ -131,7 +141,9 @@ public partial class Companies : CollectionPageBase<Company>
         }
         catch (Exception exception)
         {
-            searchErrorMessage = $"Search failed: {exception.Message}";
+            searchErrorMessage = IsAuthenticationFailure(exception)
+                                     ? "Search failed: IGDB credentials were rejected. Check the configured client ID and client secret."
+                                     : $"Search failed: {exception.Message}";
             searchResults.Clear();
         }
         finally
@@ -269,5 +281,10 @@ public partial class Companies : CollectionPageBase<Company>
         return igdbCompanyLogo.Url.StartsWith("//")
                    ? $"https:{igdbCompanyLogo.Url}"
                    : igdbCompanyLogo.Url;
+    }
+
+    private static bool IsAuthenticationFailure(Exception exception)
+    {
+        return exception.Message.Contains("id.twitch.tv/oauth2/token", StringComparison.OrdinalIgnoreCase);
     }
 }

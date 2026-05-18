@@ -1,5 +1,6 @@
 using IGDB;
 using IGDB.Models;
+using GameLogBook.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Cover = GameLogBook.Models.Games.Cover;
@@ -12,7 +13,7 @@ namespace GameLogBook.Components.Elements.AddGame;
 public partial class AddGamePopup
 {
     [Inject]
-    protected IGDBClient IgdbClient { get; set; } = null!;
+    protected IgdbClientProvider IgdbClientProvider { get; set; } = null!;
 
     [Parameter]
     public EventCallback OnClose { get; set; }
@@ -51,19 +52,28 @@ public partial class AddGamePopup
         errorMessage = null;
         searchResults.Clear();
 
+        if (!IgdbClientProvider.IsConfigured)
+        {
+            errorMessage = "Search unavailable: IGDB credentials are not configured.";
+            isSearching = false;
+            return;
+        }
+
         try
         {
             string escapedSearchInput = trimmedSearchInput
                                         .Replace("\\", "\\\\")
                                         .Replace("\"", "\\\"");
 
-            IgdbGame[] igdbResults = await IgdbClient.QueryAsync<IgdbGame>(
-                                                                           IGDBClient.Endpoints.Games,
-                                                                           query: $"""
-                                                                                   search "{escapedSearchInput}";
-                                                                                   fields id, name, summary, first_release_date, cover.url;
-                                                                                   limit 10;
-                                                                                   """);
+            IgdbGame[] igdbResults = await IgdbClientProvider
+                                      .GetClient()
+                                      .QueryAsync<IgdbGame>(
+                                                            IGDBClient.Endpoints.Games,
+                                                            query: $"""
+                                                                    search "{escapedSearchInput}";
+                                                                    fields id, name, summary, first_release_date, cover.url;
+                                                                    limit 10;
+                                                                    """);
 
             searchResults = igdbResults
                             .Select(ToLocalGame)
@@ -71,7 +81,9 @@ public partial class AddGamePopup
         }
         catch (Exception exception)
         {
-            errorMessage = $"Search failed: {exception.Message}";
+            errorMessage = IsAuthenticationFailure(exception)
+                               ? "Search failed: IGDB credentials were rejected. Check the configured client ID and client secret."
+                               : $"Search failed: {exception.Message}";
         }
         finally
         {
@@ -177,5 +189,10 @@ public partial class AddGamePopup
         return unixTime.HasValue
                    ? DateOnly.FromDateTime(DateTimeOffset.FromUnixTimeSeconds(unixTime.Value).UtcDateTime)
                    : null;
+    }
+
+    private static bool IsAuthenticationFailure(Exception exception)
+    {
+        return exception.Message.Contains("id.twitch.tv/oauth2/token", StringComparison.OrdinalIgnoreCase);
     }
 }
