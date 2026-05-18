@@ -2,38 +2,30 @@
 @rendermode InteractiveServer
 @using GameLogBook.Components.Elements.AddPlaythrough
 @using GameLogBook.Models
+@inherits CollectionPageBase<Playthrough>
 
 <PageTitle>Playthroughs</PageTitle>
 
-<div class="playthroughs-page">
-    <div class="playthroughs-header">
-        <h3>Playthroughs</h3>
-        <p>Your saved playthroughs.</p>
-    </div>
+<CollectionPageShell Title="Playthroughs"
+                     Description="Your saved playthroughs."
+                     AddButtonText="Add Playthrough"
+                     OnAdd="OpenAddPopup"
+                     IsEmpty="@(Items.Count == 0)"
+                     EmptyTitle="No playthroughs added yet"
+                     EmptyDescription="Add a playthrough to start grouping your game sessions.">
+    <ul class="collection-list">
+        @foreach (Playthrough playthrough in Items)
+        {
+            <NamedCollectionEntry TItem="Playthrough"
+                                  Item="playthrough"
+                                  Title="@playthrough.Name"
+                                  Description="@GetPlaythroughSummary(playthrough)"
+                                  OnRemove="RemovePlaythrough" />
+        }
+    </ul>
+</CollectionPageShell>
 
-    @if (playthroughs.Count == 0)
-    {
-        <div class="empty-state">
-            <h4>No playthroughs added yet</h4>
-            <p>Use the add button to add your first playthrough.</p>
-        </div>
-    }
-    else
-    {
-        <ul class="playthrough-list">
-            @foreach (Playthrough playthrough in playthroughs)
-            {
-                <li class="playthrough-list-item">
-                    @playthrough.Name
-                </li>
-            }
-        </ul>
-    }
-
-    <AddPlaythroughButton OnClick="OpenAddPopup" />
-</div>
-
-@if (isAddPopupOpen)
+@if (IsAddPopupOpen)
 {
     <AddPlaythroughPopup OnClose="CloseAddPopup"
                          OnPlaythroughSelected="AddPlaythrough"

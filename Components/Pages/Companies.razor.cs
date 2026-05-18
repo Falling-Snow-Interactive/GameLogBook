@@ -11,19 +11,14 @@ using IgdbGame = IGDB.Models.Game;
 
 namespace GameLogBook.Components.Pages;
 
-public partial class Companies
+public partial class Companies : CollectionPageBase<Company>
 {
-    [Inject]
-    private GameLogBookDbContext DbContext { get; set; } = null!;
-
     [Inject]
     private IGDBClient IgdbClient { get; set; } = null!;
 
-    private List<Company> companies = [];
     private List<Game> games = [];
     private HashSet<int> selectedGameIds = [];
 
-    private bool isAddPopupOpen;
     private bool isSearching;
     private string searchInput = string.Empty;
     private string? searchErrorMessage;
@@ -34,24 +29,25 @@ public partial class Companies
     private bool newCompanyIsPublisher;
     private bool newCompanyIsDeveloper;
 
+    protected override DbSet<Company> EntitySet => DbContext.Companies;
+
+    protected override string GetSortKey(Company item)
+    {
+        return item.Name;
+    }
+
     protected override async Task OnInitializedAsync()
     {
-        companies = await DbContext.Companies
-                                   .OrderBy(company => company.Name)
-                                   .ToListAsync();
+        await base.OnInitializedAsync();
+
         games = await DbContext.Games
                                .OrderBy(game => game.Name)
                                .ToListAsync();
     }
 
-    private void OpenAddPopup()
+    protected override void CloseAddPopup()
     {
-        isAddPopupOpen = true;
-    }
-
-    private void CloseAddPopup()
-    {
-        isAddPopupOpen = false;
+        base.CloseAddPopup();
         searchCancellationTokenSource?.Cancel();
         ResetForm();
     }
@@ -174,22 +170,13 @@ public partial class Companies
                                         .ToArray()
                           };
 
-        DbContext.Companies.Add(company);
-        await DbContext.SaveChangesAsync();
-
-        companies.Add(company);
-        companies = companies
-                    .OrderBy(existingCompany => existingCompany.Name)
-                    .ToList();
+        await AddItemAsync(company);
         CloseAddPopup();
     }
 
     private async Task HandleRemove(Company company)
     {
-        DbContext.Companies.Remove(company);
-        await DbContext.SaveChangesAsync();
-
-        companies.Remove(company);
+        await RemoveItemAsync(company);
     }
 
     private string GetGameName(int gameId)

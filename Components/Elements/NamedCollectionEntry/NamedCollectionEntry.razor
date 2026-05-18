@@ -1,0 +1,41 @@
+@typeparam TItem
+
+<li class="named-collection-entry collection-card">
+    <div class="named-collection-copy">
+        <h4>@Title</h4>
+
+        @if (!string.IsNullOrWhiteSpace(Description))
+        {
+            <p>@Description</p>
+        }
+    </div>
+
+    @if (OnRemove.HasDelegate)
+    {
+        <button class="collection-remove-button"
+                type="button"
+                title="Remove @Title"
+                @onclick="HandleRemove">
+            Remove
+        </button>
+    }
+</li>
+
+@code {
+    [Parameter]
+    public TItem Item { get; set; } = default!;
+
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Description { get; set; }
+
+    [Parameter]
+    public EventCallback<TItem> OnRemove { get; set; }
+
+    private async Task HandleRemove()
+    {
+        await OnRemove.InvokeAsync(Item);
+    }
+}

@@ -1,42 +1,31 @@
 @page "/Platforms"
 @rendermode InteractiveServer
-@using GameLogBook.Models
 @using GameLogBook.Components.Elements.AddPlatform
 @using GameLogBook.Models.Platforms
+@inherits CollectionPageBase<Platform>
 
-<PageTitle>Playthroughs</PageTitle>
+<PageTitle>Platforms</PageTitle>
 
-<div class="playthroughs-page">
-    <div class="playthroughs-header">
-        <h3>Playthroughs</h3>
-        <p>Your saved playthroughs.</p>
-    </div>
+<CollectionPageShell Title="Platforms"
+                     Description="The hardware and storefronts in your library."
+                     AddButtonText="Add Platform"
+                     OnAdd="OpenAddPopup"
+                     IsEmpty="@(Items.Count == 0)"
+                     EmptyTitle="No platforms added yet"
+                     EmptyDescription="Add a platform to start organizing where you play.">
+    <ul class="collection-list">
+        @foreach (Platform platform in Items)
+        {
+            <NamedCollectionEntry TItem="Platform"
+                                  Item="platform"
+                                  Title="@platform.Name"
+                                  OnRemove="RemovePlatform" />
+        }
+    </ul>
+</CollectionPageShell>
 
-    @if (platforms.Count == 0)
-    {
-        <div class="empty-state">
-            <h4>No playthroughs added yet</h4>
-            <p>Use the add button to add your first playthrough.</p>
-        </div>
-    }
-    else
-    {
-        <ul class="playthrough-list">
-            @foreach (Platform platform in platforms)
-            {
-                <li class="playthrough-list-item">
-                    @platform.Name
-                </li>
-            }
-        </ul>
-    }
-
-    <AddPlatformButton OnClick="OpenAddPopup" />
-</div>
-
-@if (isAddPopupOpen)
+@if (IsAddPopupOpen)
 {
     <AddPlatformPopup OnClose="CloseAddPopup"
-                         OnPlaythroughSelected="AddPlaythrough"
-                         LibraryGames="Games"/>
+                      OnPlatformSelected="AddPlatform" />
 }

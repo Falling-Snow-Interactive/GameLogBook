@@ -1,0 +1,32 @@
+.named-collection-entry {
+    min-height: 5.25rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.named-collection-copy {
+    min-width: 0;
+    display: grid;
+    gap: 0.25rem;
+}
+
+.named-collection-copy h4 {
+    margin: 0;
+    color: #212529;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.named-collection-copy p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+@media (max-width: 700px) {
+    .named-collection-entry {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}

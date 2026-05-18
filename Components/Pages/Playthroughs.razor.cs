@@ -1,52 +1,46 @@
-using GameLogBook.Data;
 using GameLogBook.Models;
 using GameLogBook.Models.Games;
-using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameLogBook.Components.Pages;
 
-public partial class Playthroughs : ComponentBase
+public partial class Playthroughs : CollectionPageBase<Playthrough>
 {
-    [Inject]
-    private GameLogBookDbContext DbContext { get; set; } = null!;
+    public IReadOnlyList<Game> Games { get; set; } = [];
 
-    public IReadOnlyList<Game> Games { get; set; }
+    protected override DbSet<Playthrough> EntitySet => DbContext.Playthroughs;
 
-    private List<Playthrough> playthroughs = [];
-
-    private bool isAddPopupOpen;
+    protected override string GetSortKey(Playthrough item)
+    {
+        return item.Name;
+    }
     
     protected override async Task OnInitializedAsync()
     {
-        playthroughs = await DbContext.Playthroughs.ToListAsync();
-        Games = DbContext.Games.ToList();
-    }
-
-    private void OpenAddPopup()
-    {
-        isAddPopupOpen = true;
-    }
-
-    private void CloseAddPopup()
-    {
-        isAddPopupOpen = false;
+        await base.OnInitializedAsync();
+        Games = await DbContext.Games
+                               .OrderBy(game => game.Name)
+                               .ToListAsync();
     }
 
     private async Task AddPlaythrough(Playthrough playthrough)
     {
-        DbContext.Playthroughs.Add(playthrough);
-        await DbContext.SaveChangesAsync();
-
-        playthroughs.Add(playthrough);
+        await AddItemAsync(playthrough);
         CloseAddPopup();
     }
 
-    private async Task HandleRemove(Playthrough playthrough)
+    private async Task RemovePlaythrough(Playthrough playthrough)
     {
-        DbContext.Playthroughs.Remove(playthrough);
-        await DbContext.SaveChangesAsync();
+        await RemoveItemAsync(playthrough);
+    }
 
-        playthroughs.Remove(playthrough);
+    private static string GetPlaythroughSummary(Playthrough playthrough)
+    {
+        return playthrough.GameIds.Length switch
+        {
+            0 => "No linked games yet",
+            1 => "1 linked game",
+            _ => $"{playthrough.GameIds.Length} linked games"
+        };
     }
 }

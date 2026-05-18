@@ -3,38 +3,30 @@
 @using GameLogBook.Components.Elements.AddGame
 @using GameLogBook.Components.Elements.GameEntry
 @using GameLogBook.Models.Games
+@inherits CollectionPageBase<Game>
 
-<PageTitle>Library</PageTitle>
+<PageTitle>Games</PageTitle>
 
-<div class="library-page">
-    <div class="library-header">
-        <h3>Game</h3>
-    </div>
+<CollectionPageShell Title="Games"
+                     Description="Your saved game library."
+                     AddButtonText="Add Game"
+                     OnAdd="OpenAddPopup"
+                     IsEmpty="@(Items.Count == 0)"
+                     EmptyTitle="No games added yet"
+                     EmptyDescription="Add a game to start building your library.">
+    <ul class="collection-list">
+        @foreach (Game game in Items)
+        {
+            <li>
+                <GameEntry Game="game"
+                           ShowButtons="true"
+                           OnRemove="RemoveGame" />
+            </li>
+        }
+    </ul>
+</CollectionPageShell>
 
-    @if (games.Count == 0)
-    {
-        <div class="empty-state">
-            <h4>No games added yet</h4>
-            <p>Use the add button to add your first game.</p>
-        </div>
-    }
-    else
-    {
-        <ul class="game-list">
-            @foreach (Game game in games)
-            {
-                <GameEntry 
-                    Game="game" 
-                    ShowButtons="true" 
-                    OnRemove="() => HandleRemove(game)"/>
-            }
-        </ul>
-    }
-
-    <AddGameButton OnClick="OpenAddPopup" />
-</div>
-
-@if (isAddPopupOpen)
+@if (IsAddPopupOpen)
 {
     <AddGamePopup OnClose="CloseAddPopup"
                   OnGameSelected="AddGame" />

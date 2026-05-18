@@ -1,48 +1,25 @@
-using GameLogBook.Data;
 using GameLogBook.Models.Games;
-using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameLogBook.Components.Pages;
 
-public partial class Games
+public partial class Games : CollectionPageBase<Game>
 {
-    [Inject]
-    private GameLogBookDbContext DbContext { get; set; } = null!;
-    
-    private List<Game> games = [];
+    protected override DbSet<Game> EntitySet => DbContext.Games;
 
-    private bool isAddPopupOpen;
-    
-    protected override async Task OnInitializedAsync()
+    protected override string GetSortKey(Game item)
     {
-        games = await DbContext.Games.ToListAsync();
-    }
-
-    private void OpenAddPopup()
-    {
-        isAddPopupOpen = true;
-    }
-
-    private void CloseAddPopup()
-    {
-        isAddPopupOpen = false;
+        return item.Name;
     }
 
     private async Task AddGame(Game game)
     {
-        DbContext.Games.Add(game);
-        await DbContext.SaveChangesAsync();
-
-        games.Add(game);
+        await AddItemAsync(game);
         CloseAddPopup();
     }
 
-    private async Task HandleRemove(Game game)
+    private async Task RemoveGame(Game game)
     {
-        DbContext.Games.Remove(game);
-        await DbContext.SaveChangesAsync();
-
-        games.Remove(game);
+        await RemoveItemAsync(game);
     }
 }

@@ -2,102 +2,86 @@
 @rendermode InteractiveServer
 @using GameLogBook.Models.Companies
 @using GameLogBook.Models.Games
+@inherits CollectionPageBase<Company>
 
 <PageTitle>Companies</PageTitle>
 
-<div class="companies-page">
-    <div class="companies-header">
-        <div>
-            <h3>Companies</h3>
-            <p>Studios and publishers connected to your library.</p>
-        </div>
-
-        <button class="add-company-button"
-                type="button"
-                @onclick="OpenAddPopup">
-            Add Company
-        </button>
-    </div>
-
-    @if (companies.Count == 0)
-    {
-        <div class="empty-state">
-            <h4>No companies added yet</h4>
-            <p>Add a company to start linking studios and publishers to games.</p>
-        </div>
-    }
-    else
-    {
-        <div class="company-grid">
-            @foreach (Company company in companies)
-            {
-                <article class="company-card">
-                    @if (!string.IsNullOrWhiteSpace(company.CoverUrl))
-                    {
-                        <img class="company-cover"
-                             src="@company.CoverUrl"
-                             alt="@company.Name cover" />
-                    }
-                    else
-                    {
-                        <div class="company-cover company-cover-placeholder">
-                            <span class="bi bi-building" aria-hidden="true"></span>
-                        </div>
-                    }
-
-                    <div class="company-content">
-                        <div class="company-title-row">
-                            <h4>@company.Name</h4>
-                            <button class="remove-company-button"
-                                    type="button"
-                                    title="Remove @company.Name"
-                                    @onclick="() => HandleRemove(company)">
-                                Remove
-                            </button>
-                        </div>
-
-                        <div class="company-badges">
-                            @if (company.IsDeveloper)
-                            {
-                                <span class="company-badge developer-badge">Developer</span>
-                            }
-
-                            @if (company.IsPublisher)
-                            {
-                                <span class="company-badge publisher-badge">Publisher</span>
-                            }
-
-                            @if (!company.IsDeveloper && !company.IsPublisher)
-                            {
-                                <span class="company-badge neutral-badge">Unclassified</span>
-                            }
-                        </div>
-
-                        <div class="company-games">
-                            <span class="company-games-label">Games worked on</span>
-
-                            @if (company.GameIds.Length == 0)
-                            {
-                                <span class="company-games-empty">No linked games yet</span>
-                            }
-                            else
-                            {
-                                <div class="game-chip-list">
-                                    @foreach (int gameId in company.GameIds)
-                                    {
-                                        <span class="game-chip">@GetGameName(gameId)</span>
-                                    }
-                                </div>
-                            }
-                        </div>
+<CollectionPageShell Title="Companies"
+                     Description="Studios and publishers connected to your library."
+                     AddButtonText="Add Company"
+                     OnAdd="OpenAddPopup"
+                     IsEmpty="@(Items.Count == 0)"
+                     EmptyTitle="No companies added yet"
+                     EmptyDescription="Add a company to start linking studios and publishers to games.">
+    <div class="collection-grid">
+        @foreach (Company company in Items)
+        {
+            <article class="collection-card company-card">
+                @if (!string.IsNullOrWhiteSpace(company.CoverUrl))
+                {
+                    <img class="company-cover"
+                         src="@company.CoverUrl"
+                         alt="@company.Name cover" />
+                }
+                else
+                {
+                    <div class="company-cover company-cover-placeholder">
+                        <span class="bi bi-building" aria-hidden="true"></span>
                     </div>
-                </article>
-            }
-        </div>
-    }
-</div>
+                }
 
-@if (isAddPopupOpen)
+                <div class="company-content">
+                    <div class="company-title-row">
+                        <h4>@company.Name</h4>
+                        <button class="collection-remove-button"
+                                type="button"
+                                title="Remove @company.Name"
+                                @onclick="() => HandleRemove(company)">
+                            Remove
+                        </button>
+                    </div>
+
+                    <div class="company-badges">
+                        @if (company.IsDeveloper)
+                        {
+                            <span class="company-badge developer-badge">Developer</span>
+                        }
+
+                        @if (company.IsPublisher)
+                        {
+                            <span class="company-badge publisher-badge">Publisher</span>
+                        }
+
+                        @if (!company.IsDeveloper && !company.IsPublisher)
+                        {
+                            <span class="company-badge neutral-badge">Unclassified</span>
+                        }
+                    </div>
+
+                    <div class="company-games">
+                        <span class="company-games-label">Games worked on</span>
+
+                        @if (company.GameIds.Length == 0)
+                        {
+                            <span class="company-games-empty">No linked games yet</span>
+                        }
+                        else
+                        {
+                            <div class="game-chip-list">
+                                @foreach (int gameId in company.GameIds)
+                                {
+                                    <span class="game-chip">@GetGameName(gameId)</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </article>
+        }
+    </div>
+</CollectionPageShell>
+
+@if (IsAddPopupOpen)
 {
     <div class="popup-backdrop">
         <div class="company-popup">

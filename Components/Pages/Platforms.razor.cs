@@ -1,31 +1,25 @@
-using GameLogBook.Data;
 using GameLogBook.Models.Platforms;
-using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameLogBook.Components.Pages;
 
-public partial class Platforms : ComponentBase
+public partial class Platforms : CollectionPageBase<Platform>
 {
-    [Inject]
-    private GameLogBookDbContext DbContext { get; set; } = null!;
-    
-    private List<Platform> platforms = new();
+    protected override DbSet<Platform> EntitySet => DbContext.Platforms;
 
-    private bool isAddPopupOpen;
-    
-    protected override async Task OnInitializedAsync()
+    protected override string GetSortKey(Platform item)
     {
-        platforms = await DbContext.Platforms.ToListAsync();
+        return item.Name;
     }
 
-    private void OpenAddPopup()
+    private async Task AddPlatform(Platform platform)
     {
-        isAddPopupOpen = true;
+        await AddItemAsync(platform);
+        CloseAddPopup();
     }
 
-    private void CloseAddPopup()
+    private async Task RemovePlatform(Platform platform)
     {
-        isAddPopupOpen = false;
+        await RemoveItemAsync(platform);
     }
 }

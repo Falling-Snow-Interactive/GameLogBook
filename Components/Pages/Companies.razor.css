@@ -1,17 +1,3 @@
-.companies-page {
-    min-height: calc(100vh - 4rem);
-    padding-bottom: 2rem;
-}
-
-.companies-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.companies-header h3,
 .company-popup h3 {
     margin: 0 0 0.25rem;
     color: #212529;
@@ -21,7 +7,6 @@
     letter-spacing: -0.025em;
 }
 
-.companies-header p,
 .company-popup p {
     margin: 0;
     color: #6c757d;
@@ -29,7 +14,6 @@
     font-weight: 500;
 }
 
-.add-company-button,
 .search-button,
 .save-button {
     min-height: 3rem;
@@ -48,7 +32,6 @@
         opacity 0.15s ease;
 }
 
-.add-company-button:hover,
 .search-button:hover:not(:disabled),
 .save-button:hover:not(:disabled) {
     background: #5b4696;
@@ -63,55 +46,8 @@
     box-shadow: none;
 }
 
-.empty-state {
-    padding: 2rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 1.25rem;
-    background: #ffffff;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-}
-
-.empty-state h4 {
-    margin: 0 0 0.5rem;
-    color: #212529;
-    font-size: 1.25rem;
-    font-weight: 700;
-}
-
-.empty-state p {
-    margin: 0;
-    color: #6c757d;
-    font-size: 0.95rem;
-    font-weight: 500;
-}
-
-.company-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
-    gap: 1rem;
-}
-
 .company-card {
     min-height: 13rem;
-    display: flex;
-    gap: 1rem;
-    padding: 1rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 1.25rem;
-    background: #ffffff;
-    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    transition:
-        transform 0.15s ease,
-        border-color 0.15s ease,
-        box-shadow 0.15s ease,
-        background 0.15s ease;
-}
-
-.company-card:hover {
-    border-color: rgba(103, 80, 164, 0.35);
-    background: #fbf9ff;
-    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.1);
-    transform: translateY(-1px);
 }
 
 .company-cover {
@@ -151,21 +87,6 @@
     color: #212529;
     font-size: 1.25rem;
     font-weight: 700;
-}
-
-.remove-company-button {
-    border: none;
-    border-radius: 999px;
-    padding: 0.45rem 0.75rem;
-    background: #fce8e6;
-    color: #b3261e;
-    font-size: 0.8rem;
-    font-weight: 700;
-}
-
-.remove-company-button:hover {
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
-    transform: translateY(-1px);
 }
 
 .company-badges,
@@ -474,13 +395,8 @@
 }
 
 @media (max-width: 700px) {
-    .companies-header,
     .company-card {
         flex-direction: column;
-    }
-
-    .companies-header h3 {
-        font-size: 1.65rem;
     }
 
     .company-cover {

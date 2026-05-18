@@ -1,1 +1,41 @@
-<h3>AddPlatformPopup</h3>
+<div class="popup-backdrop">
+    <div class="platform-popup">
+        <div class="popup-header">
+            <div>
+                <h3>Add Platform</h3>
+                <p>Keep track of where each game lives.</p>
+            </div>
+
+            <button class="close-button"
+                    type="button"
+                    title="Close"
+                    @onclick="HandleClose">
+                X
+            </button>
+        </div>
+
+        <div class="platform-form">
+            <label class="form-field">
+                <span>Name</span>
+                <input class="platform-input"
+                       @bind="platformName"
+                       @bind:event="oninput"
+                       placeholder="Platform name" />
+            </label>
+
+            @if (!string.IsNullOrWhiteSpace(errorMessage))
+            {
+                <p class="error-message">@errorMessage</p>
+            }
+
+            <div class="form-actions">
+                <button class="save-button"
+                        type="button"
+                        disabled="@string.IsNullOrWhiteSpace(platformName)"
+                        @onclick="HandleSavePlatform">
+                    Add Platform
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
