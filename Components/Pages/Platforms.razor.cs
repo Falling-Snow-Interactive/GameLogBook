@@ -1,3 +1,4 @@
+using GameLogBook.Models.Companies;
 using GameLogBook.Models.Games;
 using GameLogBook.Models.Platforms;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ namespace GameLogBook.Components.Pages;
 public partial class Platforms : CollectionPageBase<Platform>
 {
     private List<Game> games = [];
+    private List<Company> companies = [];
 
     protected override DbSet<Platform> EntitySet => DbContext.Platforms;
 
@@ -22,6 +24,10 @@ public partial class Platforms : CollectionPageBase<Platform>
         games = await DbContext.Games
                                .OrderBy(game => game.Name)
                                .ToListAsync();
+
+        companies = await DbContext.Companies
+                                   .OrderBy(company => company.Name)
+                                   .ToListAsync();
     }
 
     private async Task AddPlatform(Platform platform)

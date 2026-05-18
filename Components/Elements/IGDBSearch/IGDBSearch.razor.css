@@ -1,0 +1,86 @@
+.igdb-search {
+    display: grid;
+    gap: 0.65rem;
+}
+
+.igdb-search-label {
+    color: #495057;
+    font-size: 0.8125rem;
+    font-weight: 700;
+}
+
+.igdb-search-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.igdb-search-input {
+    width: 100%;
+    min-width: 0;
+    min-height: 3rem;
+    border: 1px solid #d7dbe0;
+    border-radius: 0.875rem;
+    padding: 0.75rem 1rem;
+    background: #ffffff;
+    color: #212529;
+    font: inherit;
+}
+
+.igdb-search-input::placeholder {
+    color: #9aa1aa;
+}
+
+.igdb-search-input:focus {
+    border-color: #6750a4;
+    box-shadow: 0 0 0 0.22rem rgba(103, 80, 164, 0.15);
+    outline: none;
+}
+
+.igdb-search-button {
+    min-height: 3rem;
+    border: none;
+    border-radius: 999px;
+    padding: 0.75rem 1.25rem;
+    background: #6750a4;
+    color: #ffffff;
+    box-shadow: 0 6px 16px rgba(103, 80, 164, 0.22);
+    font-size: 0.95rem;
+    font-weight: 700;
+    white-space: nowrap;
+    transition:
+        transform 0.15s ease,
+        background 0.15s ease,
+        box-shadow 0.15s ease,
+        opacity 0.15s ease;
+}
+
+.igdb-search-button:hover:not(:disabled) {
+    background: #5b4696;
+    box-shadow: 0 10px 24px rgba(103, 80, 164, 0.3);
+    transform: translateY(-1px);
+}
+
+.igdb-search-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    box-shadow: none;
+}
+
+.igdb-search-error {
+    margin: 0;
+    border: 1px solid #f3b8b3;
+    border-radius: 0.875rem;
+    padding: 0.75rem 1rem;
+    background: #fef3f2;
+    color: #b42318;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+@media (max-width: 700px) {
+    .igdb-search-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

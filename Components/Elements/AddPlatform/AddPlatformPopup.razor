@@ -1,3 +1,4 @@
+@using GameLogBook.Models.Companies
 @using GameLogBook.Models.Games
 @using GameLogBook.Models.Platforms
 
@@ -18,48 +19,34 @@
         </div>
 
         <div class="platform-form">
-            <div class="platform-search form-field-full">
-                <span>Search IGDB</span>
+            <div class="form-field-full">
+                <IGDBSearch Value="@searchInput"
+                            Placeholder="Search for a platform"
+                            IsSearching="@isSearching"
+                            ErrorMessage="@searchErrorMessage"
+                            OnInput="HandleSearchInput"
+                            OnKeyDown="HandleSearchKeyDown"
+                            OnSearch="HandleSearch">
+                    @if (searchResults.Count > 0)
+                    {
+                        <div class="platform-search-results">
+                            @foreach (PlatformSearchResult result in searchResults)
+                            {
+                                <button class="platform-search-result"
+                                        type="button"
+                                        @onclick="() => HandlePlatformSelected(result)">
+                                    <span class="platform-result-icon bi bi-tv"
+                                          aria-hidden="true"></span>
 
-                <div class="platform-search-row">
-                    <input class="platform-input"
-                           value="@searchInput"
-                           placeholder="Search for a platform"
-                           @oninput="HandleSearchInput"
-                           @onkeydown="HandleSearchKeyDown" />
-
-                    <button class="search-button"
-                            type="button"
-                            disabled="@isSearching"
-                            @onclick="HandleSearch">
-                        @(isSearching ? "Searching..." : "Search")
-                    </button>
-                </div>
-
-                @if (searchResults.Count > 0)
-                {
-                    <div class="platform-search-results">
-                        @foreach (Platform platform in searchResults)
-                        {
-                            <button class="platform-search-result"
-                                    type="button"
-                                    @onclick="() => HandlePlatformSelected(platform)">
-                                <span class="platform-result-icon bi bi-tv"
-                                      aria-hidden="true"></span>
-
-                                <span class="platform-result-copy">
-                                    <strong>@platform.Name</strong>
-                                    <small>@GetPlatformSummary(platform)</small>
-                                </span>
-                            </button>
-                        }
-                    </div>
-                }
-
-                @if (!string.IsNullOrWhiteSpace(searchErrorMessage))
-                {
-                    <p class="error-message">@searchErrorMessage</p>
-                }
+                                    <span class="platform-result-copy">
+                                        <strong>@result.Platform.Name</strong>
+                                        <small>@GetPlatformSummary(result)</small>
+                                    </span>
+                                </button>
+                            }
+                        </div>
+                    }
+                </IGDBSearch>
             </div>
 
             <hr class="popup-divider form-field-full" />
@@ -80,13 +67,46 @@
                        @bind:event="oninput" />
             </label>
 
-            <label class="form-field">
-                <span>Manufacturer</span>
-                <input class="platform-input"
-                       @bind="manufacturer"
-                       @bind:event="oninput"
-                       placeholder="Manufacturer" />
-            </label>
+            <div class="manufacturer-picker">
+                <span>Manufacturers</span>
+
+                @if (Companies.Count == 0)
+                {
+                    <p>No companies are available to link yet.</p>
+                }
+                else
+                {
+                    <select class="platform-select"
+                            @key="selectedManufacturerIds.Count"
+                            value="@selectedManufacturerCompanyId"
+                            @onchange="HandleManufacturerSelected">
+                        <option value="">Select a company</option>
+
+                        @foreach (Company company in AvailableManufacturerCompanies)
+                        {
+                            <option value="@company.Id">@company.Name</option>
+                        }
+                    </select>
+
+                    @if (SelectedManufacturerCompanies.Count > 0)
+                    {
+                        <div class="manufacturer-chip-list">
+                            @foreach (Company company in SelectedManufacturerCompanies)
+                            {
+                                <span class="manufacturer-chip">
+                                    @company.Name
+                                    <button type="button"
+                                            title="Remove @company.Name"
+                                            aria-label="Remove @company.Name"
+                                            @onclick="() => RemoveManufacturer(company.Id)">
+                                        X
+                                    </button>
+                                </span>
+                            }
+                        </div>
+                    }
+                }
+            </div>
 
             <div class="game-picker form-field-full">
                 <span>Games</span>

@@ -171,13 +171,15 @@
     grid-column: 1 / -1;
 }
 
-.form-field span {
+.form-field span,
+.manufacturer-picker > span {
     color: #495057;
     font-size: 0.8125rem;
     font-weight: 700;
 }
 
-.platform-input {
+.platform-input,
+.platform-select {
     width: 100%;
     min-height: 3rem;
     border: 1px solid #d7dbe0;
@@ -187,10 +189,58 @@
     font: inherit;
 }
 
-.platform-input:focus {
+.platform-input:focus,
+.platform-select:focus {
     border-color: #6750a4;
     box-shadow: 0 0 0 0.22rem rgba(103, 80, 164, 0.15);
     outline: none;
+}
+
+.manufacturer-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.manufacturer-picker p {
+    margin: 0;
+    color: #6c757d;
+}
+
+.manufacturer-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.manufacturer-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border-radius: 999px;
+    padding: 0.35rem 0.45rem 0.35rem 0.65rem;
+    background: #f4effa;
+    color: #4f378b;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.manufacturer-chip button {
+    width: 1.35rem;
+    height: 1.35rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: #e3d7f4;
+    color: #4f378b;
+    font-size: 0.7rem;
+    font-weight: 800;
+}
+
+.manufacturer-chip button:hover {
+    background: #d9c9ef;
 }
 
 .search-button,

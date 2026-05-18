@@ -100,56 +100,42 @@
             </div>
 
             <div class="company-form">
-                <div class="company-search form-field-full">
-                    <span>Search IGDB</span>
+                <div class="form-field-full">
+                    <IGDBSearch Value="@searchInput"
+                                Placeholder="Search for a company"
+                                IsSearching="@isSearching"
+                                ErrorMessage="@searchErrorMessage"
+                                OnInput="HandleSearchInput"
+                                OnKeyDown="HandleSearchKeyDown"
+                                OnSearch="HandleSearch">
+                        @if (searchResults.Count > 0)
+                        {
+                            <div class="company-search-results">
+                                @foreach (Company company in searchResults)
+                                {
+                                    <button class="company-search-result"
+                                            type="button"
+                                            @onclick="() => HandleCompanySelected(company)">
+                                        @if (!string.IsNullOrWhiteSpace(company.CoverUrl))
+                                        {
+                                            <img src="@company.CoverUrl"
+                                                 alt="@company.Name logo" />
+                                        }
+                                        else
+                                        {
+                                            <span class="company-result-placeholder bi bi-building"
+                                                  aria-hidden="true"></span>
+                                        }
 
-                    <div class="company-search-row">
-                        <input class="company-input"
-                               value="@searchInput"
-                               placeholder="Search for a company"
-                               @oninput="HandleSearchInput"
-                               @onkeydown="HandleSearchKeyDown" />
-
-                        <button class="search-button"
-                                type="button"
-                                disabled="@isSearching"
-                                @onclick="HandleSearch">
-                            @(isSearching ? "Searching..." : "Search")
-                        </button>
-                    </div>
-
-                    @if (searchResults.Count > 0)
-                    {
-                        <div class="company-search-results">
-                            @foreach (Company company in searchResults)
-                            {
-                                <button class="company-search-result"
-                                        type="button"
-                                        @onclick="() => HandleCompanySelected(company)">
-                                    @if (!string.IsNullOrWhiteSpace(company.CoverUrl))
-                                    {
-                                        <img src="@company.CoverUrl"
-                                             alt="@company.Name logo" />
-                                    }
-                                    else
-                                    {
-                                        <span class="company-result-placeholder bi bi-building"
-                                              aria-hidden="true"></span>
-                                    }
-
-                                    <span class="company-result-copy">
-                                        <strong>@company.Name</strong>
-                                        <small>@GetCompanyRoleSummary(company)</small>
-                                    </span>
-                                </button>
-                            }
-                        </div>
-                    }
-
-                    @if (!string.IsNullOrWhiteSpace(searchErrorMessage))
-                    {
-                        <p class="error-message">@searchErrorMessage</p>
-                    }
+                                        <span class="company-result-copy">
+                                            <strong>@company.Name</strong>
+                                            <small>@GetCompanyRoleSummary(company)</small>
+                                        </span>
+                                    </button>
+                                }
+                            </div>
+                        }
+                    </IGDBSearch>
                 </div>
 
                 <hr class="popup-divider form-field-full" />

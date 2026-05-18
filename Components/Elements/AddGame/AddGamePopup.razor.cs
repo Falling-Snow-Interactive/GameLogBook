@@ -136,6 +136,11 @@ public partial class AddGamePopup
         }
     }
 
+    private void HandleSearchInput(ChangeEventArgs args)
+    {
+        searchInput = args.Value?.ToString() ?? string.Empty;
+    }
+
     private static Game ToLocalGame(IgdbGame igdbGame)
     {
         string dev = "";

@@ -10,7 +10,7 @@ public class Platform
 
     public DateOnly? ReleaseDate { get; set; }
 
-    public string? Manufacturer { get; set; }
+    public int[] ManufacturerIds { get; set; } = [];
 
     public int[] GameIds { get; set; } = [];
 }

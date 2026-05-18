@@ -14,22 +14,12 @@
         </div>
         
         <div class="popup-content">
-            <div class="search-container">
-                <div class="search-row">
-                    <input class="game-name-input"
-                           placeholder="Search for a game"
-                           @bind="searchInput"
-                           @bind:event="oninput"
-                           @onkeydown="HandleKeyDown" />
-
-                    <button class="search-button"
-                            type="button"
-                            @onclick="HandleSearch"
-                            disabled="@isSearching">
-                        @(isSearching ? "Searching..." : "Search")
-                    </button>
-                </div>
-
+            <IGDBSearch Value="@searchInput"
+                        Placeholder="Search for a game"
+                        IsSearching="@isSearching"
+                        OnInput="HandleSearchInput"
+                        OnKeyDown="HandleKeyDown"
+                        OnSearch="HandleSearch">
                 @if (searchResults.Count > 0)
                 {
                     <div class="search-results-dropdown">
@@ -41,7 +31,7 @@
                         }
                     </div>
                 }
-            </div>
+            </IGDBSearch>
 
             <hr class="popup-divider"/>
 
