@@ -1,0 +1,181 @@
+@page "/companies"
+@rendermode InteractiveServer
+@using GameLogBook.Models.Companies
+@using GameLogBook.Models.Games
+
+<PageTitle>Companies</PageTitle>
+
+<div class="companies-page">
+    <div class="companies-header">
+        <div>
+            <h3>Companies</h3>
+            <p>Studios and publishers connected to your library.</p>
+        </div>
+
+        <button class="add-company-button"
+                type="button"
+                @onclick="OpenAddPopup">
+            Add Company
+        </button>
+    </div>
+
+    @if (companies.Count == 0)
+    {
+        <div class="empty-state">
+            <h4>No companies added yet</h4>
+            <p>Add a company to start linking studios and publishers to games.</p>
+        </div>
+    }
+    else
+    {
+        <div class="company-grid">
+            @foreach (Company company in companies)
+            {
+                <article class="company-card">
+                    @if (!string.IsNullOrWhiteSpace(company.CoverUrl))
+                    {
+                        <img class="company-cover"
+                             src="@company.CoverUrl"
+                             alt="@company.Name cover" />
+                    }
+                    else
+                    {
+                        <div class="company-cover company-cover-placeholder">
+                            <span class="bi bi-building" aria-hidden="true"></span>
+                        </div>
+                    }
+
+                    <div class="company-content">
+                        <div class="company-title-row">
+                            <h4>@company.Name</h4>
+                            <button class="remove-company-button"
+                                    type="button"
+                                    title="Remove @company.Name"
+                                    @onclick="() => HandleRemove(company)">
+                                Remove
+                            </button>
+                        </div>
+
+                        <div class="company-badges">
+                            @if (company.IsDeveloper)
+                            {
+                                <span class="company-badge developer-badge">Developer</span>
+                            }
+
+                            @if (company.IsPublisher)
+                            {
+                                <span class="company-badge publisher-badge">Publisher</span>
+                            }
+
+                            @if (!company.IsDeveloper && !company.IsPublisher)
+                            {
+                                <span class="company-badge neutral-badge">Unclassified</span>
+                            }
+                        </div>
+
+                        <div class="company-games">
+                            <span class="company-games-label">Games worked on</span>
+
+                            @if (company.GameIds.Length == 0)
+                            {
+                                <span class="company-games-empty">No linked games yet</span>
+                            }
+                            else
+                            {
+                                <div class="game-chip-list">
+                                    @foreach (int gameId in company.GameIds)
+                                    {
+                                        <span class="game-chip">@GetGameName(gameId)</span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</div>
+
+@if (isAddPopupOpen)
+{
+    <div class="popup-backdrop">
+        <div class="company-popup">
+            <div class="popup-header">
+                <div>
+                    <h3>Add Company</h3>
+                    <p>Capture who made or published the games in your library.</p>
+                </div>
+
+                <button class="close-button"
+                        type="button"
+                        title="Close"
+                        @onclick="CloseAddPopup">
+                    X
+                </button>
+            </div>
+
+            <div class="company-form">
+                <label class="form-field form-field-full">
+                    <span>Name</span>
+                    <input class="company-input"
+                           @bind="newCompanyName"
+                           @bind:event="oninput"
+                           placeholder="Company name" />
+                </label>
+
+                <label class="form-field form-field-full">
+                    <span>Cover URL</span>
+                    <input class="company-input"
+                           @bind="newCompanyCoverUrl"
+                           @bind:event="oninput"
+                           placeholder="Cover image URL" />
+                </label>
+
+                <div class="role-toggle-group form-field-full">
+                    <label class="role-toggle">
+                        <input type="checkbox" @bind="newCompanyIsDeveloper" />
+                        <span>Developer</span>
+                    </label>
+
+                    <label class="role-toggle">
+                        <input type="checkbox" @bind="newCompanyIsPublisher" />
+                        <span>Publisher</span>
+                    </label>
+                </div>
+
+                <div class="game-picker form-field-full">
+                    <span>Games worked on</span>
+
+                    @if (games.Count == 0)
+                    {
+                        <p>No games are available to link yet.</p>
+                    }
+                    else
+                    {
+                        <div class="game-picker-list">
+                            @foreach (Game game in games)
+                            {
+                                <label class="game-picker-item">
+                                    <input type="checkbox"
+                                           checked="@selectedGameIds.Contains(game.Id)"
+                                           @onchange="args => ToggleGameSelection(game.Id, args)" />
+                                    <span>@game.Name</span>
+                                </label>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <div class="form-actions form-field-full">
+                    <button class="save-button"
+                            type="button"
+                            disabled="@string.IsNullOrWhiteSpace(newCompanyName)"
+                            @onclick="AddCompany">
+                        Add Company
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

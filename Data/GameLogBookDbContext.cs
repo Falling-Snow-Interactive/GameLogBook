@@ -1,4 +1,5 @@
 using GameLogBook.Models;
+using GameLogBook.Models.Companies;
 using GameLogBook.Models.Games;
 using GameLogBook.Models.Platforms;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
     : DbContext(options)
 {
     public DbSet<Game> Games => Set<Game>();
+    public DbSet<Company> Companies => Set<Company>();
     public DbSet<Platform> Platforms => Set<Platform>();
     public DbSet<Playthrough> Playthroughs => Set<Playthrough>();
 
