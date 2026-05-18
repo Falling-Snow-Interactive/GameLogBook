@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GameLogBook.Migrations
 {
     [DbContext(typeof(GameLogBookDbContext))]
-    [Migration("20260518120000_AddCompanies")]
-    partial class AddCompanies
+    [Migration("20260518110841_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -29,7 +29,7 @@ namespace GameLogBook.Migrations
                     b.Property<string>("CoverUrl")
                         .HasColumnType("TEXT");
 
-                    b.PrimitiveCollection<int>("GameIds")
+                    b.PrimitiveCollection<string>("GameIds")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

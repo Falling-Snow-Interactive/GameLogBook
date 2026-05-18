@@ -26,7 +26,7 @@ namespace GameLogBook.Migrations
                     b.Property<string>("CoverUrl")
                         .HasColumnType("TEXT");
 
-                    b.PrimitiveCollection<int>("GameIds")
+                    b.PrimitiveCollection<string>("GameIds")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
