@@ -65,18 +65,19 @@ namespace GameLogBook.Migrations
 
             modelBuilder.Entity("GameLogBook.Models.Playthrough", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("game")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("name")
+                    b.PrimitiveCollection<string>("GameIds")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("id");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
 
                     b.ToTable("Playthroughs");
                 });

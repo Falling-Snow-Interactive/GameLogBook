@@ -1,0 +1,41 @@
+@page "/Platforms"
+@rendermode InteractiveServer
+@using GameLogBook.Models
+@using GameLogBook.Components.Elements.AddPlatform
+
+<PageTitle>Playthroughs</PageTitle>
+
+<div class="playthroughs-page">
+    <div class="playthroughs-header">
+        <h3>Playthroughs</h3>
+        <p>Your saved playthroughs.</p>
+    </div>
+
+    @if (platforms.Count == 0)
+    {
+        <div class="empty-state">
+            <h4>No playthroughs added yet</h4>
+            <p>Use the add button to add your first playthrough.</p>
+        </div>
+    }
+    else
+    {
+        <ul class="playthrough-list">
+            @foreach (Platform platform in platforms)
+            {
+                <li class="playthrough-list-item">
+                    @platform.name
+                </li>
+            }
+        </ul>
+    }
+
+    <AddPlatformButton OnClick="OpenAddPopup" />
+</div>
+
+@if (isAddPopupOpen)
+{
+    <AddPlatformPopup OnClose="CloseAddPopup"
+                         OnPlaythroughSelected="AddPlaythrough"
+                         LibraryGames="Games"/>
+}

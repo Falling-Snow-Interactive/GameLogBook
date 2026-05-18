@@ -1,5 +1,6 @@
 using GameLogBook.Data;
 using GameLogBook.Models;
+using GameLogBook.Models.Library;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +10,9 @@ public partial class Playthroughs : ComponentBase
 {
     [Inject]
     private GameLogBookDbContext DbContext { get; set; } = null!;
-    
+
+    public IReadOnlyList<Game> Games { get; set; }
+
     private List<Playthrough> playthroughs = [];
 
     private bool isAddPopupOpen;
@@ -17,6 +20,7 @@ public partial class Playthroughs : ComponentBase
     protected override async Task OnInitializedAsync()
     {
         playthroughs = await DbContext.Playthroughs.ToListAsync();
+        Games = DbContext.Games.ToList();
     }
 
     private void OpenAddPopup()

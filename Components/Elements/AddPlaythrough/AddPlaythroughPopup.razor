@@ -1,7 +1,8 @@
+@using GameLogBook.Models.Library
 <div class="popup-backdrop">
     <div class="popup">
         <div class="popup-header">
-            <h3>Add Game</h3>
+            <h3>Add Playthrough</h3>
             <button class="close-button"
                     type="button"
                     title="Close"
@@ -18,14 +19,62 @@
                            @bind="playthroughName"
                            @bind:event="oninput"
                            placeholder="Enter name..."/>
+
                 </label>
+
+                <div class="form-field form-field-full game-picker-section">
+                    <span>Games</span>
+
+                    <div class="game-picker-card">
+                        <div class="game-picker-row">
+                            <select class="playthrough-detail-input"
+                                    value="@selectedGameIdToAdd"
+                                    @onchange="HandleSelectedGameChanged">
+                                <option value="">Select a game...</option>
+                                @foreach (Game game in AvailableGamesToAdd)
+                                {
+                                    <option value="@game.Id">@game.Name</option>
+                                }
+                            </select>
+
+                            <button class="add-game-button"
+                                    type="button"
+                                    @onclick="HandleAddSelectedGame"
+                                    disabled="@(selectedGameIdToAdd is null)">
+                                Add Game
+                            </button>
+                        </div>
+
+                        @if (selectedGameIds.Count == 0)
+                        {
+                            <p class="empty-games-message">No games added yet.</p>
+                        }
+                        else
+                        {
+                            <div class="selected-games-list">
+                                @foreach (Game game in SelectedGames)
+                                {
+                                    <div class="selected-game-row" @key="game.Id">
+                                        <span>@game.Name</span>
+                                        <button class="remove-game-button"
+                                                type="button"
+                                                title="Remove @game.Name"
+                                                @onclick="() => HandleRemoveGame(game.Id)">
+                                            Remove
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
 
                 <div class="form-actions form-field-full">
                     <button class="save-button"
                             type="button"
                             @onclick="HandleSavePlaythrough"
                             disabled="@string.IsNullOrWhiteSpace(playthroughName)">
-                        Add to Library
+                        Add Playthrough
                     </button>
                 </div>
             </div>

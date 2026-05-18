@@ -87,3 +87,7 @@
         overflow-y: auto;
     }
 }
+
+.nav-spacer {
+    height: 1rem;
+}

@@ -18,8 +18,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="Components\Pages\Library.razor.cs">
-        <DependentUpon>Library.razor</DependentUpon>
+      <Compile Update="Components\Pages\Games.razor.cs">
+        <DependentUpon>Games.razor</DependentUpon>
       </Compile>
     </ItemGroup>
 

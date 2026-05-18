@@ -1,0 +1,41 @@
+@page "/Games"
+@rendermode InteractiveServer
+@using GameLogBook.Components.Elements.AddGame
+@using GameLogBook.Components.Elements.GameEntry
+@using GameLogBook.Models.Library
+
+<PageTitle>Library</PageTitle>
+
+<div class="library-page">
+    <div class="library-header">
+        <h3>Game</h3>
+    </div>
+
+    @if (games.Count == 0)
+    {
+        <div class="empty-state">
+            <h4>No games added yet</h4>
+            <p>Use the add button to add your first game.</p>
+        </div>
+    }
+    else
+    {
+        <ul class="game-list">
+            @foreach (Game game in games)
+            {
+                <GameEntry 
+                    Game="game" 
+                    ShowButtons="true" 
+                    OnRemove="() => HandleRemove(game)"/>
+            }
+        </ul>
+    }
+
+    <AddGameButton OnClick="OpenAddPopup" />
+</div>
+
+@if (isAddPopupOpen)
+{
+    <AddGamePopup OnClose="CloseAddPopup"
+                  OnGameSelected="AddGame" />
+}

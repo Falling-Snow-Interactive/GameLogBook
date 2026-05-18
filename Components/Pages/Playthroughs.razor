@@ -1,6 +1,41 @@
 @page "/Playthroughs"
+@rendermode InteractiveServer
 @using GameLogBook.Components.Elements.AddPlaythrough
+@using GameLogBook.Models
 
-<h3>Playthroughs</h3>
+<PageTitle>Playthroughs</PageTitle>
 
-<AddPlaythroughButton OnClick="OpenAddPopup" />
+<div class="playthroughs-page">
+    <div class="playthroughs-header">
+        <h3>Playthroughs</h3>
+        <p>Your saved playthroughs.</p>
+    </div>
+
+    @if (playthroughs.Count == 0)
+    {
+        <div class="empty-state">
+            <h4>No playthroughs added yet</h4>
+            <p>Use the add button to add your first playthrough.</p>
+        </div>
+    }
+    else
+    {
+        <ul class="playthrough-list">
+            @foreach (Playthrough playthrough in playthroughs)
+            {
+                <li class="playthrough-list-item">
+                    @playthrough.Name
+                </li>
+            }
+        </ul>
+    }
+
+    <AddPlaythroughButton OnClick="OpenAddPopup" />
+</div>
+
+@if (isAddPopupOpen)
+{
+    <AddPlaythroughPopup OnClose="CloseAddPopup"
+                         OnPlaythroughSelected="AddPlaythrough"
+                         LibraryGames="Games"/>
+}
