@@ -1,3 +1,6 @@
+@using GameLogBook.Models.Games
+@using GameLogBook.Models.Platforms
+
 <div class="popup-backdrop">
     <div class="platform-popup">
         <div class="popup-header">
@@ -15,7 +18,53 @@
         </div>
 
         <div class="platform-form">
-            <label class="form-field">
+            <div class="platform-search form-field-full">
+                <span>Search IGDB</span>
+
+                <div class="platform-search-row">
+                    <input class="platform-input"
+                           value="@searchInput"
+                           placeholder="Search for a platform"
+                           @oninput="HandleSearchInput"
+                           @onkeydown="HandleSearchKeyDown" />
+
+                    <button class="search-button"
+                            type="button"
+                            disabled="@isSearching"
+                            @onclick="HandleSearch">
+                        @(isSearching ? "Searching..." : "Search")
+                    </button>
+                </div>
+
+                @if (searchResults.Count > 0)
+                {
+                    <div class="platform-search-results">
+                        @foreach (Platform platform in searchResults)
+                        {
+                            <button class="platform-search-result"
+                                    type="button"
+                                    @onclick="() => HandlePlatformSelected(platform)">
+                                <span class="platform-result-icon bi bi-tv"
+                                      aria-hidden="true"></span>
+
+                                <span class="platform-result-copy">
+                                    <strong>@platform.Name</strong>
+                                    <small>@GetPlatformSummary(platform)</small>
+                                </span>
+                            </button>
+                        }
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(searchErrorMessage))
+                {
+                    <p class="error-message">@searchErrorMessage</p>
+                }
+            </div>
+
+            <hr class="popup-divider form-field-full" />
+
+            <label class="form-field form-field-full">
                 <span>Name</span>
                 <input class="platform-input"
                        @bind="platformName"
@@ -23,12 +72,46 @@
                        placeholder="Platform name" />
             </label>
 
-            @if (!string.IsNullOrWhiteSpace(errorMessage))
-            {
-                <p class="error-message">@errorMessage</p>
-            }
+            <label class="form-field">
+                <span>Release Date</span>
+                <input class="platform-input"
+                       type="date"
+                       @bind="releaseDate"
+                       @bind:event="oninput" />
+            </label>
 
-            <div class="form-actions">
+            <label class="form-field">
+                <span>Manufacturer</span>
+                <input class="platform-input"
+                       @bind="manufacturer"
+                       @bind:event="oninput"
+                       placeholder="Manufacturer" />
+            </label>
+
+            <div class="game-picker form-field-full">
+                <span>Games</span>
+
+                @if (Games.Count == 0)
+                {
+                    <p>No games are available to link yet.</p>
+                }
+                else
+                {
+                    <div class="game-picker-list">
+                        @foreach (Game game in Games)
+                        {
+                            <label class="game-picker-item">
+                                <input type="checkbox"
+                                       checked="@selectedGameIds.Contains(game.Id)"
+                                       @onchange="args => ToggleGameSelection(game.Id, args)" />
+                                <span>@game.Name</span>
+                            </label>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="form-actions form-field-full">
                 <button class="save-button"
                         type="button"
                         disabled="@string.IsNullOrWhiteSpace(platformName)"
