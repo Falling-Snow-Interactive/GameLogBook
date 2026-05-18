@@ -251,8 +251,8 @@ public partial class Companies
 
         return new Company
                {
-                   Name = igdbCompany.Name,
-                   CoverUrl = ToLocalCoverUrl(igdbCompany.Logo.Value),
+                   Name = igdbCompany.Name ?? string.Empty,
+                   CoverUrl = ToLocalCoverUrl(igdbCompany.Logo?.Value),
                    IsDeveloper = developedGameIds.Count > 0,
                    IsPublisher = publishedGameIds.Count > 0,
                    GameIds = games
@@ -265,11 +265,10 @@ public partial class Companies
 
     private static HashSet<long> GetIgdbGameIds(IdentitiesOrValues<IgdbGame>? igdbGames)
     {
-        return igdbGames?
-               .Values
-               .Where(game => game.Id.HasValue)
-               .Select(game => game.Id!.Value)
-               .ToHashSet()
+        return igdbGames?.Values?
+                        .Where(game => game.Id.HasValue)
+                        .Select(game => game.Id!.Value)
+                        .ToHashSet()
                ?? [];
     }
 
