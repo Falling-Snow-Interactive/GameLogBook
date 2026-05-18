@@ -1,5 +1,5 @@
 using GameLogBook.Data;
-using GameLogBook.Models.Library;
+using GameLogBook.Models.Games;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 

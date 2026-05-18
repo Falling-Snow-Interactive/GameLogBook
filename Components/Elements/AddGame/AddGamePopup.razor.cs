@@ -1,14 +1,18 @@
-using GameLogBook.Models.Library;
-using GameLogBook.Services;
+using IGDB;
+using IGDB.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Cover = GameLogBook.Models.Games.Cover;
+using Game = GameLogBook.Models.Games.Game;
+using IgdbGame = IGDB.Models.Game;
+using IgdbCover = IGDB.Models.Cover;
 
 namespace GameLogBook.Components.Elements.AddGame;
 
 public partial class AddGamePopup
 {
     [Inject]
-    protected IgdbService IgdbService { get; set; } = null!;
+    protected IGDBClient IgdbClient { get; set; } = null!;
 
     [Parameter]
     public EventCallback OnClose { get; set; }
@@ -22,7 +26,7 @@ public partial class AddGamePopup
     private string? errorMessage;
 
     private string gameName = string.Empty;
-    private int id;
+    private long igdbId;
     private string? developer = string.Empty;
     private string? publisher = string.Empty;
     private DateOnly? releaseDate;
@@ -49,8 +53,21 @@ public partial class AddGamePopup
 
         try
         {
-            IReadOnlyList<Game> results = await IgdbService.SearchGamesAsync(trimmedSearchInput);
-            searchResults = results.ToList();
+            string escapedSearchInput = trimmedSearchInput
+                                        .Replace("\\", "\\\\")
+                                        .Replace("\"", "\\\"");
+
+            IgdbGame[] igdbResults = await IgdbClient.QueryAsync<IgdbGame>(
+                                                                           IGDBClient.Endpoints.Games,
+                                                                           query: $"""
+                                                                                   search "{escapedSearchInput}";
+                                                                                   fields id, name, summary, first_release_date, cover.url;
+                                                                                   limit 10;
+                                                                                   """);
+
+            searchResults = igdbResults
+                            .Select(ToLocalGame)
+                            .ToList();
         }
         catch (Exception exception)
         {
@@ -64,14 +81,15 @@ public partial class AddGamePopup
 
     private Task HandleGameSelected(Game game)
     {
-        id = game.Id;
+        igdbId = game.IgdbId;
         gameName = game.Name;
         developer = game.Developer;
         publisher = game.Publisher;
         releaseDate = game.ReleaseDate;
         coverUrl = game.Cover?.Url ?? string.Empty;
         summary = game.Summary ?? string.Empty;
-        
+
+        searchInput = game.Name;
         searchResults.Clear();
 
         return Task.CompletedTask;
@@ -81,10 +99,11 @@ public partial class AddGamePopup
     {
         Game game = new()
                     {
-                        Id = id,
+                        IgdbId = igdbId,
                         Name = gameName.Trim(),
-                        Developer = developer?.Trim(),
-                        Publisher = publisher?.Trim(),
+                        Developer = string.IsNullOrWhiteSpace(developer) ? null : developer.Trim(),
+                        Publisher = string.IsNullOrWhiteSpace(publisher) ? null : publisher.Trim(),
+                        ReleaseDate = releaseDate,
                         Summary = string.IsNullOrWhiteSpace(summary) ? null : summary.Trim(),
                         Cover = string.IsNullOrWhiteSpace(coverUrl)
                                     ? null
@@ -96,12 +115,67 @@ public partial class AddGamePopup
 
         await OnGameSelected.InvokeAsync(game);
     }
-    
+
     private async Task HandleKeyDown(KeyboardEventArgs args)
     {
         if (args.Key is "Enter" or "NumpadEnter")
         {
             await HandleSearch();
         }
+    }
+
+    private static Game ToLocalGame(IgdbGame igdbGame)
+    {
+        string dev = "";
+        string pub = "";
+        
+        if (igdbGame.InvolvedCompanies != null)
+        {
+            foreach (InvolvedCompany? c in igdbGame.InvolvedCompanies.Values)
+            {
+                if (c.Developer.HasValue)
+                {
+                    dev = c.Company.Value.Name;
+                }
+
+                if (c.Publisher.HasValue)
+                {
+                    pub = c.Company.Value.Name;
+                }
+            }
+        }
+
+        return new Game
+               {
+                   IgdbId = Convert.ToInt32(igdbGame.Id ?? 0),
+                   Name = igdbGame.Name,
+                   Summary = igdbGame.Summary,
+                   Developer = dev,
+                   Publisher = pub,
+                   ReleaseDate = ToDateOnly(igdbGame.FirstReleaseDate?.ToUnixTimeSeconds()),
+                   Cover = ToLocalCover(igdbGame.Cover.Value)
+               };
+    }
+
+    private static Cover? ToLocalCover(IgdbCover? igdbCover)
+    {
+        if (igdbCover?.Url is null)
+        {
+            return null;
+        }
+
+        return new Cover
+               {
+                   Url = igdbCover.Url.StartsWith("//")
+                             ? $"https:{igdbCover.Url}"
+                             : igdbCover.Url
+               };
+    }
+
+    private static DateOnly? ToDateOnly(long? unixTime)
+    {
+        return unixTime.HasValue
+                   ? DateOnly.FromDateTime(DateTimeOffset.FromUnixTimeSeconds(unixTime.Value).UtcDateTime)
+                   : null;
     }
 }

@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @using GameLogBook.Models
 @using GameLogBook.Components.Elements.AddPlatform
+@using GameLogBook.Models.Platforms
 
 <PageTitle>Playthroughs</PageTitle>
 
@@ -24,7 +25,7 @@
             @foreach (Platform platform in platforms)
             {
                 <li class="playthrough-list-item">
-                    @platform.name
+                    @platform.Name
                 </li>
             }
         </ul>

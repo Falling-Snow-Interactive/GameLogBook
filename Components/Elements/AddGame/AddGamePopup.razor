@@ -1,5 +1,5 @@
-@using GameLogBook.Models.Library
 @using GameLogBook.Components.Elements.GameEntry
+@using GameLogBook.Models.Games
 
 <div class="popup-backdrop">
     <div class="popup">
@@ -83,7 +83,7 @@
                     <span>IGDB ID</span>
                     <input class="game-detail-input"
                            type="number"
-                           @bind="id"
+                           @bind="igdbId"
                            @bind:event="oninput"
                            placeholder="id"/>
                 </label>

@@ -1,5 +1,6 @@
 using GameLogBook.Models;
-using GameLogBook.Models.Library;
+using GameLogBook.Models.Games;
+using GameLogBook.Models.Platforms;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameLogBook.Data;
@@ -19,7 +20,6 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Game>()
-                    .OwnsOne(game => game.Cover);
+        modelBuilder.Entity<Game>().OwnsOne(game => game.Cover);
     }
 }

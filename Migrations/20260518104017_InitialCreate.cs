@@ -17,14 +17,13 @@ namespace GameLogBook.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
+                    IgdbId = table.Column<long>(type: "INTEGER", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Cover_Id = table.Column<int>(type: "INTEGER", nullable: true),
-                    Cover_Url = table.Column<string>(type: "TEXT", nullable: true),
-                    Cover_Width = table.Column<int>(type: "INTEGER", nullable: true),
+                    Summary = table.Column<string>(type: "TEXT", nullable: true),
+                    ReleaseDate = table.Column<DateOnly>(type: "TEXT", nullable: true),
                     Developer = table.Column<string>(type: "TEXT", nullable: true),
                     Publisher = table.Column<string>(type: "TEXT", nullable: true),
-                    ReleaseDate = table.Column<DateOnly>(type: "TEXT", nullable: true),
-                    Summary = table.Column<string>(type: "TEXT", nullable: true)
+                    Cover_Url = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -35,28 +34,27 @@ namespace GameLogBook.Migrations
                 name: "Platforms",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "INTEGER", nullable: false)
+                    ID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    name = table.Column<string>(type: "TEXT", nullable: false),
-                    games = table.Column<string>(type: "TEXT", nullable: false)
+                    Name = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Platforms", x => x.id);
+                    table.PrimaryKey("PK_Platforms", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Playthroughs",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                    ID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     GameIds = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Playthroughs", x => x.Id);
+                    table.PrimaryKey("PK_Playthroughs", x => x.ID);
                 });
         }
 

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GameLogBook.Migrations
 {
     [DbContext(typeof(GameLogBookDbContext))]
-    [Migration("20260518000517_InitialCreate")]
+    [Migration("20260518104017_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace GameLogBook.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.8");
 
-            modelBuilder.Entity("GameLogBook.Models.Library.Game", b =>
+            modelBuilder.Entity("GameLogBook.Models.Games.Game", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -28,6 +28,9 @@ namespace GameLogBook.Migrations
 
                     b.Property<string>("Developer")
                         .HasColumnType("TEXT");
+
+                    b.Property<long>("IgdbId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -47,28 +50,24 @@ namespace GameLogBook.Migrations
                     b.ToTable("Games");
                 });
 
-            modelBuilder.Entity("GameLogBook.Models.Platform", b =>
+            modelBuilder.Entity("GameLogBook.Models.Platforms.Platform", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.PrimitiveCollection<string>("games")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("id");
+                    b.HasKey("ID");
 
                     b.ToTable("Platforms");
                 });
 
             modelBuilder.Entity("GameLogBook.Models.Playthrough", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -80,27 +79,21 @@ namespace GameLogBook.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
                     b.ToTable("Playthroughs");
                 });
 
-            modelBuilder.Entity("GameLogBook.Models.Library.Game", b =>
+            modelBuilder.Entity("GameLogBook.Models.Games.Game", b =>
                 {
-                    b.OwnsOne("GameLogBook.Models.Library.Cover", "Cover", b1 =>
+                    b.OwnsOne("GameLogBook.Models.Games.Cover", "Cover", b1 =>
                         {
                             b1.Property<int>("GameId")
-                                .HasColumnType("INTEGER");
-
-                            b1.Property<int>("Id")
                                 .HasColumnType("INTEGER");
 
                             b1.Property<string>("Url")
                                 .IsRequired()
                                 .HasColumnType("TEXT");
-
-                            b1.Property<int>("Width")
-                                .HasColumnType("INTEGER");
 
                             b1.HasKey("GameId");
 

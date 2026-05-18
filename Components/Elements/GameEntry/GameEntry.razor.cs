@@ -1,4 +1,4 @@
-using GameLogBook.Models.Library;
+using GameLogBook.Models.Games;
 using Microsoft.AspNetCore.Components;
 
 namespace GameLogBook.Components.Elements.GameEntry;

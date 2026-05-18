@@ -3,10 +3,10 @@
      tabindex="0"
      @onclick="HandleClick">
 
-    @if (!string.IsNullOrWhiteSpace(Game.Cover?.CoverBig))
+    @if (!string.IsNullOrWhiteSpace(Game.Cover?.BigCoverUrl))
     { 
         <img class="game-cover"
-         src="@Game.Cover.CoverBig"
+         src="@Game.Cover.BigCoverUrl"
          alt="@Game.Name cover" />
     }
     else
@@ -18,9 +18,9 @@
 
     <div class="game-information">
         <label class="game-title">@Game.Name</label>
-        @if (!string.IsNullOrWhiteSpace(Game.ReleaseDateString))
+        @if (!string.IsNullOrWhiteSpace(Game.ReleaseDate?.ToString()))
         {
-            <label class="game-release-date">@Game.ReleaseDateString</label>
+            <label class="game-release-date">@Game.ReleaseDate?.ToString()</label>
         }
         
         @if (!string.IsNullOrWhiteSpace(Game.Developer)
