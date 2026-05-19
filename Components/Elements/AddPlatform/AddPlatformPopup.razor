@@ -22,6 +22,14 @@
                placeholder="Platform name" />
     </label>
 
+    <label class="form-field form-field-full">
+        <span>Cover URL</span>
+        <input class="platform-input"
+               @bind="platformCoverUrl"
+               @bind:event="oninput"
+               placeholder="Cover image URL" />
+    </label>
+
     <label class="form-field">
         <span>Release Date</span>
         <input class="platform-input"

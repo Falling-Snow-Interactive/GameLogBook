@@ -12,16 +12,50 @@
                      IsEmpty="@(Items.Count == 0)"
                      EmptyTitle="No platforms added yet"
                      EmptyDescription="Add a platform to start organizing where you play.">
-    <ul class="collection-list">
+    <div class="collection-grid">
         @foreach (Platform platform in Items)
         {
-            <NamedCollectionEntry TItem="Platform"
-                                  Item="platform"
-                                  Title="@platform.Name"
-                                  OnClick="OpenEditPopup"
-                                  OnRemove="RemovePlatform" />
+            <article class="collection-card platform-card"
+                     role="button"
+                     tabindex="0"
+                     @onclick="() => OpenEditPopup(platform)">
+                @if (!string.IsNullOrWhiteSpace(platform.CoverUrl))
+                {
+                    <img class="platform-cover"
+                         src="@platform.CoverUrl"
+                         alt="@platform.Name cover" />
+                }
+                else
+                {
+                    <div class="platform-cover platform-cover-placeholder">
+                        <span class="bi bi-controller" aria-hidden="true"></span>
+                    </div>
+                }
+
+                <div class="platform-content">
+                    <div class="platform-title-row">
+                        <h4>@platform.Name</h4>
+                        <button class="collection-remove-button"
+                                type="button"
+                                title="Remove @platform.Name"
+                                @onclick:stopPropagation="true"
+                                @onclick="() => RemovePlatform(platform)">
+                            Remove
+                        </button>
+                    </div>
+
+                    <div class="platform-meta">
+                        <span class="platform-badge neutral-badge">
+                            @(platform.ReleaseDate?.ToString("yyyy-MM-dd") ?? "Unknown release date")
+                        </span>
+                        <span class="platform-badge neutral-badge">
+                            @(platform.GameIds.Length == 0 ? "No linked games" : $"{platform.GameIds.Length} linked game{(platform.GameIds.Length == 1 ? string.Empty : "s")}")
+                        </span>
+                    </div>
+                </div>
+            </article>
         }
-    </ul>
+    </div>
 </CollectionPageShell>
 
 @if (IsAddPopupOpen)

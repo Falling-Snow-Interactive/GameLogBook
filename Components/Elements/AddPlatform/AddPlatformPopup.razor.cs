@@ -17,6 +17,7 @@ public partial class AddPlatformPopup : ComponentBase
 
     private PlatformModel? previousInitialPlatform;
     private string platformName = string.Empty;
+    private string platformCoverUrl = string.Empty;
     private DateOnly? releaseDate;
     private long igdbId;
     private HashSet<int> selectedGameIds = [];
@@ -63,6 +64,7 @@ public partial class AddPlatformPopup : ComponentBase
         PlatformModel platform = result.Platform;
         igdbId = platform.IgdbId;
         platformName = platform.Name;
+        platformCoverUrl = platform.CoverUrl ?? string.Empty;
         releaseDate = platform.ReleaseDate;
         searchErrorMessage = null;
         // selectedCompanyIds = GetMatchingLocalManufacturerIds(result.ManufacturerNames);
@@ -78,6 +80,9 @@ public partial class AddPlatformPopup : ComponentBase
                                      ID = InitialPlatform?.ID ?? 0,
                                      IgdbId = igdbId,
                                      Name = platformName.Trim(),
+                                     CoverUrl = string.IsNullOrWhiteSpace(platformCoverUrl)
+                                                    ? null
+                                                    : platformCoverUrl.Trim(),
                                      ReleaseDate = releaseDate,
                                      ManufacturerIds = companyIds
                                                        .OrderBy(companyId => companyId)
@@ -162,6 +167,7 @@ public partial class AddPlatformPopup : ComponentBase
     {
         igdbId = platform.IgdbId;
         platformName = platform.Name;
+        platformCoverUrl = platform.CoverUrl ?? string.Empty;
         releaseDate = platform.ReleaseDate;
         selectedGameIds = platform.GameIds.ToHashSet();
         companyIds = platform.ManufacturerIds.ToHashSet();
@@ -171,6 +177,7 @@ public partial class AddPlatformPopup : ComponentBase
     private void ResetForm()
     {
         platformName = string.Empty;
+        platformCoverUrl = string.Empty;
         releaseDate = null;
         igdbId = 0;
         selectedGameIds = [];

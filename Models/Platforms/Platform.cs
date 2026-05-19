@@ -8,6 +8,8 @@ public class Platform
 
     public string Name { get; set; } = string.Empty;
 
+    public string? CoverUrl { get; set; }
+
     public DateOnly? ReleaseDate { get; set; }
 
     public int[] ManufacturerIds { get; set; } = [];

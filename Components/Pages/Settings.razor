@@ -1,0 +1,108 @@
+@page "/settings"
+@using GameLogBook.Data
+@using Microsoft.EntityFrameworkCore
+@inject GameLogBookDbContext DbContext
+
+<PageTitle>Settings</PageTitle>
+
+<div class="settings-page">
+    <div class="settings-header">
+        <h3>Settings</h3>
+        <p>Manage device-level options for this app.</p>
+    </div>
+
+    <section class="settings-card">
+        <div class="settings-card-copy">
+            <span class="settings-eyebrow">Database</span>
+            <h4>Clear local database</h4>
+            <p>Delete all saved games, companies, platforms, and playthroughs from this device, then recreate a fresh empty database.</p>
+        </div>
+
+        @if (!isConfirmingClear)
+        {
+            <button class="clear-database-button"
+                    type="button"
+                    disabled="@isClearingDatabase"
+                    @onclick="BeginClearDatabase">
+                Clear Database
+            </button>
+        }
+        else
+        {
+            <div class="settings-confirmation">
+                <p class="settings-warning">
+                    This action cannot be undone.
+                </p>
+
+                <div class="settings-actions">
+                    <button class="clear-database-button"
+                            type="button"
+                            disabled="@isClearingDatabase"
+                            @onclick="ConfirmClearDatabaseAsync">
+                        @(isClearingDatabase ? "Clearing..." : "Confirm Clear")
+                    </button>
+
+                    <button class="settings-cancel-button"
+                            type="button"
+                            disabled="@isClearingDatabase"
+                            @onclick="CancelClearDatabase">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(statusMessage))
+        {
+            <p class="@StatusMessageClass">@statusMessage</p>
+        }
+    </section>
+</div>
+
+@code {
+    private bool isConfirmingClear;
+    private bool isClearingDatabase;
+    private string? statusMessage;
+    private bool lastActionSucceeded;
+
+    private string StatusMessageClass => lastActionSucceeded
+        ? "settings-status settings-status-success"
+        : "settings-status settings-status-error";
+
+    private void BeginClearDatabase()
+    {
+        isConfirmingClear = true;
+        statusMessage = null;
+    }
+
+    private void CancelClearDatabase()
+    {
+        isConfirmingClear = false;
+    }
+
+    private async Task ConfirmClearDatabaseAsync()
+    {
+        isClearingDatabase = true;
+        statusMessage = null;
+
+        try
+        {
+            DbContext.ChangeTracker.Clear();
+            await DbContext.Database.EnsureDeletedAsync();
+            await DbContext.Database.MigrateAsync();
+
+            lastActionSucceeded = true;
+            statusMessage = "The database was cleared and rebuilt successfully.";
+            isConfirmingClear = false;
+        }
+        catch (Exception)
+        {
+            lastActionSucceeded = false;
+            statusMessage = "The database could not be cleared. Please try again.";
+        }
+        finally
+        {
+            isClearingDatabase = false;
+        }
+    }
+}

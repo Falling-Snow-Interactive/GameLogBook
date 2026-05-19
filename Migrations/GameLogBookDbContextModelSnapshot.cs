@@ -97,6 +97,9 @@ namespace GameLogBook.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("CoverUrl")
+                        .HasColumnType("TEXT");
+
                     b.Property<long>("IgdbId")
                         .HasColumnType("INTEGER");
 
