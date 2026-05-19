@@ -1,0 +1,187 @@
+.collection-add-button,
+.search-button,
+.save-button,
+.add-game-button {
+    min-height: 3rem;
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 0.75rem 1.25rem;
+    background: var(--color-primary);
+    color: #ffffff;
+    box-shadow: var(--shadow-primary);
+    font-size: 0.95rem;
+    font-weight: 700;
+    white-space: nowrap;
+    transition:
+        transform var(--transition-fast),
+        background var(--transition-fast),
+        box-shadow var(--transition-fast),
+        opacity var(--transition-fast);
+}
+
+.collection-add-button:hover:not(:disabled),
+.search-button:hover:not(:disabled),
+.save-button:hover:not(:disabled),
+.add-game-button:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+    box-shadow: var(--shadow-primary-hover);
+    transform: translateY(-1px);
+}
+
+.collection-add-button:active:not(:disabled),
+.search-button:active:not(:disabled),
+.save-button:active:not(:disabled),
+.add-game-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.collection-add-button:disabled,
+.search-button:disabled,
+.save-button:disabled,
+.add-game-button:disabled,
+.load-more-button:disabled,
+.igdb-search-load-more-button:disabled {
+    opacity: 0.55;
+    box-shadow: none;
+}
+
+.collection-remove-button,
+.remove-game-button {
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    background: var(--color-danger-soft);
+    color: var(--color-danger-ink);
+    font-weight: 700;
+    transition:
+        transform var(--transition-fast),
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.collection-remove-button {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.8rem;
+}
+
+.remove-game-button {
+    min-height: 3rem;
+    padding: 0.75rem 1.25rem;
+    border-color: #fecaca;
+    background: #fef2f2;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.collection-remove-button:hover,
+.remove-game-button:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+}
+
+.load-more-button,
+.igdb-search-load-more-button {
+    min-height: 2.75rem;
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 0.7rem 1.35rem;
+    background: var(--color-primary-soft);
+    color: var(--color-primary-ink);
+    box-shadow: 0 4px 12px rgba(103, 80, 164, 0.16);
+    font-size: 0.9rem;
+    font-weight: 800;
+    transition:
+        transform var(--transition-fast),
+        background var(--transition-fast),
+        box-shadow var(--transition-fast),
+        opacity var(--transition-fast);
+}
+
+.load-more-button:hover:not(:disabled),
+.igdb-search-load-more-button:hover:not(:disabled) {
+    background: var(--color-primary-soft-hover);
+    box-shadow: 0 8px 20px rgba(103, 80, 164, 0.24);
+    transform: translateY(-1px);
+}
+
+.load-more-button:focus-visible,
+.igdb-search-load-more-button:focus-visible {
+    outline: none;
+    box-shadow:
+        var(--focus-ring),
+        0 8px 20px rgba(103, 80, 164, 0.24);
+}
+
+.floating-add-button {
+    position: fixed;
+    right: 2rem;
+    bottom: 2rem;
+    z-index: 1000;
+    width: 4rem;
+    height: 4rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: #ffffff;
+    box-shadow: 0 12px 24px rgba(103, 80, 164, 0.35);
+    font-size: 1.5rem;
+    transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background var(--transition-fast);
+}
+
+.floating-add-button:hover {
+    background: var(--color-primary-hover);
+    box-shadow: 0 16px 32px rgba(103, 80, 164, 0.45);
+    transform: translateY(-2px);
+}
+
+.floating-add-button:active {
+    transform: translateY(0);
+}
+
+.close-button {
+    width: 2.75rem;
+    height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 50%;
+    padding: 0;
+    background: var(--color-primary-soft);
+    color: var(--color-primary-ink);
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1;
+    transition:
+        transform var(--transition-fast),
+        background var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.close-button:hover {
+    background: var(--color-primary-soft-hover);
+    box-shadow: 0 6px 16px rgba(103, 80, 164, 0.18);
+    transform: translateY(-1px);
+}
+
+.close-button:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 700px) {
+    .search-button,
+    .save-button,
+    .add-game-button,
+    .remove-game-button {
+        width: 100%;
+    }
+}

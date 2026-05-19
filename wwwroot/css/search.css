@@ -1,0 +1,276 @@
+.search-row,
+.company-search-row,
+.platform-search-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.search-row {
+    margin: 1.5rem 1rem 1rem;
+}
+
+.company-search,
+.platform-search,
+.igdb-search {
+    display: grid;
+    gap: 0.65rem;
+}
+
+.igdb-search {
+    position: relative;
+    margin: 1rem;
+}
+
+.igdb-search-anchor,
+.igdb-search-row {
+    position: relative;
+}
+
+.igdb-search-row {
+    display: flex;
+    align-items: center;
+}
+
+.igdb-search-status {
+    position: absolute;
+    right: 0.95rem;
+    display: grid;
+    place-items: center;
+    width: 1.4rem;
+    height: 1.4rem;
+    color: var(--color-primary);
+    pointer-events: none;
+}
+
+.igdb-search-spinner {
+    width: 1.1rem;
+    height: 1.1rem;
+    border: 0.18rem solid rgba(103, 80, 164, 0.22);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: igdb-search-spin 0.8s linear infinite;
+}
+
+.search-results,
+.company-search-results,
+.platform-search-results,
+.igdb-search-dropdown {
+    display: grid;
+    gap: 0.55rem;
+    border: 1px solid #edf0f3;
+    border-radius: var(--radius-lg);
+    padding: 0.55rem;
+    background: var(--color-surface-muted);
+}
+
+.search-results {
+    max-height: 22rem;
+    margin: 1rem;
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.igdb-search-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    left: 0;
+    z-index: 20;
+    max-height: min(28rem, 58vh);
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+}
+
+.igdb-search-results {
+    display: grid;
+    gap: 0.55rem;
+}
+
+.search-result,
+.company-search-result,
+.platform-search-result,
+.igdb-search-result {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 0.65rem;
+    background: var(--color-surface);
+    color: var(--color-text);
+    text-align: left;
+    transition:
+        transform var(--transition-fast),
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.search-result {
+    justify-content: space-between;
+    min-height: 3.5rem;
+    border: 1px solid var(--color-border);
+    padding: 0.875rem 1rem;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+}
+
+.search-result:hover,
+.company-search-result:hover,
+.platform-search-result:hover,
+.igdb-search-result:hover {
+    background: #f4effa;
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+}
+
+.search-result:focus-visible,
+.igdb-search-result:focus-visible {
+    outline: 3px solid rgba(103, 80, 164, 0.22);
+    outline-offset: 2px;
+}
+
+.igdb-search-game-result {
+    align-items: flex-start;
+}
+
+.search-result-cover,
+.search-result-cover-placeholder,
+.igdb-search-result-cover,
+.igdb-search-result-cover-placeholder {
+    width: 3.4rem;
+    aspect-ratio: 3 / 4;
+    flex-shrink: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-subtle);
+}
+
+.search-result-cover,
+.igdb-search-result-cover {
+    object-fit: cover;
+}
+
+.search-result-cover-placeholder,
+.igdb-search-result-cover-placeholder {
+    display: grid;
+    place-items: center;
+    padding: 0.35rem;
+    color: var(--color-text-muted);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.platform-result-icon,
+.company-search-result img,
+.company-result-placeholder,
+.igdb-search-result-logo,
+.igdb-search-result-icon {
+    width: 3rem;
+    height: 3rem;
+    flex-shrink: 0;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-subtle);
+}
+
+.platform-result-icon,
+.company-result-placeholder,
+.igdb-search-result-icon {
+    display: grid;
+    place-items: center;
+    color: var(--color-primary);
+    font-size: 1.15rem;
+}
+
+.company-search-result img,
+.igdb-search-result-logo {
+    object-fit: cover;
+}
+
+.platform-result-copy,
+.company-result-copy,
+.igdb-search-result-copy,
+.search-result-info {
+    min-width: 0;
+    display: grid;
+    gap: 0.15rem;
+}
+
+.platform-result-copy strong,
+.company-result-copy strong,
+.igdb-search-result-copy strong,
+.search-result-info strong {
+    overflow: hidden;
+    color: var(--color-text);
+    font-weight: 800;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.platform-result-copy small,
+.company-result-copy small,
+.igdb-search-result-copy small,
+.search-result-info span {
+    overflow: hidden;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.search-result-info strong,
+.search-result-info span {
+    display: block;
+}
+
+.search-result-info p,
+.igdb-search-result-description {
+    display: -webkit-box;
+    margin: 0.4rem 0 0;
+    overflow: hidden;
+    color: var(--color-text-soft);
+    font-size: 0.875rem;
+    line-height: 1.35;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.igdb-search-load-more,
+.load-more-container {
+    display: flex;
+    justify-content: center;
+    padding: 0.35rem 0 0.1rem;
+}
+
+.igdb-search-empty {
+    margin: 0;
+    border-radius: var(--radius-md);
+    padding: 0.75rem 0.85rem;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+@keyframes igdb-search-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 700px) {
+    .search-row,
+    .company-search-row,
+    .platform-search-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-results {
+        padding: 0.75rem;
+    }
+}

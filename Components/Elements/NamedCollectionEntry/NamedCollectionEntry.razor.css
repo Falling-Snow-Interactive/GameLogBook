@@ -12,14 +12,14 @@
 
 .named-collection-copy h4 {
     margin: 0;
-    color: #212529;
+    color: var(--color-text);
     font-size: 1.1rem;
     font-weight: 700;
 }
 
 .named-collection-copy p {
     margin: 0;
-    color: #6c757d;
+    color: var(--color-text-muted);
     font-size: 0.9rem;
     font-weight: 500;
 }
