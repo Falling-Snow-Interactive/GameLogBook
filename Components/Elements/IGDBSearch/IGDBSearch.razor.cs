@@ -243,6 +243,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
         List<LocalGame> newResults = igdbResults
                                      .Select(ToLocalGame)
+                                     .OrderByNameRelevance(trimmedSearchInput, game => game.Name)
                                      .ToList();
 
         if (appendResults)
@@ -276,8 +277,9 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                                                                                             versions.companies.manufacturer,
                                                                                             versions.platform_version_release_dates.date;
                                                                                      where name ~ *"{escapedSearchInput}"*;
-                                                                             limit {MaxResults};
-                                                                             offset {searchOffset};
+                                                                                     sort name asc;
+                                                                                     limit {MaxResults};
+                                                                                     offset {searchOffset};
                                                                              """);
 
         if (cancellationToken.IsCancellationRequested)
@@ -348,6 +350,8 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
                                                        return new IgdbSearchPlatformResult(projection.Platform, manufacturerNames);
                                                    })
+                                                   .OrderByNameRelevance(trimmedSearchInput,
+                                                                         result => result.Platform.Name)
                                                    .ToList();
 
         if (appendResults)
@@ -373,6 +377,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                                                                   query: $"""
                                                                           fields id, name, developed.id, published.id, logo.url;
                                                                           where name ~ *"{escapedSearchInput}"*;
+                                                                          sort name asc;
                                                                           limit {MaxResults};
                                                                           offset {searchOffset};
                                                                           """);
@@ -384,6 +389,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
         List<LocalCompany> newResults = igdbResults
                                         .Select(ToLocalCompany)
+                                        .OrderByNameRelevance(trimmedSearchInput, company => company.Name)
                                         .ToList();
 
         if (appendResults)
@@ -885,3 +891,50 @@ public enum IgdbSearchFor
 }
 
 public sealed record IgdbSearchPlatformResult(LocalPlatform Platform, string[] ManufacturerNames);
+
+internal static class IgdbSearchResultOrderingExtensions
+{
+    public static IEnumerable<T> OrderByNameRelevance<T>(
+        this IEnumerable<T> results,
+        string searchInput,
+        Func<T, string> getName)
+    {
+        string normalizedSearchInput = searchInput.Trim();
+
+        return results
+               .Select((item, index) => new
+                                        {
+                                            Item = item,
+                                            Index = index,
+                                            Name = getName(item)
+                                        })
+               .OrderBy(result => GetNameRelevanceRank(result.Name, normalizedSearchInput))
+               .ThenBy(result => result.Name, StringComparer.OrdinalIgnoreCase)
+               .ThenBy(result => result.Index)
+               .Select(result => result.Item);
+    }
+
+    private static int GetNameRelevanceRank(string name, string searchInput)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return 4;
+        }
+
+        string normalizedName = name.Trim();
+
+        if (normalizedName.Equals(searchInput, StringComparison.OrdinalIgnoreCase))
+        {
+            return 0;
+        }
+
+        if (normalizedName.StartsWith(searchInput, StringComparison.OrdinalIgnoreCase))
+        {
+            return 1;
+        }
+
+        return normalizedName.Contains(searchInput, StringComparison.OrdinalIgnoreCase)
+                   ? 2
+                   : 3;
+    }
+}
