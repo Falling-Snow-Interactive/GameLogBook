@@ -2,17 +2,18 @@ using GameLogBook.Models.Companies;
 using GameLogBook.Models.Games;
 using GameLogBook.Models.Platforms;
 using Microsoft.EntityFrameworkCore;
+using PlatformModel = GameLogBook.Models.Platforms.Platform;
 
 namespace GameLogBook.Components.Pages;
 
-public partial class Platforms : CollectionPageBase<Platform>
+public partial class Platforms : CollectionPageBase<PlatformModel>
 {
     private List<Game> games = [];
     private List<Company> companies = [];
 
-    protected override DbSet<Platform> EntitySet => DbContext.Platforms;
+    protected override DbSet<PlatformModel> EntitySet => DbContext.Platforms;
 
-    protected override string GetSortKey(Platform item)
+    protected override string GetSortKey(PlatformModel item)
     {
         return item.Name;
     }
@@ -30,13 +31,13 @@ public partial class Platforms : CollectionPageBase<Platform>
                                    .ToListAsync();
     }
 
-    private async Task AddPlatform(Platform platform)
+    private async Task AddPlatform(PlatformModel platform)
     {
         await AddItemAsync(platform);
         CloseAddPopup();
     }
 
-    private async Task RemovePlatform(Platform platform)
+    private async Task RemovePlatform(PlatformModel platform)
     {
         await RemoveItemAsync(platform);
     }

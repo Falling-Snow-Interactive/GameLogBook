@@ -1,4 +1,5 @@
 using GameLogBook.Services;
+using GameLogBook.Models.Games;
 using IGDB;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -233,12 +234,14 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                                        .GetClient()
                                        .QueryAsync<IgdbGame>(
                                                              IGDBClient.Endpoints.Games,
-                                                             query: $"""
+                                                                     query: $"""
                                                                      search "{escapedSearchInput}";
                                                                      fields id, name, summary, first_release_date, cover.url,
                                                                             involved_companies.developer,
                                                                             involved_companies.publisher,
-                                                                            involved_companies.company.name;
+                                                                            involved_companies.company.id,
+                                                                            involved_companies.company.name,
+                                                                            involved_companies.company.logo.url;
                                                                      limit {MaxResults};
                                                                      offset {searchOffset};
                                                                      """);
@@ -471,35 +474,73 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
     private static LocalGame ToLocalGame(IgdbGame igdbGame)
     {
-        string dev = string.Empty;
-        string pub = string.Empty;
+        List<GameCompany> gameCompanies = [];
 
         if (igdbGame.InvolvedCompanies?.Values is not null)
         {
-            foreach (IgdbInvolvedCompany? company in igdbGame.InvolvedCompanies.Values)
+            foreach (IgdbInvolvedCompany? involvedCompany in igdbGame.InvolvedCompanies.Values)
             {
-                if (company?.Developer is true)
+                if (involvedCompany?.Developer is true)
                 {
-                    dev = company.Company.Value.Name;
+                    AddGameCompany(gameCompanies, involvedCompany, GameCompanyRole.Developer);
                 }
 
-                if (company?.Publisher is true)
+                if (involvedCompany?.Publisher is true)
                 {
-                    pub = company.Company.Value.Name;
+                    AddGameCompany(gameCompanies, involvedCompany, GameCompanyRole.Publisher);
                 }
             }
         }
 
         return new LocalGame
                {
-                   IgdbId = Convert.ToInt32(igdbGame.Id ?? 0),
+                   IgdbId = igdbGame.Id ?? 0,
                    Name = igdbGame.Name ?? string.Empty,
                    Summary = igdbGame.Summary,
-                   Developer = dev,
-                   Publisher = pub,
                    ReleaseDate = ToDateOnly(igdbGame.FirstReleaseDate?.ToUnixTimeSeconds()),
-                   Cover = ToLocalCover(igdbGame.Cover?.Value)
+                   Cover = ToLocalCover(igdbGame.Cover?.Value),
+                   Companies = gameCompanies
                };
+    }
+
+    private static void AddGameCompany(
+        List<GameCompany> gameCompanies,
+        IgdbInvolvedCompany involvedCompany,
+        GameCompanyRole role)
+    {
+        long? companyIgdbId = involvedCompany.Company?.Id
+                              ?? involvedCompany.Company?.Value?.Id;
+        string? companyName = GetCompanyName(involvedCompany.Company);
+
+        if (string.IsNullOrWhiteSpace(companyName))
+        {
+            return;
+        }
+
+        bool alreadyAdded = gameCompanies.Any(gameCompany =>
+                                                  gameCompany.Role == role
+                                                  && ((companyIgdbId.HasValue
+                                                       && gameCompany.Company.IgdbId == companyIgdbId)
+                                                      || string.Equals(gameCompany.Company.Name,
+                                                                       companyName,
+                                                                       StringComparison.OrdinalIgnoreCase)));
+
+        if (alreadyAdded)
+        {
+            return;
+        }
+
+        gameCompanies.Add(new GameCompany
+                          {
+                              Role = role,
+                              Company = new LocalCompany
+                                        {
+                                            IgdbId = companyIgdbId,
+                                            Name = companyName,
+                                            CoverUrl = ToLocalCoverUrl(involvedCompany.Company?.Value?.Logo?.Value),
+                                            LastSyncedAt = DateTimeOffset.UtcNow
+                                        }
+                          });
     }
 
     private static LocalCover? ToLocalCover(IgdbCover? igdbCover)
@@ -519,24 +560,12 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
     private LocalCompany ToLocalCompany(IgdbCompany igdbCompany)
     {
-        HashSet<long> developedGameIds = GetIgdbGameIds(igdbCompany.Developed);
-        HashSet<long> publishedGameIds = GetIgdbGameIds(igdbCompany.Published);
-        HashSet<long> workedOnGameIds = developedGameIds
-                                        .Concat(publishedGameIds)
-                                        .ToHashSet();
-
         return new LocalCompany
                {
                    IgdbId = igdbCompany.Id,
                    Name = igdbCompany.Name ?? string.Empty,
                    CoverUrl = ToLocalCoverUrl(igdbCompany.Logo?.Value),
-                   IsDeveloper = developedGameIds.Count > 0,
-                   IsPublisher = publishedGameIds.Count > 0,
-                   GameIds = LocalGames
-                             .Where(game => workedOnGameIds.Contains(game.IgdbId))
-                             .Select(game => game.Id)
-                             .OrderBy(gameId => gameId)
-                             .ToArray()
+                   LastSyncedAt = DateTimeOffset.UtcNow
                };
     }
 
@@ -774,15 +803,6 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                     .All(part => long.TryParse(part, out _));
     }
 
-    private static HashSet<long> GetIgdbGameIds(IdentitiesOrValues<IgdbGame>? igdbGames)
-    {
-        return igdbGames?.Values?
-                        .Where(game => game.Id.HasValue)
-                        .Select(game => game.Id!.Value)
-                        .ToHashSet()
-               ?? [];
-    }
-
     private static DateOnly? GetReleaseDate(IEnumerable<IgdbPlatformVersion> versions)
     {
         DateTimeOffset? firstReleaseDate = versions
@@ -823,7 +843,8 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                                     : "Unknown release date";
 
         string companySummary = string.Join(", ",
-                                            new[] { game.Developer, game.Publisher }
+                                            game.Companies
+                                                .Select(gameCompany => gameCompany.Company.Name)
                                                 .Where(value => !string.IsNullOrWhiteSpace(value))
                                                 .Distinct(StringComparer.OrdinalIgnoreCase));
 
@@ -872,24 +893,27 @@ public partial class IGDBSearch : ComponentBase, IDisposable
         return false;
     }
 
-    private static string GetCompanyRoleSummary(LocalCompany company)
+    private string GetCompanyRoleSummary(LocalCompany company)
     {
-        if (company.IsDeveloper && company.IsPublisher)
+        if (!company.IgdbId.HasValue)
         {
-            return "Developer · Publisher";
+            return "Local company";
         }
 
-        if (company.IsDeveloper)
+        string[] linkedRoles = LocalGames
+                               .SelectMany(game => game.Companies)
+                               .Where(gameCompany => gameCompany.Company.IgdbId == company.IgdbId)
+                               .Select(gameCompany => gameCompany.Role.ToString())
+                               .Distinct()
+                               .OrderBy(role => role)
+                               .ToArray();
+
+        if (linkedRoles.Length > 0)
         {
-            return "Developer";
+            return string.Join(" · ", linkedRoles);
         }
 
-        if (company.IsPublisher)
-        {
-            return "Publisher";
-        }
-
-        return "No matching local games yet";
+        return "IGDB company";
     }
 
     private static bool IsAuthenticationFailure(Exception exception)

@@ -1,0 +1,322 @@
+.page {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+.sidebar {
+    background-image: var(--sidebar-gradient);
+}
+
+.bi {
+    margin-right: 0.75rem;
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.navbar-toggler {
+    appearance: none;
+    cursor: pointer;
+    width: 3.5rem;
+    height: 2.5rem;
+    color: white;
+    position: absolute;
+    top: 0.5rem;
+    right: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") no-repeat center/1.75rem rgba(255, 255, 255, 0.1);
+}
+
+.navbar-toggler:checked {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.navbar-brand {
+    font-size: 1.1rem;
+}
+
+.nav-item {
+    padding-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.nav-item:first-of-type {
+    padding-top: 1rem;
+}
+
+.nav-item:last-of-type {
+    padding-bottom: 1rem;
+}
+
+.nav-item .nav-link {
+    width: 100%;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    color: #d7d7d7;
+    line-height: 3rem;
+    background: none;
+    border: none;
+    border-radius: var(--radius-md);
+}
+
+.nav-item a.active {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.37);
+}
+
+.nav-item .nav-link:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-scrollable {
+    display: none;
+}
+
+.navbar-toggler:checked ~ .nav-scrollable {
+    display: block;
+}
+
+.nav-spacer {
+    height: 1rem;
+}
+
+.game-entry-content {
+    width: 100%;
+    min-height: 10rem;
+    align-items: stretch;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.game-entry-content:focus-visible {
+    outline: 3px solid rgba(103, 80, 164, 0.22);
+    outline-offset: 2px;
+}
+
+.game-cover {
+    width: 6rem;
+    aspect-ratio: 3 / 4;
+    flex-shrink: 0;
+    flex-grow: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-subtle);
+    object-fit: cover;
+}
+
+.game-information {
+    min-width: 0;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+}
+
+.game-title {
+    margin: 0;
+    color: var(--color-text);
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.game-release-date,
+.game-company,
+.game-developer,
+.game-publisher,
+.game-rating {
+    color: var(--color-text-muted);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.35;
+}
+
+.game-summary {
+    display: -webkit-box;
+    margin: 0.5rem 0 0;
+    overflow: hidden;
+    color: var(--color-text-soft);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+}
+
+.game-buttons {
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.game-button-playthroughs,
+.game-button-logs,
+.game-button-remove {
+    min-width: 7rem;
+    padding: 0.5rem 0.875rem;
+    border: none;
+    border-radius: var(--radius-pill);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background var(--transition-fast),
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.game-button-playthroughs {
+    color: var(--color-primary-ink);
+    background: var(--color-primary-soft);
+}
+
+.game-button-logs {
+    color: var(--color-info-ink);
+    background: var(--color-info-soft);
+}
+
+.game-button-remove {
+    color: var(--color-danger-ink);
+    background: var(--color-danger-soft);
+}
+
+.game-button-playthroughs:hover,
+.game-button-logs:hover,
+.game-button-remove:hover {
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+}
+
+.named-collection-entry {
+    min-height: 5.25rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.named-collection-copy {
+    min-width: 0;
+    display: grid;
+    gap: 0.25rem;
+}
+
+.named-collection-copy h4 {
+    margin: 0;
+    color: var(--color-text);
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.named-collection-copy p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.company-card {
+    min-height: 13rem;
+}
+
+.company-cover {
+    width: 6rem;
+    height: 8rem;
+    flex-shrink: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-subtle);
+    object-fit: cover;
+}
+
+.company-cover-placeholder {
+    display: grid;
+    place-items: center;
+    color: var(--color-primary);
+    font-size: 2rem;
+}
+
+.company-content {
+    min-width: 0;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.company-title-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.company-title-row h4 {
+    margin: 0;
+    color: var(--color-text);
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.company-games {
+    display: grid;
+    gap: 0.45rem;
+}
+
+.company-games-label {
+    color: var(--color-text-soft);
+    font-size: 0.8125rem;
+    font-weight: 700;
+}
+
+.company-games-empty {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+@media (max-width: 700px) {
+    .named-collection-entry,
+    .company-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .company-cover {
+        width: 100%;
+        height: 12rem;
+    }
+}
+
+@media (min-width: 641px) {
+    .page {
+        flex-direction: row;
+    }
+
+    .sidebar {
+        width: 250px;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+    }
+
+    article {
+        padding-left: 2rem !important;
+        padding-right: 1.5rem !important;
+    }
+
+    .navbar-toggler {
+        display: none;
+    }
+
+    .nav-scrollable {
+        display: block;
+        height: calc(100vh - 3.5rem);
+        overflow-y: auto;
+    }
+}

@@ -12,9 +12,7 @@ public class Game
 
     public DateOnly? ReleaseDate { get; set; }
 
-    public string? Developer { get; set; }
-
-    public string? Publisher { get; set; }
-
     public Cover? Cover { get; set; }
+
+    public List<GameCompany> Companies { get; set; } = [];
 }

@@ -6,6 +6,7 @@ using IGDB;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using IgdbGame = IGDB.Models.Game;
+using PlatformModel = GameLogBook.Models.Platforms.Platform;
 
 namespace GameLogBook.Components.Elements.AddPlatform;
 
@@ -26,7 +27,7 @@ public partial class AddPlatformPopup : ComponentBase
     public EventCallback OnClose { get; set; }
 
     [Parameter]
-    public EventCallback<Platform> OnPlatformSelected { get; set; }
+    public EventCallback<PlatformModel> OnPlatformSelected { get; set; }
 
     [Parameter]
     public IReadOnlyList<Game> Games { get; set; } = [];
@@ -38,7 +39,7 @@ public partial class AddPlatformPopup : ComponentBase
 
     private async Task HandlePlatformSelected(IgdbSearchPlatformResult result)
     {
-        Platform platform = result.Platform;
+        PlatformModel platform = result.Platform;
         igdbId = platform.IgdbId;
         platformName = platform.Name;
         releaseDate = platform.ReleaseDate;
@@ -51,18 +52,18 @@ public partial class AddPlatformPopup : ComponentBase
 
     private async Task HandleSavePlatform()
     {
-        Platform platform = new()
-                            {
-                                IgdbId = igdbId,
-                                Name = platformName.Trim(),
-                                ReleaseDate = releaseDate,
-                                // ManufacturerIds = selectedCompanyIds
-                                //                   .OrderBy(companyId => companyId)
-                                //                   .ToArray(),
-                                GameIds = selectedGameIds
-                                          .OrderBy(gameId => gameId)
-                                          .ToArray()
-                            };
+        PlatformModel platform = new()
+                                 {
+                                     IgdbId = igdbId,
+                                     Name = platformName.Trim(),
+                                     ReleaseDate = releaseDate,
+                                     // ManufacturerIds = selectedCompanyIds
+                                     //                   .OrderBy(companyId => companyId)
+                                     //                   .ToArray(),
+                                     GameIds = selectedGameIds
+                                               .OrderBy(gameId => gameId)
+                                               .ToArray()
+                                 };
 
         await OnPlatformSelected.InvokeAsync(platform);
     }

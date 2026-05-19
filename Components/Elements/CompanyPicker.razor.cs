@@ -11,7 +11,7 @@ public partial class CompanyPicker : ComponentBase
     private string selectedCompanyId = string.Empty;
 
     [Inject]
-    public IgdbClientProvider? IgdbClientProvider { get; set; }
+    public IgdbClientProvider IgdbClientProvider { get; set; } = null!;
     
     [Parameter]
     public IReadOnlyList<Company> Companies { get; set; } = [];

@@ -26,18 +26,11 @@ namespace GameLogBook.Migrations
                     b.Property<string>("CoverUrl")
                         .HasColumnType("TEXT");
 
-                    b.PrimitiveCollection<string>("GameIds")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<long?>("IgdbId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("IsDeveloper")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsPublisher")
-                        .HasColumnType("INTEGER");
+                    b.Property<DateTimeOffset?>("LastSyncedAt")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -45,7 +38,29 @@ namespace GameLogBook.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IgdbId")
+                        .IsUnique()
+                        .HasFilter("IgdbId IS NOT NULL");
+
                     b.ToTable("Companies");
+                });
+
+            modelBuilder.Entity("GameLogBook.Models.Games.GameCompany", b =>
+                {
+                    b.Property<int>("GameId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("GameId", "CompanyId", "Role");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("GameCompanies");
                 });
 
             modelBuilder.Entity("GameLogBook.Models.Games.Game", b =>
@@ -53,18 +68,12 @@ namespace GameLogBook.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("Developer")
-                        .HasColumnType("TEXT");
-
+                    
                     b.Property<long>("IgdbId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Publisher")
                         .HasColumnType("TEXT");
 
                     b.Property<DateOnly?>("ReleaseDate")
@@ -126,6 +135,25 @@ namespace GameLogBook.Migrations
                     b.ToTable("Playthroughs");
                 });
 
+            modelBuilder.Entity("GameLogBook.Models.Games.GameCompany", b =>
+                {
+                    b.HasOne("GameLogBook.Models.Companies.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GameLogBook.Models.Games.Game", "Game")
+                        .WithMany("Companies")
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Game");
+                });
+
             modelBuilder.Entity("GameLogBook.Models.Games.Game", b =>
                 {
                     b.OwnsOne("GameLogBook.Models.Games.Cover", "Cover", b1 =>
@@ -146,6 +174,8 @@ namespace GameLogBook.Migrations
                         });
 
                     b.Navigation("Cover");
+
+                    b.Navigation("Companies");
                 });
 #pragma warning restore 612, 618
         }

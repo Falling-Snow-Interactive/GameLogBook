@@ -1,7 +1,7 @@
 @page "/Games"
-@rendermode InteractiveServer
 @using GameLogBook.Components.Elements.AddGame
 @using GameLogBook.Components.Elements.GameEntry
+@using GameLogBook.Models.Companies
 @using GameLogBook.Models.Games
 @inherits CollectionPageBase<Game>
 
@@ -29,5 +29,6 @@
 @if (IsAddPopupOpen)
 {
     <AddGamePopup OnClose="CloseAddPopup"
-                  OnGameSelected="AddGame" />
+                  OnGameSelected="AddGame"
+                  Companies="@companies" />
 }

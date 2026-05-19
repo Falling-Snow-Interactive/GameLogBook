@@ -29,29 +29,106 @@
                            placeholder="Game name"/>
                 </label>
 
-                <label class="form-field">
-                    <span>Developer</span>
-                    <select class="game-detail-input"
-                            @bind="selectedDeveloperCompanyId">
-                        <option value="">Select developer</option>
-                        @foreach (Company company in companies)
-                        {
-                            <option value="@company.Id">@company.Name</option>
-                        }
-                    </select>
-                </label>
+                <div class="form-field form-field-full">
+                    <span>Companies are shared across the instance</span>
+                    <p class="form-hint">Pick from the shared company catalog below. If a company is missing, add it from the Companies page first.</p>
+                    @if (Companies.Count == 0)
+                    {
+                        <p class="form-hint">No shared companies exist yet, so this game will save without developer or publisher links.</p>
+                    }
+                </div>
 
-                <label class="form-field">
+                <div class="form-field">
+                    <span>Developer</span>
+                    <input class="game-detail-input"
+                           @bind="developerSearchText"
+                           @bind:event="oninput"
+                           placeholder="Search shared companies" />
+
+                    @if (DeveloperMatches.Count > 0)
+                    {
+                        <div class="company-search-results">
+                            @foreach (Company company in DeveloperMatches)
+                            {
+                                <button class="igdb-search-result"
+                                        type="button"
+                                        @onclick="() => SelectDeveloper(company)">
+                                    <span class="igdb-search-result-icon bi bi-building"
+                                          aria-hidden="true"></span>
+
+                                    <span class="igdb-search-result-copy">
+                                        <strong>@company.Name</strong>
+                                        <small>@GetCompanyBadge(company)</small>
+                                    </span>
+                                </button>
+                            }
+                        </div>
+                    }
+
+                    @if (selectedDeveloperCompanyIds.Count > 0)
+                    {
+                        <div class="manufacturer-chip-list">
+                            @foreach (Company company in SelectedDeveloperCompanies)
+                            {
+                                <span class="manufacturer-chip">
+                                    @company.Name
+                                    <button type="button"
+                                            title="Remove @company.Name"
+                                            aria-label="Remove @company.Name"
+                                            @onclick="() => RemoveDeveloper(company.Id)">
+                                        X
+                                    </button>
+                                </span>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <div class="form-field">
                     <span>Publisher</span>
-                    <select class="game-detail-input"
-                            @bind="selectedPublisherCompanyId">
-                        <option value="">Select publisher</option>
-                        @foreach (Company company in companies)
-                        {
-                            <option value="@company.Id">@company.Name</option>
-                        }
-                    </select>
-                </label>
+                    <input class="game-detail-input"
+                           @bind="publisherSearchText"
+                           @bind:event="oninput"
+                           placeholder="Search shared companies" />
+
+                    @if (PublisherMatches.Count > 0)
+                    {
+                        <div class="company-search-results">
+                            @foreach (Company company in PublisherMatches)
+                            {
+                                <button class="igdb-search-result"
+                                        type="button"
+                                        @onclick="() => SelectPublisher(company)">
+                                    <span class="igdb-search-result-icon bi bi-building"
+                                          aria-hidden="true"></span>
+
+                                    <span class="igdb-search-result-copy">
+                                        <strong>@company.Name</strong>
+                                        <small>@GetCompanyBadge(company)</small>
+                                    </span>
+                                </button>
+                            }
+                        </div>
+                    }
+
+                    @if (selectedPublisherCompanyIds.Count > 0)
+                    {
+                        <div class="manufacturer-chip-list">
+                            @foreach (Company company in SelectedPublisherCompanies)
+                            {
+                                <span class="manufacturer-chip">
+                                    @company.Name
+                                    <button type="button"
+                                            title="Remove @company.Name"
+                                            aria-label="Remove @company.Name"
+                                            @onclick="() => RemovePublisher(company.Id)">
+                                        X
+                                    </button>
+                                </span>
+                            }
+                        </div>
+                    }
+                </div>
 
                 <label class="form-field">
                     <span>Release Date</span>

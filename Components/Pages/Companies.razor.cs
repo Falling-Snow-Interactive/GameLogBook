@@ -1,8 +1,5 @@
-using GameLogBook.Data;
 using GameLogBook.Models.Companies;
 using GameLogBook.Models.Games;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameLogBook.Components.Pages;
@@ -10,12 +7,12 @@ namespace GameLogBook.Components.Pages;
 public partial class Companies : CollectionPageBase<Company>
 {
     private List<Game> games = [];
-    private HashSet<int> selectedGameIds = [];
+    private Dictionary<int, List<string>> gameNamesByCompanyId = [];
+    private Dictionary<int, HashSet<GameCompanyRole>> rolesByCompanyId = [];
 
+    private long? newCompanyIgdbId;
     private string newCompanyName = string.Empty;
     private string newCompanyCoverUrl = string.Empty;
-    private bool newCompanyIsPublisher;
-    private bool newCompanyIsDeveloper;
 
     protected override DbSet<Company> EntitySet => DbContext.Companies;
 
@@ -28,9 +25,7 @@ public partial class Companies : CollectionPageBase<Company>
     {
         await base.OnInitializedAsync();
 
-        games = await DbContext.Games
-                               .OrderBy(game => game.Name)
-                               .ToListAsync();
+        await LoadGameCompanySummaries();
     }
 
     protected override void CloseAddPopup()
@@ -41,80 +36,99 @@ public partial class Companies : CollectionPageBase<Company>
 
     private void HandleCompanySelected(Company company)
     {
+        newCompanyIgdbId = company.IgdbId;
         newCompanyName = company.Name;
         newCompanyCoverUrl = company.CoverUrl ?? string.Empty;
-        newCompanyIsDeveloper = company.IsDeveloper;
-        newCompanyIsPublisher = company.IsPublisher;
-        selectedGameIds = company.GameIds.ToHashSet();
     }
 
     private async Task AddCompany()
     {
+        Company? existingCompany = null;
+
+        if (newCompanyIgdbId.HasValue)
+        {
+            existingCompany = await DbContext.Companies
+                                             .FirstOrDefaultAsync(company => company.IgdbId == newCompanyIgdbId.Value);
+        }
+
+        if (existingCompany is null && !string.IsNullOrWhiteSpace(newCompanyName))
+        {
+            existingCompany = await DbContext.Companies
+                                             .FirstOrDefaultAsync(company => company.IgdbId == null
+                                                                             && company.Name == newCompanyName.Trim());
+        }
+
+        if (existingCompany is not null)
+        {
+            existingCompany.Name = newCompanyName.Trim();
+            existingCompany.CoverUrl = string.IsNullOrWhiteSpace(newCompanyCoverUrl)
+                                           ? existingCompany.CoverUrl
+                                           : newCompanyCoverUrl.Trim();
+            existingCompany.LastSyncedAt = DateTimeOffset.UtcNow;
+            await DbContext.SaveChangesAsync();
+            await LoadItemsAsync();
+            await LoadGameCompanySummaries();
+            CloseAddPopup();
+            return;
+        }
+
         Company company = new()
                           {
+                              IgdbId = newCompanyIgdbId,
                               Name = newCompanyName.Trim(),
                               CoverUrl = string.IsNullOrWhiteSpace(newCompanyCoverUrl)
                                              ? null
                                              : newCompanyCoverUrl.Trim(),
-                              IsDeveloper = newCompanyIsDeveloper,
-                              IsPublisher = newCompanyIsPublisher,
-                              GameIds = selectedGameIds
-                                        .OrderBy(gameId => gameId)
-                                        .ToArray()
+                              LastSyncedAt = DateTimeOffset.UtcNow
                           };
 
         await AddItemAsync(company);
+        await LoadGameCompanySummaries();
         CloseAddPopup();
     }
 
     private async Task HandleRemove(Company company)
     {
-        await RemoveItemAsync(company);
-    }
-
-    private string GetGameName(int gameId)
-    {
-        return games.FirstOrDefault(game => game.Id == gameId)?.Name ?? $"Game #{gameId}";
-    }
-
-    private static string GetCompanyRoleSummary(Company company)
-    {
-        if (company.IsDeveloper && company.IsPublisher)
+        if (CompanyHasLinkedGames(company))
         {
-            return "Developer · Publisher";
-        }
-
-        if (company.IsDeveloper)
-        {
-            return "Developer";
-        }
-
-        if (company.IsPublisher)
-        {
-            return "Publisher";
-        }
-
-        return "No matching local games yet";
-    }
-
-    private void ToggleGameSelection(int gameId, ChangeEventArgs args)
-    {
-        if (args.Value is true)
-        {
-            selectedGameIds.Add(gameId);
             return;
         }
 
-        selectedGameIds.Remove(gameId);
+        await RemoveItemAsync(company);
+        await LoadGameCompanySummaries();
+    }
+
+    private IReadOnlyList<string> GetGameNames(Company company)
+    {
+        return gameNamesByCompanyId.GetValueOrDefault(company.Id) ?? [];
+    }
+
+    private string GetCompanyRoleSummary(Company company)
+    {
+        if (!rolesByCompanyId.TryGetValue(company.Id, out HashSet<GameCompanyRole>? roles)
+            || roles.Count == 0)
+        {
+            return "Metadata";
+        }
+
+        return string.Join(" · ", roles.OrderBy(role => role).Select(role => role.ToString()));
+    }
+
+    private string GetCompanySourceSummary(Company company)
+    {
+        return company.IgdbId.HasValue ? "IGDB" : "Manual";
+    }
+
+    private bool CompanyHasLinkedGames(Company company)
+    {
+        return gameNamesByCompanyId.ContainsKey(company.Id);
     }
 
     private void ResetForm()
     {
+        newCompanyIgdbId = null;
         newCompanyName = string.Empty;
         newCompanyCoverUrl = string.Empty;
-        newCompanyIsPublisher = false;
-        newCompanyIsDeveloper = false;
-        selectedGameIds.Clear();
     }
 
     public bool TryGetLocalCompany(long? igdbId, out Company? company)
@@ -127,5 +141,37 @@ public partial class Companies : CollectionPageBase<Company>
 
         company = DbContext.Companies.FirstOrDefault(company => company.IgdbId == igdbId.Value);
         return company != null;
+    }
+
+    private async Task LoadGameCompanySummaries()
+    {
+        games = await DbContext.Games
+                               .Include(game => game.Companies)
+                               .ThenInclude(gameCompany => gameCompany.Company)
+                               .OrderBy(game => game.Name)
+                               .ToListAsync();
+
+        gameNamesByCompanyId = games
+                               .SelectMany(game => game.Companies.Select(gameCompany => new
+                                                                                        {
+                                                                                            game.Name,
+                                                                                            gameCompany.CompanyId
+                                                                                        }))
+                               .GroupBy(item => item.CompanyId)
+                               .ToDictionary(group => group.Key,
+                                             group => group.Select(item => item.Name)
+                                                           .Distinct(StringComparer.OrdinalIgnoreCase)
+                                                           .OrderBy(name => name)
+                                                           .ToList());
+
+        rolesByCompanyId = games
+                           .SelectMany(game => game.Companies.Select(gameCompany => new
+                                                                                    {
+                                                                                        gameCompany.CompanyId,
+                                                                                        gameCompany.Role
+                                                                                    }))
+                           .GroupBy(item => item.CompanyId)
+                           .ToDictionary(group => group.Key,
+                                         group => group.Select(item => item.Role).ToHashSet());
     }
 }

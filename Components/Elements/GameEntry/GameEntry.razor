@@ -23,14 +23,19 @@
             <label class="game-release-date">@Game.ReleaseDate?.ToString()</label>
         }
         
-        @if (!string.IsNullOrWhiteSpace(Game.Developer)
-             && !string.IsNullOrWhiteSpace(Game.Publisher))
+        @if (DeveloperNames.Count > 0 && PublisherNames.Count > 0)
         {
-            <label class="game-developer">@Game.Developer - @Game.Publisher</label>
+            <label class="game-developer">
+                @string.Join(", ", DeveloperNames) - @string.Join(", ", PublisherNames)
+            </label>
         }
-        else if (!string.IsNullOrWhiteSpace(Game.Developer))
+        else if (DeveloperNames.Count > 0)
         {
-            <label class="game-developer">@Game.Developer</label>
+            <label class="game-developer">@string.Join(", ", DeveloperNames)</label>
+        }
+        else if (PublisherNames.Count > 0)
+        {
+            <label class="game-developer">@string.Join(", ", PublisherNames)</label>
         }
 
         @if (!string.IsNullOrWhiteSpace(Game.Summary))

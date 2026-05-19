@@ -23,6 +23,10 @@ public partial class GameEntry
     [Parameter]
     public EventCallback<Game> OnRemove { get; set; }
 
+    private IReadOnlyList<string> DeveloperNames => GetCompanyNames(GameCompanyRole.Developer);
+
+    private IReadOnlyList<string> PublisherNames => GetCompanyNames(GameCompanyRole.Publisher);
+
     private async Task HandleClick()
     {
         await OnClick.InvokeAsync();
@@ -41,5 +45,16 @@ public partial class GameEntry
     private async Task HandleRemove()
     {
         await OnRemove.InvokeAsync(Game);
+    }
+
+    private IReadOnlyList<string> GetCompanyNames(GameCompanyRole role)
+    {
+        return Game.Companies
+                   .Where(gameCompany => gameCompany.Role == role)
+                   .Select(gameCompany => gameCompany.Company.Name)
+                   .Where(name => !string.IsNullOrWhiteSpace(name))
+                   .Distinct(StringComparer.OrdinalIgnoreCase)
+                   .OrderBy(name => name)
+                   .ToList();
     }
 }
