@@ -102,15 +102,15 @@ public partial class AddPlatformPopup : ComponentBase
             string localIgdbGameIdsFilter = string.Join(",", localIgdbGameIds);
 
             IgdbGame[] igdbGames = await IgdbClientProvider
-                                     .GetClient()
-                                     .QueryAsync<IgdbGame>(
-                                                           IGDBClient.Endpoints.Games,
-                                                           query: $"""
-                                                                   fields id;
-                                                                   where id = ({localIgdbGameIdsFilter})
-                                                                         & platforms = {platformIgdbId};
-                                                                   limit {localIgdbGameIds.Length};
-                                                                   """);
+                                         .GetClient()
+                                         .QueryAsync<IgdbGame>(
+                                                               IGDBClient.Endpoints.Games,
+                                                               query: $"""
+                                                                       fields id;
+                                                                       where id = ({localIgdbGameIdsFilter})
+                                                                             & platforms = {platformIgdbId};
+                                                                       limit {localIgdbGameIds.Length};
+                                                                       """);
 
             HashSet<long> matchedGameIds = igdbGames
                                            .Where(game => game.Id.HasValue)

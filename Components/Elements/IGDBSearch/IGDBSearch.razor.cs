@@ -21,6 +21,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 {
     private const int MinSearchLength = 2;
     private const int DebounceDelayMilliseconds = 300;
+    private const int CompanyCandidateLimit = 500;
 
     private string searchInput = string.Empty;
     private string? searchErrorMessage;
@@ -35,6 +36,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     private List<LocalGame> gameResults = [];
     private List<IgdbSearchPlatformResult> platformResults = [];
     private List<LocalCompany> companyResults = [];
+    private List<LocalCompany> companyResultCandidates = [];
 
     [Inject]
     private IgdbClientProvider IgdbClientProvider { get; set; } = null!;
@@ -52,7 +54,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     public IgdbSearchFor SearchFor { get; set; } = IgdbSearchFor.Games;
 
     [Parameter]
-    public int MaxResults { get; set; } = 10;
+    public int MaxResults { get; set; } = 100;
 
     [Parameter]
     public IReadOnlyList<LocalGame> LocalGames { get; set; } = [];
@@ -67,12 +69,12 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     public EventCallback<LocalCompany> OnCompanySelected { get; set; }
 
     private bool HasResults => SearchFor switch
-    {
-        IgdbSearchFor.Games => gameResults.Count > 0,
-        IgdbSearchFor.Platforms => platformResults.Count > 0,
-        IgdbSearchFor.Companies => companyResults.Count > 0,
-        _ => false
-    };
+                               {
+                                   IgdbSearchFor.Games => gameResults.Count > 0,
+                                   IgdbSearchFor.Platforms => platformResults.Count > 0,
+                                   IgdbSearchFor.Companies => companyResults.Count > 0,
+                                   _ => false
+                               };
 
     private bool ShouldShowDropdown => isSearching
                                        || isLoadingMore
@@ -130,7 +132,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
             return;
         }
 
-        searchCancellationTokenSource?.Cancel();
+        await searchCancellationTokenSource?.CancelAsync()!;
         searchOffset = 0;
         canLoadMore = false;
         ClearResults();
@@ -145,7 +147,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
             return;
         }
 
-        searchCancellationTokenSource?.Cancel();
+        await searchCancellationTokenSource?.CancelAsync()!;
         await SearchAsync(activeSearchText, CancellationToken.None, appendResults: true);
     }
 
@@ -185,12 +187,12 @@ public partial class IGDBSearch : ComponentBase, IDisposable
         try
         {
             int resultCount = SearchFor switch
-            {
-                IgdbSearchFor.Games => await SearchGames(trimmedSearchInput, appendResults),
-                IgdbSearchFor.Platforms => await SearchPlatforms(trimmedSearchInput, appendResults, cancellationToken),
-                IgdbSearchFor.Companies => await SearchCompanies(trimmedSearchInput, appendResults, cancellationToken),
-                _ => 0
-            };
+                              {
+                                  IgdbSearchFor.Games => await SearchGames(trimmedSearchInput, appendResults),
+                                  IgdbSearchFor.Platforms => await SearchPlatforms(trimmedSearchInput, appendResults, cancellationToken),
+                                  IgdbSearchFor.Companies => await SearchCompanies(trimmedSearchInput, appendResults, cancellationToken),
+                                  _ => 0
+                              };
 
             if (cancellationToken.IsCancellationRequested)
             {
@@ -198,7 +200,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
             }
 
             searchOffset += resultCount;
-            canLoadMore = resultCount == MaxResults;
+            canLoadMore = CanLoadMoreResults(resultCount);
             hasSearched = true;
         }
         catch (OperationCanceledException)
@@ -265,7 +267,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
         IgdbPlatform[] igdbResults = await IgdbClientProvider
                                            .GetClient()
                                            .QueryAsync<IgdbPlatform>(IGDBClient.Endpoints.Platforms,
-                                                                             query: $"""
+                                                                     query: $"""
                                                                                      fields id, name,
                                                                                             versions.id,
                                                                                             versions.main_manufacturer.id,
@@ -297,15 +299,15 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
         Dictionary<long, string> manufacturerNamesById = await GetCompanyNames(platformProjections
                                                                                .SelectMany(projection => projection.ManufacturerCompanyIds
-                                                                                                                 .Concat(GetManufacturerCompanyIds(GetDetailedPlatformVersions(projection,
-                                                                                                                                                                               platformVersionsById))))
+                                                                                                                   .Concat(GetManufacturerCompanyIds(GetDetailedPlatformVersions(projection,
+                                                                                                                                                                                 platformVersionsById))))
                                                                                .Distinct()
                                                                                .ToArray());
         Dictionary<long, string> manufacturerNamesByPlatformVersionCompanyId =
             await GetPlatformVersionCompanyNames(platformProjections
                                                  .SelectMany(projection => projection.ManufacturerPlatformVersionCompanyIds
-                                                                           .Concat(GetManufacturerPlatformVersionCompanyIds(GetDetailedPlatformVersions(projection,
-                                                                                                                                                       platformVersionsById))))
+                                                                                     .Concat(GetManufacturerPlatformVersionCompanyIds(GetDetailedPlatformVersions(projection,
+                                                                                                                                                                  platformVersionsById))))
                                                  .Distinct()
                                                  .ToArray());
 
@@ -315,44 +317,44 @@ public partial class IGDBSearch : ComponentBase, IDisposable
         }
 
         List<IgdbSearchPlatformResult> newResults = platformProjections
-                                                   .Select(projection =>
-                                                   {
-                                                       IEnumerable<IgdbPlatformVersion> detailedPlatformVersions =
-                                                           GetDetailedPlatformVersions(projection, platformVersionsById);
+                                                    .Select(projection =>
+                                                            {
+                                                                IEnumerable<IgdbPlatformVersion> detailedPlatformVersions =
+                                                                    GetDetailedPlatformVersions(projection, platformVersionsById);
 
-                                                       long[] manufacturerCompanyIds = projection.ManufacturerCompanyIds
-                                                                                       .Concat(GetManufacturerCompanyIds(detailedPlatformVersions))
-                                                                                       .Distinct()
-                                                                                       .ToArray();
-                                                       long[] manufacturerPlatformVersionCompanyIds = projection.ManufacturerPlatformVersionCompanyIds
-                                                                                                      .Concat(GetManufacturerPlatformVersionCompanyIds(detailedPlatformVersions))
-                                                                                                      .Distinct()
-                                                                                                      .ToArray();
+                                                                long[] manufacturerCompanyIds = projection.ManufacturerCompanyIds
+                                                                                                          .Concat(GetManufacturerCompanyIds(detailedPlatformVersions))
+                                                                                                          .Distinct()
+                                                                                                          .ToArray();
+                                                                long[] manufacturerPlatformVersionCompanyIds = projection.ManufacturerPlatformVersionCompanyIds
+                                                                                                                         .Concat(GetManufacturerPlatformVersionCompanyIds(detailedPlatformVersions))
+                                                                                                                         .Distinct()
+                                                                                                                         .ToArray();
 
-                                                       string[] manufacturerNames = projection.ManufacturerNames
-                                                           .Concat(GetManufacturerCompanyNames(detailedPlatformVersions))
-                                                           .Concat(manufacturerCompanyIds
-                                                                   .Where(manufacturerNamesById.ContainsKey)
-                                                                   .Select(manufacturerCompanyId => manufacturerNamesById[manufacturerCompanyId]))
-                                                           .Concat(manufacturerPlatformVersionCompanyIds
-                                                                   .Where(manufacturerNamesByPlatformVersionCompanyId.ContainsKey)
-                                                                   .Select(manufacturerCompanyId => manufacturerNamesByPlatformVersionCompanyId[manufacturerCompanyId]))
-                                                           .Where(name => !IsNumericIdList(name))
-                                                           .Distinct(StringComparer.OrdinalIgnoreCase)
-                                                           .OrderBy(name => name)
-                                                           .ToArray();
+                                                                string[] manufacturerNames = projection.ManufacturerNames
+                                                                                                       .Concat(GetManufacturerCompanyNames(detailedPlatformVersions))
+                                                                                                       .Concat(manufacturerCompanyIds
+                                                                                                               .Where(manufacturerNamesById.ContainsKey)
+                                                                                                               .Select(manufacturerCompanyId => manufacturerNamesById[manufacturerCompanyId]))
+                                                                                                       .Concat(manufacturerPlatformVersionCompanyIds
+                                                                                                               .Where(manufacturerNamesByPlatformVersionCompanyId.ContainsKey)
+                                                                                                               .Select(manufacturerCompanyId => manufacturerNamesByPlatformVersionCompanyId[manufacturerCompanyId]))
+                                                                                                       .Where(name => !IsNumericIdList(name))
+                                                                                                       .Distinct(StringComparer.OrdinalIgnoreCase)
+                                                                                                       .OrderBy(name => name)
+                                                                                                       .ToArray();
 
-                                                       if (manufacturerNames.Length == 0
-                                                           && TryGetKnownPlatformManufacturer(projection.Platform.Name, out string? knownManufacturer))
-                                                       {
-                                                           manufacturerNames = [knownManufacturer];
-                                                       }
+                                                                if (manufacturerNames.Length == 0
+                                                                    && TryGetKnownPlatformManufacturer(projection.Platform.Name, out string? knownManufacturer))
+                                                                {
+                                                                    manufacturerNames = [knownManufacturer];
+                                                                }
 
-                                                       return new IgdbSearchPlatformResult(projection.Platform, manufacturerNames);
-                                                   })
-                                                   .OrderByNameRelevance(trimmedSearchInput,
-                                                                         result => result.Platform.Name)
-                                                   .ToList();
+                                                                return new IgdbSearchPlatformResult(projection.Platform, manufacturerNames);
+                                                            })
+                                                    .OrderByNameRelevance(trimmedSearchInput,
+                                                                          result => result.Platform.Name)
+                                                    .ToList();
 
         if (appendResults)
         {
@@ -370,26 +372,38 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     {
         string escapedSearchInput = EscapeSearchInput(trimmedSearchInput);
 
-        IgdbCompany[] igdbResults = await IgdbClientProvider
-                                          .GetClient()
-                                          .QueryAsync<IgdbCompany>(
-                                                                  IGDBClient.Endpoints.Companies,
-                                                                  query: $"""
-                                                                          fields id, name, developed.id, published.id, logo.url;
-                                                                          where name ~ *"{escapedSearchInput}"*;
-                                                                          sort name asc;
-                                                                          limit {MaxResults};
-                                                                          offset {searchOffset};
-                                                                          """);
+        if (!appendResults)
+        {
+            IgdbCompany[] igdbResults = await IgdbClientProvider
+                                              .GetClient()
+                                              .QueryAsync<IgdbCompany>(
+                                                                       IGDBClient.Endpoints.Companies,
+                                                                       query: $"""
+                                                                               fields id, name, developed.id, published.id, logo.url;
+                                                                               where name ~ *"{escapedSearchInput}"*;
+                                                                               sort name asc;
+                                                                               limit {CompanyCandidateLimit};
+                                                                               """);
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return 0;
+            }
+
+            companyResultCandidates = igdbResults
+                                      .Select(ToLocalCompany)
+                                      .OrderByNameRelevance(trimmedSearchInput, company => company.Name)
+                                      .ToList();
+        }
 
         if (cancellationToken.IsCancellationRequested)
         {
             return 0;
         }
 
-        List<LocalCompany> newResults = igdbResults
-                                        .Select(ToLocalCompany)
-                                        .OrderByNameRelevance(trimmedSearchInput, company => company.Name)
+        List<LocalCompany> newResults = companyResultCandidates
+                                        .Skip(appendResults ? companyResults.Count : 0)
+                                        .Take(MaxResults)
                                         .ToList();
 
         if (appendResults)
@@ -438,6 +452,14 @@ public partial class IGDBSearch : ComponentBase, IDisposable
         gameResults.Clear();
         platformResults.Clear();
         companyResults.Clear();
+        companyResultCandidates.Clear();
+    }
+
+    private bool CanLoadMoreResults(int resultCount)
+    {
+        return SearchFor is IgdbSearchFor.Companies
+                   ? companyResults.Count < companyResultCandidates.Count
+                   : resultCount == MaxResults;
     }
 
     private static string EscapeSearchInput(string searchInput)
@@ -546,18 +568,18 @@ public partial class IGDBSearch : ComponentBase, IDisposable
         IgdbPlatformVersion[] platformVersions = await IgdbClientProvider
                                                        .GetClient()
                                                        .QueryAsync<IgdbPlatformVersion>(IGDBClient.Endpoints.PlatformVersions,
-                                                                                       query: $"""
-                                                                                               fields id,
-                                                                                                      main_manufacturer.id,
-                                                                                                      main_manufacturer.company.id,
-                                                                                                      main_manufacturer.company.name,
-                                                                                                      companies.id,
-                                                                                                      companies.company.id,
-                                                                                                      companies.company.name,
-                                                                                                      companies.manufacturer;
-                                                                                               where id = ({platformVersionIdsFilter});
-                                                                                               limit {platformVersionIds.Length};
-                                                                                               """);
+                                                                                        query: $"""
+                                                                                                fields id,
+                                                                                                       main_manufacturer.id,
+                                                                                                       main_manufacturer.company.id,
+                                                                                                       main_manufacturer.company.name,
+                                                                                                       companies.id,
+                                                                                                       companies.company.id,
+                                                                                                       companies.company.name,
+                                                                                                       companies.manufacturer;
+                                                                                                where id = ({platformVersionIdsFilter});
+                                                                                                limit {platformVersionIds.Length};
+                                                                                                """);
 
         return platformVersions
                .Where(platformVersion => platformVersion.Id.HasValue)
@@ -618,30 +640,30 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     {
         return versions
                .SelectMany(version =>
-               {
-                   long? mainManufacturerVersionCompanyId = version.MainManufacturer?.Id
-                                                            ?? version.MainManufacturer?.Value?.Id;
+                           {
+                               long? mainManufacturerVersionCompanyId = version.MainManufacturer?.Id
+                                                                        ?? version.MainManufacturer?.Value?.Id;
 
-                   IEnumerable<long> mainManufacturerCompanyIds =
-                       GetCompanyIds(version.MainManufacturer?.Value?.Company);
+                               IEnumerable<long> mainManufacturerCompanyIds =
+                                   GetCompanyIds(version.MainManufacturer?.Value?.Company);
 
-                   IEnumerable<long> manufacturerCompanyIds =
-                       version.Companies?.Values?
-                              .Where(company => company.Manufacturer is true)
-                              .SelectMany(company => GetCompanyIds(company.Company))
-                       ?? [];
+                               IEnumerable<long> manufacturerCompanyIds =
+                                   version.Companies?.Values?
+                                          .Where(company => company.Manufacturer is true)
+                                          .SelectMany(company => GetCompanyIds(company.Company))
+                                   ?? [];
 
-                   IEnumerable<long> matchedMainManufacturerCompanyIds =
-                       version.Companies?.Values?
-                              .Where(company => company.Id.HasValue
-                                                && company.Id == mainManufacturerVersionCompanyId)
-                              .SelectMany(company => GetCompanyIds(company.Company))
-                       ?? [];
+                               IEnumerable<long> matchedMainManufacturerCompanyIds =
+                                   version.Companies?.Values?
+                                          .Where(company => company.Id.HasValue
+                                                            && company.Id == mainManufacturerVersionCompanyId)
+                                          .SelectMany(company => GetCompanyIds(company.Company))
+                                   ?? [];
 
-                   return mainManufacturerCompanyIds
-                          .Concat(manufacturerCompanyIds)
-                          .Concat(matchedMainManufacturerCompanyIds);
-               })
+                               return mainManufacturerCompanyIds
+                                      .Concat(manufacturerCompanyIds)
+                                      .Concat(matchedMainManufacturerCompanyIds);
+                           })
                .Distinct()
                .ToArray();
     }
@@ -650,18 +672,18 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     {
         return versions
                .SelectMany(version =>
-               {
-                   IEnumerable<long?> mainManufacturerIds =
-                       [version.MainManufacturer?.Id ?? version.MainManufacturer?.Value?.Id];
+                           {
+                               IEnumerable<long?> mainManufacturerIds =
+                                   [version.MainManufacturer?.Id ?? version.MainManufacturer?.Value?.Id];
 
-                   IEnumerable<long?> manufacturerIds =
-                       version.Companies?.Values?
-                              .Where(company => company.Manufacturer is true)
-                              .Select(company => company.Id)
-                       ?? [];
+                               IEnumerable<long?> manufacturerIds =
+                                   version.Companies?.Values?
+                                          .Where(company => company.Manufacturer is true)
+                                          .Select(company => company.Id)
+                                   ?? [];
 
-                   return mainManufacturerIds.Concat(manufacturerIds);
-               })
+                               return mainManufacturerIds.Concat(manufacturerIds);
+                           })
                .Where(companyId => companyId.HasValue)
                .Select(companyId => companyId!.Value)
                .Distinct()
@@ -690,30 +712,30 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     {
         return versions
                .SelectMany(version =>
-               {
-                   long? mainManufacturerVersionCompanyId = version.MainManufacturer?.Id
-                                                            ?? version.MainManufacturer?.Value?.Id;
+                           {
+                               long? mainManufacturerVersionCompanyId = version.MainManufacturer?.Id
+                                                                        ?? version.MainManufacturer?.Value?.Id;
 
-                   IEnumerable<string?> mainManufacturerCompanyNames =
-                       [GetCompanyName(version.MainManufacturer?.Value?.Company)];
+                               IEnumerable<string?> mainManufacturerCompanyNames =
+                                   [GetCompanyName(version.MainManufacturer?.Value?.Company)];
 
-                   IEnumerable<string?> manufacturerCompanyNames =
-                       version.Companies?.Values?
-                              .Where(company => company.Manufacturer is true)
-                              .Select(company => GetCompanyName(company.Company))
-                       ?? [];
+                               IEnumerable<string?> manufacturerCompanyNames =
+                                   version.Companies?.Values?
+                                          .Where(company => company.Manufacturer is true)
+                                          .Select(company => GetCompanyName(company.Company))
+                                   ?? [];
 
-                   IEnumerable<string?> matchedMainManufacturerCompanyNames =
-                       version.Companies?.Values?
-                              .Where(company => company.Id.HasValue
-                                                && company.Id == mainManufacturerVersionCompanyId)
-                              .Select(company => GetCompanyName(company.Company))
-                       ?? [];
+                               IEnumerable<string?> matchedMainManufacturerCompanyNames =
+                                   version.Companies?.Values?
+                                          .Where(company => company.Id.HasValue
+                                                            && company.Id == mainManufacturerVersionCompanyId)
+                                          .Select(company => GetCompanyName(company.Company))
+                                   ?? [];
 
-                   return mainManufacturerCompanyNames
-                          .Concat(manufacturerCompanyNames)
-                          .Concat(matchedMainManufacturerCompanyNames);
-               })
+                               return mainManufacturerCompanyNames
+                                      .Concat(manufacturerCompanyNames)
+                                      .Concat(matchedMainManufacturerCompanyNames);
+                           })
                .Where(name => !string.IsNullOrWhiteSpace(name))
                .Select(name => name!)
                .Distinct(StringComparer.OrdinalIgnoreCase)
