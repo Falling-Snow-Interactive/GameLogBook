@@ -18,33 +18,14 @@
 
         <div class="platform-form">
             <div class="form-field-full">
-                <IGDBSearch Value="@searchInput"
+                <IGDBSearch SearchFor="@IgdbSearchFor.Platforms"
                             Placeholder="Search for a platform"
-                            IsSearching="@isSearching"
-                            ErrorMessage="@searchErrorMessage"
-                            OnInput="HandleSearchInput"
-                            OnKeyDown="HandleSearchKeyDown"
-                            OnSearch="HandleSearch">
-                    @if (searchResults.Count > 0)
-                    {
-                        <div class="platform-search-results">
-                            @foreach (PlatformSearchResult result in searchResults)
-                            {
-                                <button class="platform-search-result"
-                                        type="button"
-                                        @onclick="() => HandlePlatformSelected(result)">
-                                    <span class="platform-result-icon bi bi-tv"
-                                          aria-hidden="true"></span>
+                            OnPlatformSelected="HandlePlatformSelected" />
 
-                                    <span class="platform-result-copy">
-                                        <strong>@result.Platform.Name</strong>
-                                        <small>@GetPlatformSummary(result)</small>
-                                    </span>
-                                </button>
-                            }
-                        </div>
-                    }
-                </IGDBSearch>
+                @if (!string.IsNullOrWhiteSpace(searchErrorMessage))
+                {
+                    <p class="platform-form-error">@searchErrorMessage</p>
+                }
             </div>
 
             <hr class="popup-divider form-field-full" />

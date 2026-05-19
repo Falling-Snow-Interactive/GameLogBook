@@ -1,4 +1,3 @@
-@using GameLogBook.Components.Elements.GameEntry
 @using GameLogBook.Models.Games
 @using GameLogBook.Models.Companies
 
@@ -15,35 +14,9 @@
         </div>
         
         <div class="popup-content">
-            <IGDBSearch Value="@searchInput"
+            <IGDBSearch SearchFor="@IgdbSearchFor.Games"
                         Placeholder="Search for a game"
-                        IsSearching="@isSearching"
-                        OnInput="HandleSearchInput"
-                        OnKeyDown="HandleKeyDown"
-                        OnSearch="HandleSearch">
-                @if (searchResults.Count > 0)
-                {
-                    <div class="search-results-dropdown">
-                        @foreach (Game game in searchResults)
-                        {
-                            <GameEntry Game="game"
-                                       ShowButtons="false"
-                                       OnClick="@(() => HandleGameSelected(game))" />
-                        }
-                        @if (canLoadMore)
-                        {
-                            <div class="load-more-container">
-                                <button class="load-more-button"
-                                        type="button"
-                                        @onclick="HandleLoadMore"
-                                        disabled="@isLoadingMore">
-                                    @(isLoadingMore ? "Loading..." : "Load more")
-                                </button>
-                            </div>
-                        }
-                    </div>
-                }
-            </IGDBSearch>
+                        OnGameSelected="HandleGameSelected" />
 
             <hr class="popup-divider"/>
 
@@ -124,10 +97,5 @@
                 </div>
             </div>
         </div>
-
-        @if (!string.IsNullOrWhiteSpace(errorMessage))
-        {
-            <p class="error-message">@errorMessage</p>
-        }
     </div>
 </div>

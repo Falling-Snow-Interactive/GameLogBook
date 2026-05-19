@@ -1,65 +1,139 @@
-@using Microsoft.AspNetCore.Components.Web
-
 <div class="igdb-search">
     <span class="igdb-search-label">@Label</span>
 
-    <div class="igdb-search-row">
-        <input class="igdb-search-input"
-               value="@Value"
-               placeholder="@Placeholder"
-               @oninput="OnInput"
-               @onkeydown="OnKeyDown" />
+    <div class="igdb-search-anchor">
+        <div class="igdb-search-row">
+            <input class="igdb-search-input"
+                   value="@searchInput"
+                   placeholder="@Placeholder"
+                   aria-label="@Label"
+                   @oninput="HandleSearchInput"
+                   @onkeydown="HandleSearchKeyDown" />
 
-        <button class="igdb-search-button"
-                type="button"
-                disabled="@IsSearching"
-                @onclick="OnSearch">
-            @(IsSearching ? SearchingText : SearchText)
-        </button>
+            <span class="igdb-search-status"
+                  aria-hidden="true">
+                @if (isSearching)
+                {
+                    <span class="igdb-search-spinner"></span>
+                }
+                else
+                {
+                    <span class="bi bi-search"></span>
+                }
+            </span>
+        </div>
+
+        @if (ShouldShowDropdown)
+        {
+            <div class="igdb-search-dropdown">
+                @if (!string.IsNullOrWhiteSpace(searchErrorMessage))
+                {
+                    <p class="igdb-search-error">@searchErrorMessage</p>
+                }
+                else if (HasResults)
+                {
+                    <div class="igdb-search-results">
+                        @switch (SearchFor)
+                        {
+                            case IgdbSearchFor.Games:
+                                @foreach (GameLogBook.Models.Games.Game game in gameResults)
+                                {
+                                    <button class="igdb-search-result igdb-search-game-result"
+                                            type="button"
+                                            @onclick="() => SelectGame(game)">
+                                        @if (!string.IsNullOrWhiteSpace(game.Cover?.Url))
+                                        {
+                                            <img class="igdb-search-result-cover"
+                                                 src="@game.Cover.Url"
+                                                 alt="@game.Name cover" />
+                                        }
+                                        else
+                                        {
+                                            <span class="igdb-search-result-cover-placeholder">
+                                                No cover
+                                            </span>
+                                        }
+
+                                        <span class="igdb-search-result-copy">
+                                            <strong>@game.Name</strong>
+                                            <small>@GetGameSummary(game)</small>
+
+                                            @if (!string.IsNullOrWhiteSpace(game.Summary))
+                                            {
+                                                <span class="igdb-search-result-description">@game.Summary</span>
+                                            }
+                                        </span>
+                                    </button>
+                                }
+
+                                break;
+                            case IgdbSearchFor.Platforms:
+                                @foreach (IgdbSearchPlatformResult result in platformResults)
+                                {
+                                    <button class="igdb-search-result"
+                                            type="button"
+                                            @onclick="() => SelectPlatform(result)">
+                                        <span class="igdb-search-result-icon bi bi-tv"
+                                              aria-hidden="true"></span>
+
+                                        <span class="igdb-search-result-copy">
+                                            <strong>@result.Platform.Name</strong>
+                                            <small>@GetPlatformSummary(result)</small>
+                                        </span>
+                                    </button>
+                                }
+
+                                break;
+                            case IgdbSearchFor.Companies:
+                                @foreach (GameLogBook.Models.Companies.Company company in companyResults)
+                                {
+                                    <button class="igdb-search-result"
+                                            type="button"
+                                            @onclick="() => SelectCompany(company)">
+                                        @if (!string.IsNullOrWhiteSpace(company.CoverUrl))
+                                        {
+                                            <img class="igdb-search-result-logo"
+                                                 src="@company.CoverUrl"
+                                                 alt="@company.Name logo" />
+                                        }
+                                        else
+                                        {
+                                            <span class="igdb-search-result-icon bi bi-building"
+                                                  aria-hidden="true"></span>
+                                        }
+
+                                        <span class="igdb-search-result-copy">
+                                            <strong>@company.Name</strong>
+                                            <small>@GetCompanyRoleSummary(company)</small>
+                                        </span>
+                                    </button>
+                                }
+
+                                break;
+                        }
+
+                        @if (canLoadMore)
+                        {
+                            <div class="igdb-search-load-more">
+                                <button class="igdb-search-load-more-button"
+                                        type="button"
+                                        @onclick="HandleLoadMore"
+                                        disabled="@isLoadingMore">
+                                    @(isLoadingMore ? "Loading..." : "Load more")
+                                </button>
+                            </div>
+                        }
+                    </div>
+                }
+                else if (isSearching)
+                {
+                    <p class="igdb-search-empty">Searching IGDB...</p>
+                }
+                else if (hasSearched)
+                {
+                    <p class="igdb-search-empty">No results found.</p>
+                }
+            </div>
+        }
     </div>
-
-    @ChildContent
-
-    @if (!string.IsNullOrWhiteSpace(ErrorMessage))
-    {
-        <p class="igdb-search-error">@ErrorMessage</p>
-    }
 </div>
-
-@code {
-    [Parameter]
-    public string Label { get; set; } = "Search IGDB";
-
-    [Parameter]
-    public string Placeholder { get; set; } = string.Empty;
-
-    [Parameter]
-    public string Value { get; set; } = string.Empty;
-
-    [Parameter]
-    public int MaxResults { get; set; } = 10;
-
-    [Parameter]
-    public bool IsSearching { get; set; }
-
-    [Parameter]
-    public string SearchText { get; set; } = "Search";
-
-    [Parameter]
-    public string SearchingText { get; set; } = "Searching...";
-
-    [Parameter]
-    public string? ErrorMessage { get; set; }
-
-    [Parameter]
-    public EventCallback<ChangeEventArgs> OnInput { get; set; }
-
-    [Parameter]
-    public EventCallback<KeyboardEventArgs> OnKeyDown { get; set; }
-
-    [Parameter]
-    public EventCallback OnSearch { get; set; }
-
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-}

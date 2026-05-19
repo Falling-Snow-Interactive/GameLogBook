@@ -1,3 +1,4 @@
+using GameLogBook.Components.Elements.IGDBSearch;
 using GameLogBook.Models.Games;
 using GameLogBook.Models.Platforms;
 using GameLogBook.Services;
@@ -5,8 +6,6 @@ using IGDB;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using IgdbGame = IGDB.Models.Game;
-using IgdbPlatform = IGDB.Models.Platform;
-using IgdbPlatformVersion = IGDB.Models.PlatformVersion;
 
 namespace GameLogBook.Components.Elements.AddPlatform;
 
@@ -21,11 +20,7 @@ public partial class AddPlatformPopup : ComponentBase
     private HashSet<int> selectedGameIds = [];
     private HashSet<int> companyIds = [];
 
-    private bool isSearching;
-    private string searchInput = string.Empty;
     private string? searchErrorMessage;
-    private List<PlatformSearchResult> searchResults = [];
-    private CancellationTokenSource? searchCancellationTokenSource;
 
     [Parameter]
     public EventCallback OnClose { get; set; }
@@ -38,142 +33,15 @@ public partial class AddPlatformPopup : ComponentBase
 
     private async Task HandleClose()
     {
-        searchCancellationTokenSource?.Cancel();
         await OnClose.InvokeAsync();
     }
 
-    private async Task HandleSearchInput(ChangeEventArgs args)
-    {
-        searchInput = args.Value?.ToString() ?? string.Empty;
-        string trimmedSearchInput = searchInput.Trim();
-
-        searchCancellationTokenSource?.Cancel();
-        searchCancellationTokenSource = new CancellationTokenSource();
-
-        if (trimmedSearchInput.Length < 2)
-        {
-            searchResults.Clear();
-            searchErrorMessage = null;
-            return;
-        }
-
-        try
-        {
-            await Task.Delay(300, searchCancellationTokenSource.Token);
-            await SearchPlatforms(trimmedSearchInput, searchCancellationTokenSource.Token);
-        }
-        catch (OperationCanceledException)
-        {
-        }
-    }
-
-    private async Task HandleSearch()
-    {
-        searchCancellationTokenSource?.Cancel();
-        await SearchPlatforms(searchInput.Trim(), CancellationToken.None);
-    }
-
-    private async Task HandleSearchKeyDown(KeyboardEventArgs args)
-    {
-        if (args.Key is "Enter" or "NumpadEnter")
-        {
-            searchCancellationTokenSource?.Cancel();
-            await SearchPlatforms(searchInput.Trim(), CancellationToken.None);
-        }
-    }
-
-    private async Task SearchPlatforms(string trimmedSearchInput, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(trimmedSearchInput))
-        {
-            searchResults.Clear();
-            return;
-        }
-
-        if (!IgdbClientProvider.IsConfigured)
-        {
-            searchErrorMessage = "Search unavailable: IGDB credentials are not configured.";
-            searchResults.Clear();
-            return;
-        }
-
-        isSearching = true;
-        searchErrorMessage = null;
-
-        try
-        {
-            string escapedSearchInput = trimmedSearchInput
-                                        .Replace("\\", "\\\\")
-                                        .Replace("\"", "\\\"");
-
-            IgdbPlatform[] igdbResults = await IgdbClientProvider
-                                               .GetClient()
-                                               .QueryAsync<IgdbPlatform>(IGDBClient.Endpoints.Platforms,
-                                                                         query: $"""
-                                                                                 fields id, name,
-                                                                                        versions.main_manufacturer.company.id,
-                                                                                        versions.companies.company.id,
-                                                                                        versions.companies.manufacturer,
-                                                                                        versions.platform_version_release_dates.date;
-                                                                                 where name ~ *"{escapedSearchInput}"*;
-                                                                                 limit 10;
-                                                                                 """);
-
-            if (cancellationToken.IsCancellationRequested)
-            {
-                return;
-            }
-
-            List<PlatformSearchProjection> platformProjections = igdbResults
-                                                                 .Select(ToPlatformProjection)
-                                                                 .ToList();
-            Dictionary<long, string> manufacturerNames = await GetCompanyNames(platformProjections
-                                                                               .SelectMany(projection => projection.ManufacturerCompanyIds)
-                                                                               .Distinct()
-                                                                               .ToArray());
-
-            if (cancellationToken.IsCancellationRequested)
-            {
-                return;
-            }
-
-            searchResults = platformProjections
-                            .Select(projection => new PlatformSearchResult(projection.Platform,
-                                                                           projection.ManufacturerCompanyIds
-                                                                                     .Where(manufacturerNames.ContainsKey)
-                                                                                     .Select(manufacturerCompanyId => manufacturerNames[manufacturerCompanyId])
-                                                                                     .Distinct(StringComparer.OrdinalIgnoreCase)
-                                                                                     .OrderBy(name => name)
-                                                                                     .ToArray()))
-                            .ToList();
-        }
-        catch (OperationCanceledException)
-        {
-        }
-        catch (Exception exception)
-        {
-            searchErrorMessage = IsAuthenticationFailure(exception)
-                                     ? "Search failed: IGDB credentials were rejected. Check the configured client ID and client secret."
-                                     : $"Search failed: {exception.Message}";
-            searchResults.Clear();
-        }
-        finally
-        {
-            if (!cancellationToken.IsCancellationRequested)
-            {
-                isSearching = false;
-            }
-        }
-    }
-
-    private async Task HandlePlatformSelected(PlatformSearchResult result)
+    private async Task HandlePlatformSelected(IgdbSearchPlatformResult result)
     {
         Platform platform = result.Platform;
         igdbId = platform.IgdbId;
         platformName = platform.Name;
         releaseDate = platform.ReleaseDate;
-        searchInput = platform.Name;
-        searchResults.Clear();
         searchErrorMessage = null;
         // selectedCompanyIds = GetMatchingLocalManufacturerIds(result.ManufacturerNames);
         // selectedCompanyId = string.Empty;
@@ -262,99 +130,8 @@ public partial class AddPlatformPopup : ComponentBase
         }
     }
 
-    private static string GetPlatformSummary(PlatformSearchResult result)
-    {
-        string manufacturerSummary = result.ManufacturerNames.Length == 0
-                                         ? "Unknown manufacturer"
-                                         : string.Join(", ", result.ManufacturerNames);
-
-        string releaseSummary = result.Platform.ReleaseDate.HasValue
-                                    ? result.Platform.ReleaseDate.Value.ToString("yyyy-MM-dd")
-                                    : "Unknown release date";
-
-        return $"{manufacturerSummary} · {releaseSummary}";
-    }
-
-    private static PlatformSearchProjection ToPlatformProjection(IgdbPlatform igdbPlatform)
-    {
-        List<IgdbPlatformVersion> versions = igdbPlatform.Versions?.Values?.ToList() ?? [];
-
-        return new PlatformSearchProjection(new Platform
-                                            {
-                                                IgdbId = igdbPlatform.Id ?? 0,
-                                                Name = igdbPlatform.Name ?? string.Empty,
-                                                ReleaseDate = GetReleaseDate(versions)
-                                            },
-                                            GetManufacturerCompanyIds(versions));
-    }
-
-    private static long[] GetManufacturerCompanyIds(IEnumerable<IgdbPlatformVersion> versions)
-    {
-        return versions
-               .SelectMany(version =>
-               {
-                   IEnumerable<long?> mainManufacturerCompanyIds =
-                       [version.MainManufacturer?.Value?.Company?.Id];
-
-                   IEnumerable<long?> manufacturerCompanyIds =
-                       version.Companies?.Values?
-                              .Where(company => company.Manufacturer is true)
-                              .Select(company => company.Company?.Id)
-                       ?? [];
-
-                   return mainManufacturerCompanyIds.Concat(manufacturerCompanyIds);
-               })
-               .Where(companyId => companyId.HasValue)
-               .Select(companyId => companyId!.Value)
-               .Distinct()
-               .ToArray();
-    }
-
-    private static DateOnly? GetReleaseDate(IEnumerable<IgdbPlatformVersion> versions)
-    {
-        DateTimeOffset? firstReleaseDate = versions
-                                           .SelectMany(version => version.PlatformVersionReleaseDates?.Values ?? [])
-                                           .Where(release => release.Date.HasValue)
-                                           .Select(release => release.Date!.Value)
-                                           .OrderBy(date => date)
-                                           .FirstOrDefault();
-
-        return firstReleaseDate.HasValue
-                   ? DateOnly.FromDateTime(firstReleaseDate.Value.UtcDateTime)
-                   : null;
-    }
-
     private static bool IsAuthenticationFailure(Exception exception)
     {
         return exception.Message.Contains("id.twitch.tv/oauth2/token", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private sealed record PlatformSearchProjection(Platform Platform, long[] ManufacturerCompanyIds);
-
-    public sealed record PlatformSearchResult(Platform Platform, string[] ManufacturerNames);
-    
-    private async Task<Dictionary<long, string>> GetCompanyNames(long[] companyIds)
-    {
-        if (companyIds.Length == 0)
-        {
-            return [];
-        }
-
-        string companyIdsFilter = string.Join(",", companyIds);
-
-        IGDB.Models.Company[] companies = await IgdbClientProvider
-                                                .GetClient()
-                                                .QueryAsync<IGDB.Models.Company>(IGDBClient.Endpoints.Companies,
-                                                                                 query: $"""
-                                                                                         fields id, name;
-                                                                                         where id = ({companyIdsFilter});
-                                                                                         limit {companyIds.Length};
-                                                                                         """);
-
-        return companies
-               .Where(company => company.Id.HasValue
-                                 && !string.IsNullOrWhiteSpace(company.Name))
-               .ToDictionary(company => company.Id!.Value,
-                             company => company.Name!);
     }
 }

@@ -101,53 +101,10 @@
 
             <div class="company-form">
                 <div class="form-field-full">
-                    <IGDBSearch Value="@searchInput"
+                    <IGDBSearch SearchFor="@IgdbSearchFor.Companies"
                                 Placeholder="Search for a company"
-                                IsSearching="@isSearching"
-                                ErrorMessage="@searchErrorMessage"
-                                OnInput="HandleSearchInput"
-                                OnKeyDown="HandleSearchKeyDown"
-                                OnSearch="HandleSearch">
-                        @if (searchResults.Count > 0)
-                        {
-                            <div class="company-search-results">
-                                @foreach (Company company in searchResults)
-                                {
-                                    <button class="company-search-result"
-                                            type="button"
-                                            @onclick="() => HandleCompanySelected(company)">
-                                        @if (!string.IsNullOrWhiteSpace(company.CoverUrl))
-                                        {
-                                            <img src="@company.CoverUrl"
-                                                 alt="@company.Name logo" />
-                                        }
-                                        else
-                                        {
-                                            <span class="company-result-placeholder bi bi-building"
-                                                  aria-hidden="true"></span>
-                                        }
-
-                                        <span class="company-result-copy">
-                                            <strong>@company.Name</strong>
-                                            <small>@GetCompanyRoleSummary(company)</small>
-                                        </span>
-                                    </button>
-                                }
-
-                                @if (canLoadMore)
-                                {
-                                    <div class="load-more-container">
-                                        <button class="load-more-button"
-                                                type="button"
-                                                @onclick="HandleLoadMore"
-                                                disabled="@isLoadingMore">
-                                            @(isLoadingMore ? "Loading..." : "Load more")
-                                        </button>
-                                    </div>
-                                }
-                            </div>
-                        }
-                    </IGDBSearch>
+                                LocalGames="@games"
+                                OnCompanySelected="HandleCompanySelected" />
                 </div>
 
                 <hr class="popup-divider form-field-full" />
