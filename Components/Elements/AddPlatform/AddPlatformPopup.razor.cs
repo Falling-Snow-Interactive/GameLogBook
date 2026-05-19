@@ -15,6 +15,7 @@ public partial class AddPlatformPopup : ComponentBase
     [Inject]
     protected IgdbClientProvider IgdbClientProvider { get; set; } = null!;
 
+    private PlatformModel? previousInitialPlatform;
     private string platformName = string.Empty;
     private DateOnly? releaseDate;
     private long igdbId;
@@ -32,9 +33,29 @@ public partial class AddPlatformPopup : ComponentBase
     [Parameter]
     public IReadOnlyList<Game> Games { get; set; } = [];
 
-    private async Task HandleClose()
+    [Parameter]
+    public PlatformModel? InitialPlatform { get; set; }
+
+    private string PopupTitle => InitialPlatform is null ? "Add Platform" : "Edit Platform";
+
+    private string SaveButtonText => InitialPlatform is null ? "Add Platform" : "Save Changes";
+
+    protected override void OnParametersSet()
     {
-        await OnClose.InvokeAsync();
+        if (ReferenceEquals(previousInitialPlatform, InitialPlatform))
+        {
+            return;
+        }
+
+        previousInitialPlatform = InitialPlatform;
+
+        if (InitialPlatform is null)
+        {
+            ResetForm();
+            return;
+        }
+
+        LoadPlatform(InitialPlatform);
     }
 
     private async Task HandlePlatformSelected(IgdbSearchPlatformResult result)
@@ -54,12 +75,13 @@ public partial class AddPlatformPopup : ComponentBase
     {
         PlatformModel platform = new()
                                  {
+                                     ID = InitialPlatform?.ID ?? 0,
                                      IgdbId = igdbId,
                                      Name = platformName.Trim(),
                                      ReleaseDate = releaseDate,
-                                     // ManufacturerIds = selectedCompanyIds
-                                     //                   .OrderBy(companyId => companyId)
-                                     //                   .ToArray(),
+                                     ManufacturerIds = companyIds
+                                                       .OrderBy(companyId => companyId)
+                                                       .ToArray(),
                                      GameIds = selectedGameIds
                                                .OrderBy(gameId => gameId)
                                                .ToArray()
@@ -134,5 +156,25 @@ public partial class AddPlatformPopup : ComponentBase
     private static bool IsAuthenticationFailure(Exception exception)
     {
         return exception.Message.Contains("id.twitch.tv/oauth2/token", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void LoadPlatform(PlatformModel platform)
+    {
+        igdbId = platform.IgdbId;
+        platformName = platform.Name;
+        releaseDate = platform.ReleaseDate;
+        selectedGameIds = platform.GameIds.ToHashSet();
+        companyIds = platform.ManufacturerIds.ToHashSet();
+        searchErrorMessage = null;
+    }
+
+    private void ResetForm()
+    {
+        platformName = string.Empty;
+        releaseDate = null;
+        igdbId = 0;
+        selectedGameIds = [];
+        companyIds = [];
+        searchErrorMessage = null;
     }
 }

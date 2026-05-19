@@ -2,7 +2,7 @@
 <div class="popup-backdrop">
     <div class="popup">
         <div class="popup-header">
-            <h3>Add Playthrough</h3>
+            <h3>@PopupTitle</h3>
             <button class="close-button"
                     type="button"
                     title="Close"
@@ -74,7 +74,7 @@
                             type="button"
                             @onclick="HandleSavePlaythrough"
                             disabled="@string.IsNullOrWhiteSpace(playthroughName)">
-                        Add Playthrough
+                        @SaveButtonText
                     </button>
                 </div>
             </div>

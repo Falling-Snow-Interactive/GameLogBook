@@ -54,6 +54,12 @@ public abstract class CollectionPageBase<TEntity> : ComponentBase
         SortItems();
     }
 
+    protected async Task UpdateItemAsync()
+    {
+        await DbContext.SaveChangesAsync();
+        await LoadItemsAsync();
+    }
+
     protected async Task RemoveItemAsync(TEntity item)
     {
         EntitySet.Remove(item);

@@ -12,7 +12,7 @@ public partial class GameEntry
     public bool ShowButtons { get; set; } = false;
 
     [Parameter]
-    public EventCallback OnClick { get; set; }
+    public EventCallback<Game> OnClick { get; set; }
     
     [Parameter]
     public EventCallback OnPlaythroughs { get; set; }
@@ -29,7 +29,7 @@ public partial class GameEntry
 
     private async Task HandleClick()
     {
-        await OnClick.InvokeAsync();
+        await OnClick.InvokeAsync(Game);
     }
 
     private async Task HandlePlaythroughs()

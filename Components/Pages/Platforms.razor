@@ -18,6 +18,7 @@
             <NamedCollectionEntry TItem="Platform"
                                   Item="platform"
                                   Title="@platform.Name"
+                                  OnClick="OpenEditPopup"
                                   OnRemove="RemovePlatform" />
         }
     </ul>
@@ -28,4 +29,12 @@
     <AddPlatformPopup OnClose="CloseAddPopup"
                       OnPlatformSelected="AddPlatform"
                       Games="games" />
+}
+
+@if (selectedPlatform is not null)
+{
+    <AddPlatformPopup OnClose="CloseEditPopup"
+                      OnPlatformSelected="UpdatePlatform"
+                      Games="games"
+                      InitialPlatform="@selectedPlatform" />
 }

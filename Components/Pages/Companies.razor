@@ -1,4 +1,5 @@
 @page "/companies"
+@using GameLogBook.Components.Elements.AddCompany
 @using GameLogBook.Models.Companies
 @using GameLogBook.Models.Games
 @inherits CollectionPageBase<Company>
@@ -15,7 +16,10 @@
     <div class="collection-grid">
         @foreach (Company company in Items)
         {
-            <article class="collection-card company-card">
+            <article class="collection-card company-card"
+                     role="button"
+                     tabindex="0"
+                     @onclick="() => OpenEditPopup(company)">
                 @if (!string.IsNullOrWhiteSpace(company.CoverUrl))
                 {
                     <img class="company-cover"
@@ -36,6 +40,7 @@
                                 type="button"
                                 title="Remove @company.Name"
                                 disabled="@CompanyHasLinkedGames(company)"
+                                @onclick:stopPropagation="true"
                                 @onclick="() => HandleRemove(company)">
                             Remove
                         </button>
@@ -71,56 +76,13 @@
 
 @if (IsAddPopupOpen)
 {
-    <div class="popup-backdrop">
-        <div class="company-popup">
-            <div class="popup-header">
-                <div>
-                    <h3>Add Company</h3>
-                    <p>Search the shared catalog, import from IGDB, or save a local fallback for offline use.</p>
-                </div>
+    <AddCompanyPopup OnClose="CloseAddPopup"
+                     OnCompanySaved="AddCompany" />
+}
 
-                <button class="close-button"
-                        type="button"
-                        title="Close"
-                        @onclick="CloseAddPopup">
-                    X
-                </button>
-            </div>
-
-            <div class="popup-content popup-form company-form">
-                <div class="form-field-full">
-                    <IGDBSearch SearchFor="@IgdbSearchFor.Companies"
-                                Placeholder="Search for a company"
-                                OnCompanySelected="HandleCompanySelected" />
-                </div>
-
-                <hr class="popup-divider form-field-full" />
-
-                <label class="form-field form-field-full">
-                    <span>Name</span>
-                    <input class="company-input"
-                           @bind="newCompanyName"
-                           @bind:event="oninput"
-                           placeholder="Company name" />
-                </label>
-
-                <label class="form-field form-field-full">
-                    <span>Cover URL</span>
-                    <input class="company-input"
-                           @bind="newCompanyCoverUrl"
-                           @bind:event="oninput"
-                           placeholder="Cover image URL" />
-                </label>
-
-                <div class="form-actions form-field-full">
-                    <button class="save-button"
-                            type="button"
-                            disabled="@string.IsNullOrWhiteSpace(newCompanyName)"
-                            @onclick="AddCompany">
-                        Add Company
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+@if (selectedCompany is not null)
+{
+    <AddCompanyPopup OnClose="CloseEditPopup"
+                     OnCompanySaved="UpdateCompany"
+                     InitialCompany="@selectedCompany" />
 }

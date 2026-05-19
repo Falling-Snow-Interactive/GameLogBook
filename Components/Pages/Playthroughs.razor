@@ -19,6 +19,7 @@
                                   Item="playthrough"
                                   Title="@playthrough.Name"
                                   Description="@GetPlaythroughSummary(playthrough)"
+                                  OnClick="OpenEditPopup"
                                   OnRemove="RemovePlaythrough" />
         }
     </ul>
@@ -29,4 +30,12 @@
     <AddPlaythroughPopup OnClose="CloseAddPopup"
                          OnPlaythroughSelected="AddPlaythrough"
                          LibraryGames="Games"/>
+}
+
+@if (selectedPlaythrough is not null)
+{
+    <AddPlaythroughPopup OnClose="CloseEditPopup"
+                         OnPlaythroughSelected="UpdatePlaythrough"
+                         LibraryGames="Games"
+                         InitialPlaythrough="@selectedPlaythrough" />
 }

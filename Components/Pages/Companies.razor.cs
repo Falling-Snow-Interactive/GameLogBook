@@ -9,10 +9,7 @@ public partial class Companies : CollectionPageBase<Company>
     private List<Game> games = [];
     private Dictionary<int, List<string>> gameNamesByCompanyId = [];
     private Dictionary<int, HashSet<GameCompanyRole>> rolesByCompanyId = [];
-
-    private long? newCompanyIgdbId;
-    private string newCompanyName = string.Empty;
-    private string newCompanyCoverUrl = string.Empty;
+    private Company? selectedCompany;
 
     protected override DbSet<Company> EntitySet => DbContext.Companies;
 
@@ -28,42 +25,29 @@ public partial class Companies : CollectionPageBase<Company>
         await LoadGameCompanySummaries();
     }
 
-    protected override void CloseAddPopup()
-    {
-        base.CloseAddPopup();
-        ResetForm();
-    }
-
-    private void HandleCompanySelected(Company company)
-    {
-        newCompanyIgdbId = company.IgdbId;
-        newCompanyName = company.Name;
-        newCompanyCoverUrl = company.CoverUrl ?? string.Empty;
-    }
-
-    private async Task AddCompany()
+    private async Task AddCompany(Company newCompany)
     {
         Company? existingCompany = null;
 
-        if (newCompanyIgdbId.HasValue)
+        if (newCompany.IgdbId.HasValue)
         {
             existingCompany = await DbContext.Companies
-                                             .FirstOrDefaultAsync(company => company.IgdbId == newCompanyIgdbId.Value);
+                                             .FirstOrDefaultAsync(company => company.IgdbId == newCompany.IgdbId.Value);
         }
 
-        if (existingCompany is null && !string.IsNullOrWhiteSpace(newCompanyName))
+        if (existingCompany is null && !string.IsNullOrWhiteSpace(newCompany.Name))
         {
             existingCompany = await DbContext.Companies
                                              .FirstOrDefaultAsync(company => company.IgdbId == null
-                                                                             && company.Name == newCompanyName.Trim());
+                                                                             && company.Name == newCompany.Name.Trim());
         }
 
         if (existingCompany is not null)
         {
-            existingCompany.Name = newCompanyName.Trim();
-            existingCompany.CoverUrl = string.IsNullOrWhiteSpace(newCompanyCoverUrl)
+            existingCompany.Name = newCompany.Name.Trim();
+            existingCompany.CoverUrl = string.IsNullOrWhiteSpace(newCompany.CoverUrl)
                                            ? existingCompany.CoverUrl
-                                           : newCompanyCoverUrl.Trim();
+                                           : newCompany.CoverUrl.Trim();
             existingCompany.LastSyncedAt = DateTimeOffset.UtcNow;
             await DbContext.SaveChangesAsync();
             await LoadItemsAsync();
@@ -72,19 +56,37 @@ public partial class Companies : CollectionPageBase<Company>
             return;
         }
 
-        Company company = new()
-                          {
-                              IgdbId = newCompanyIgdbId,
-                              Name = newCompanyName.Trim(),
-                              CoverUrl = string.IsNullOrWhiteSpace(newCompanyCoverUrl)
-                                             ? null
-                                             : newCompanyCoverUrl.Trim(),
-                              LastSyncedAt = DateTimeOffset.UtcNow
-                          };
-
-        await AddItemAsync(company);
+        await AddItemAsync(newCompany);
         await LoadGameCompanySummaries();
         CloseAddPopup();
+    }
+
+    private async Task UpdateCompany(Company updatedCompany)
+    {
+        if (selectedCompany is null)
+        {
+            return;
+        }
+
+        Company? existingCompany = await DbContext.Companies
+                                                 .FirstOrDefaultAsync(company => company.Id == selectedCompany.Id);
+
+        if (existingCompany is null)
+        {
+            CloseEditPopup();
+            return;
+        }
+
+        existingCompany.IgdbId = updatedCompany.IgdbId;
+        existingCompany.Name = updatedCompany.Name.Trim();
+        existingCompany.CoverUrl = string.IsNullOrWhiteSpace(updatedCompany.CoverUrl)
+                                       ? null
+                                       : updatedCompany.CoverUrl.Trim();
+        existingCompany.LastSyncedAt = DateTimeOffset.UtcNow;
+
+        await UpdateItemAsync();
+        await LoadGameCompanySummaries();
+        CloseEditPopup();
     }
 
     private async Task HandleRemove(Company company)
@@ -122,13 +124,6 @@ public partial class Companies : CollectionPageBase<Company>
     private bool CompanyHasLinkedGames(Company company)
     {
         return gameNamesByCompanyId.ContainsKey(company.Id);
-    }
-
-    private void ResetForm()
-    {
-        newCompanyIgdbId = null;
-        newCompanyName = string.Empty;
-        newCompanyCoverUrl = string.Empty;
     }
 
     public bool TryGetLocalCompany(long? igdbId, out Company? company)
@@ -173,5 +168,22 @@ public partial class Companies : CollectionPageBase<Company>
                            .GroupBy(item => item.CompanyId)
                            .ToDictionary(group => group.Key,
                                          group => group.Select(item => item.Role).ToHashSet());
+    }
+
+    private void OpenEditPopup(Company company)
+    {
+        selectedCompany = new Company
+                          {
+                              Id = company.Id,
+                              IgdbId = company.IgdbId,
+                              Name = company.Name,
+                              CoverUrl = company.CoverUrl,
+                              LastSyncedAt = company.LastSyncedAt
+                          };
+    }
+
+    private void CloseEditPopup()
+    {
+        selectedCompany = null;
     }
 }

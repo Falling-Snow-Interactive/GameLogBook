@@ -6,6 +6,7 @@ namespace GameLogBook.Components.Elements.AddPlaythrough;
 
 public partial class AddPlaythroughPopup : ComponentBase
 {
+    private Playthrough? previousInitialPlaythrough;
     private string? playthroughName;
     private string? errorMessage;
     private int? selectedGameIdToAdd;
@@ -20,11 +21,36 @@ public partial class AddPlaythroughPopup : ComponentBase
     [Parameter]
     public EventCallback<Playthrough> OnPlaythroughSelected { get; set; }
 
+    [Parameter]
+    public Playthrough? InitialPlaythrough { get; set; }
+
+    private string PopupTitle => InitialPlaythrough is null ? "Add Playthrough" : "Edit Playthrough";
+
+    private string SaveButtonText => InitialPlaythrough is null ? "Add Playthrough" : "Save Changes";
+
     private IEnumerable<Game> SelectedGames =>
         LibraryGames.Where(game => selectedGameIds.Contains(game.Id));
 
     private IEnumerable<Game> AvailableGamesToAdd =>
         LibraryGames.Where(game => !selectedGameIds.Contains(game.Id));
+
+    protected override void OnParametersSet()
+    {
+        if (ReferenceEquals(previousInitialPlaythrough, InitialPlaythrough))
+        {
+            return;
+        }
+
+        previousInitialPlaythrough = InitialPlaythrough;
+
+        if (InitialPlaythrough is null)
+        {
+            ResetForm();
+            return;
+        }
+
+        LoadPlaythrough(InitialPlaythrough);
+    }
 
     private async Task HandleClose()
     {
@@ -80,10 +106,28 @@ public partial class AddPlaythroughPopup : ComponentBase
 
         Playthrough playthrough = new()
                                   {
+                                      ID = InitialPlaythrough?.ID ?? 0,
                                       Name = playthroughName.Trim(),
                                       GameIds = selectedGameIds.ToArray()
                                   };
 
         await OnPlaythroughSelected.InvokeAsync(playthrough);
+    }
+
+    private void LoadPlaythrough(Playthrough playthrough)
+    {
+        playthroughName = playthrough.Name;
+        errorMessage = null;
+        selectedGameIdToAdd = null;
+        selectedGameIds.Clear();
+        selectedGameIds.AddRange(playthrough.GameIds.Distinct());
+    }
+
+    private void ResetForm()
+    {
+        playthroughName = string.Empty;
+        errorMessage = null;
+        selectedGameIdToAdd = null;
+        selectedGameIds.Clear();
     }
 }

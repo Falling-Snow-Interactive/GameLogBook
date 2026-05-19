@@ -20,6 +20,7 @@
             <li>
                 <GameEntry Game="game"
                            ShowButtons="true"
+                           OnClick="OpenEditPopup"
                            OnRemove="RemoveGame" />
             </li>
         }
@@ -31,4 +32,12 @@
     <AddGamePopup OnClose="CloseAddPopup"
                   OnGameSelected="AddGame"
                   Companies="@companies" />
+}
+
+@if (selectedGame is not null)
+{
+    <AddGamePopup OnClose="CloseEditPopup"
+                  OnGameSelected="UpdateGame"
+                  Companies="@companies"
+                  InitialGame="@selectedGame" />
 }

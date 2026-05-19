@@ -7,6 +7,7 @@ namespace GameLogBook.Components.Pages;
 public partial class Playthroughs : CollectionPageBase<Playthrough>
 {
     public IReadOnlyList<Game> Games { get; set; } = [];
+    private Playthrough? selectedPlaythrough;
 
     protected override DbSet<Playthrough> EntitySet => DbContext.Playthroughs;
 
@@ -29,9 +30,47 @@ public partial class Playthroughs : CollectionPageBase<Playthrough>
         CloseAddPopup();
     }
 
+    private async Task UpdatePlaythrough(Playthrough updatedPlaythrough)
+    {
+        if (selectedPlaythrough is null)
+        {
+            return;
+        }
+
+        Playthrough? existingPlaythrough = await DbContext.Playthroughs
+                                                          .FirstOrDefaultAsync(playthrough => playthrough.ID == selectedPlaythrough.ID);
+
+        if (existingPlaythrough is null)
+        {
+            CloseEditPopup();
+            return;
+        }
+
+        existingPlaythrough.Name = updatedPlaythrough.Name.Trim();
+        existingPlaythrough.GameIds = updatedPlaythrough.GameIds.Distinct().ToArray();
+
+        await UpdateItemAsync();
+        CloseEditPopup();
+    }
+
     private async Task RemovePlaythrough(Playthrough playthrough)
     {
         await RemoveItemAsync(playthrough);
+    }
+
+    private void OpenEditPopup(Playthrough playthrough)
+    {
+        selectedPlaythrough = new Playthrough
+                              {
+                                  ID = playthrough.ID,
+                                  Name = playthrough.Name,
+                                  GameIds = playthrough.GameIds.ToArray()
+                              };
+    }
+
+    private void CloseEditPopup()
+    {
+        selectedPlaythrough = null;
     }
 
     private static string GetPlaythroughSummary(Playthrough playthrough)

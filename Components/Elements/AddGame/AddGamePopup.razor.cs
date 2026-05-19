@@ -8,6 +8,8 @@ namespace GameLogBook.Components.Elements.AddGame;
 
 public partial class AddGamePopup
 {
+    private Game? previousInitialGame;
+
     [Parameter]
     public EventCallback OnClose { get; set; }
 
@@ -16,6 +18,9 @@ public partial class AddGamePopup
 
     [Parameter]
     public IReadOnlyList<Company> Companies { get; set; } = [];
+
+    [Parameter]
+    public Game? InitialGame { get; set; }
 
     private List<int> selectedDeveloperCompanyIds = [];
     private List<int> selectedPublisherCompanyIds = [];
@@ -28,23 +33,31 @@ public partial class AddGamePopup
     private string coverUrl = string.Empty;
     private string summary = string.Empty;
 
-    private async Task HandleClose()
+    private string PopupTitle => InitialGame is null ? "Add Game" : "Edit Game";
+
+    private string SaveButtonText => InitialGame is null ? "Add to Library" : "Save Changes";
+
+    protected override void OnParametersSet()
     {
-        await OnClose.InvokeAsync();
+        if (ReferenceEquals(previousInitialGame, InitialGame))
+        {
+            return;
+        }
+
+        previousInitialGame = InitialGame;
+
+        if (InitialGame is null)
+        {
+            ResetForm();
+            return;
+        }
+
+        LoadGame(InitialGame);
     }
 
     private Task HandleGameSelected(Game game)
     {
-        igdbId = game.IgdbId;
-        gameName = game.Name;
-        selectedDeveloperCompanyIds = ResolveLocalCompanyIds(game, GameCompanyRole.Developer);
-        selectedPublisherCompanyIds = ResolveLocalCompanyIds(game, GameCompanyRole.Publisher);
-        developerSearchText = string.Empty;
-        publisherSearchText = string.Empty;
-        releaseDate = game.ReleaseDate;
-        coverUrl = game.Cover?.Url ?? string.Empty;
-        summary = game.Summary ?? string.Empty;
-
+        LoadGame(game);
         return Task.CompletedTask;
     }
 
@@ -52,6 +65,7 @@ public partial class AddGamePopup
     {
         Game game = new()
                     {
+                        Id = InitialGame?.Id ?? 0,
                         IgdbId = igdbId,
                         Name = gameName.Trim(),
                         ReleaseDate = releaseDate,
@@ -66,6 +80,32 @@ public partial class AddGamePopup
                     };
 
         await OnGameSelected.InvokeAsync(game);
+    }
+
+    private void LoadGame(Game game)
+    {
+        igdbId = game.IgdbId;
+        gameName = game.Name;
+        selectedDeveloperCompanyIds = ResolveLocalCompanyIds(game, GameCompanyRole.Developer);
+        selectedPublisherCompanyIds = ResolveLocalCompanyIds(game, GameCompanyRole.Publisher);
+        developerSearchText = string.Empty;
+        publisherSearchText = string.Empty;
+        releaseDate = game.ReleaseDate;
+        coverUrl = game.Cover?.Url ?? string.Empty;
+        summary = game.Summary ?? string.Empty;
+    }
+
+    private void ResetForm()
+    {
+        selectedDeveloperCompanyIds = [];
+        selectedPublisherCompanyIds = [];
+        developerSearchText = string.Empty;
+        publisherSearchText = string.Empty;
+        gameName = string.Empty;
+        igdbId = 0;
+        releaseDate = null;
+        coverUrl = string.Empty;
+        summary = string.Empty;
     }
 
     private void SelectDeveloper(Company company)

@@ -1,178 +1,163 @@
 @using GameLogBook.Models.Games
 @using GameLogBook.Models.Companies
+@using GameLogBook.Components.Elements.AddPopup
 
-<div class="popup-backdrop">
-    <div class="popup">
-        <div class="popup-header">
-            <h3>Add Game</h3>
-            <button class="close-button"
+<AddPopupShell Title="@PopupTitle"
+               SearchFor="@IgdbSearchFor.Games"
+               SearchPlaceholder="Search for a game"
+               OnClose="@OnClose"
+               OnGameSelected="HandleGameSelected">
+    <div class="game-details-form">
+        <label class="form-field form-field-full">
+            <span>Name</span>
+            <input class="game-detail-input"
+                   @bind="gameName"
+                   @bind:event="oninput"
+                   placeholder="Game name"/>
+        </label>
+
+        <div class="form-field form-field-full">
+            <span>Companies are shared across the instance</span>
+            <p class="form-hint">Pick from the shared company catalog below. If a company is missing, add it from the Companies page first.</p>
+            @if (Companies.Count == 0)
+            {
+                <p class="form-hint">No shared companies exist yet, so this game will save without developer or publisher links.</p>
+            }
+        </div>
+
+        <div class="form-field">
+            <span>Developer</span>
+            <input class="game-detail-input"
+                   @bind="developerSearchText"
+                   @bind:event="oninput"
+                   placeholder="Search shared companies" />
+
+            @if (DeveloperMatches.Count > 0)
+            {
+                <div class="company-search-results">
+                    @foreach (Company company in DeveloperMatches)
+                    {
+                        <button class="igdb-search-result"
+                                type="button"
+                                @onclick="() => SelectDeveloper(company)">
+                            <span class="igdb-search-result-icon bi bi-building"
+                                  aria-hidden="true"></span>
+
+                            <span class="igdb-search-result-copy">
+                                <strong>@company.Name</strong>
+                                <small>@GetCompanyBadge(company)</small>
+                            </span>
+                        </button>
+                    }
+                </div>
+            }
+
+            @if (selectedDeveloperCompanyIds.Count > 0)
+            {
+                <div class="manufacturer-chip-list">
+                    @foreach (Company company in SelectedDeveloperCompanies)
+                    {
+                        <span class="manufacturer-chip">
+                            @company.Name
+                            <button type="button"
+                                    title="Remove @company.Name"
+                                    aria-label="Remove @company.Name"
+                                    @onclick="() => RemoveDeveloper(company.Id)">
+                                X
+                            </button>
+                        </span>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="form-field">
+            <span>Publisher</span>
+            <input class="game-detail-input"
+                   @bind="publisherSearchText"
+                   @bind:event="oninput"
+                   placeholder="Search shared companies" />
+
+            @if (PublisherMatches.Count > 0)
+            {
+                <div class="company-search-results">
+                    @foreach (Company company in PublisherMatches)
+                    {
+                        <button class="igdb-search-result"
+                                type="button"
+                                @onclick="() => SelectPublisher(company)">
+                            <span class="igdb-search-result-icon bi bi-building"
+                                  aria-hidden="true"></span>
+
+                            <span class="igdb-search-result-copy">
+                                <strong>@company.Name</strong>
+                                <small>@GetCompanyBadge(company)</small>
+                            </span>
+                        </button>
+                    }
+                </div>
+            }
+
+            @if (selectedPublisherCompanyIds.Count > 0)
+            {
+                <div class="manufacturer-chip-list">
+                    @foreach (Company company in SelectedPublisherCompanies)
+                    {
+                        <span class="manufacturer-chip">
+                            @company.Name
+                            <button type="button"
+                                    title="Remove @company.Name"
+                                    aria-label="Remove @company.Name"
+                                    @onclick="() => RemovePublisher(company.Id)">
+                                X
+                            </button>
+                        </span>
+                    }
+                </div>
+            }
+        </div>
+
+        <label class="form-field">
+            <span>Release Date</span>
+            <input class="game-detail-input"
+                   type="date"
+                   @bind="releaseDate"
+                   @bind:event="oninput"
+                   placeholder="Release date"/>
+        </label>
+
+        <label class="form-field">
+            <span>IGDB ID</span>
+            <input class="game-detail-input"
+                   type="number"
+                   @bind="igdbId"
+                   @bind:event="oninput"
+                   placeholder="id"/>
+        </label>
+
+        <label class="form-field form-field-full">
+            <span>Cover URL</span>
+            <input class="game-detail-input"
+                   @bind="coverUrl"
+                   @bind:event="oninput"
+                   placeholder="Cover image URL"/>
+        </label>
+
+        <label class="form-field form-field-full">
+            <span>Summary</span>
+            <textarea class="game-detail-textarea"
+                  @bind="summary"
+                  @bind:event="oninput"
+                  placeholder="Summary"></textarea>
+        </label>
+
+        <div class="form-actions form-field-full">
+            <button class="save-button"
                     type="button"
-                    title="Close"
-                    @onclick="HandleClose">
-                X
+                    @onclick="HandleSaveGame"
+                    disabled="@string.IsNullOrWhiteSpace(gameName)">
+                @SaveButtonText
             </button>
         </div>
-        
-        <div class="popup-content popup-form">
-            <IGDBSearch SearchFor="@IgdbSearchFor.Games"
-                        Placeholder="Search for a game"
-                        OnGameSelected="HandleGameSelected" />
-
-            <hr class="popup-divider" />
-
-            <div class="game-details-form">
-                <label class="form-field form-field-full">
-                    <span>Name</span>
-                    <input class="game-detail-input"
-                           @bind="gameName"
-                           @bind:event="oninput"
-                           placeholder="Game name"/>
-                </label>
-
-                <div class="form-field form-field-full">
-                    <span>Companies are shared across the instance</span>
-                    <p class="form-hint">Pick from the shared company catalog below. If a company is missing, add it from the Companies page first.</p>
-                    @if (Companies.Count == 0)
-                    {
-                        <p class="form-hint">No shared companies exist yet, so this game will save without developer or publisher links.</p>
-                    }
-                </div>
-
-                <div class="form-field">
-                    <span>Developer</span>
-                    <input class="game-detail-input"
-                           @bind="developerSearchText"
-                           @bind:event="oninput"
-                           placeholder="Search shared companies" />
-
-                    @if (DeveloperMatches.Count > 0)
-                    {
-                        <div class="company-search-results">
-                            @foreach (Company company in DeveloperMatches)
-                            {
-                                <button class="igdb-search-result"
-                                        type="button"
-                                        @onclick="() => SelectDeveloper(company)">
-                                    <span class="igdb-search-result-icon bi bi-building"
-                                          aria-hidden="true"></span>
-
-                                    <span class="igdb-search-result-copy">
-                                        <strong>@company.Name</strong>
-                                        <small>@GetCompanyBadge(company)</small>
-                                    </span>
-                                </button>
-                            }
-                        </div>
-                    }
-
-                    @if (selectedDeveloperCompanyIds.Count > 0)
-                    {
-                        <div class="manufacturer-chip-list">
-                            @foreach (Company company in SelectedDeveloperCompanies)
-                            {
-                                <span class="manufacturer-chip">
-                                    @company.Name
-                                    <button type="button"
-                                            title="Remove @company.Name"
-                                            aria-label="Remove @company.Name"
-                                            @onclick="() => RemoveDeveloper(company.Id)">
-                                        X
-                                    </button>
-                                </span>
-                            }
-                        </div>
-                    }
-                </div>
-
-                <div class="form-field">
-                    <span>Publisher</span>
-                    <input class="game-detail-input"
-                           @bind="publisherSearchText"
-                           @bind:event="oninput"
-                           placeholder="Search shared companies" />
-
-                    @if (PublisherMatches.Count > 0)
-                    {
-                        <div class="company-search-results">
-                            @foreach (Company company in PublisherMatches)
-                            {
-                                <button class="igdb-search-result"
-                                        type="button"
-                                        @onclick="() => SelectPublisher(company)">
-                                    <span class="igdb-search-result-icon bi bi-building"
-                                          aria-hidden="true"></span>
-
-                                    <span class="igdb-search-result-copy">
-                                        <strong>@company.Name</strong>
-                                        <small>@GetCompanyBadge(company)</small>
-                                    </span>
-                                </button>
-                            }
-                        </div>
-                    }
-
-                    @if (selectedPublisherCompanyIds.Count > 0)
-                    {
-                        <div class="manufacturer-chip-list">
-                            @foreach (Company company in SelectedPublisherCompanies)
-                            {
-                                <span class="manufacturer-chip">
-                                    @company.Name
-                                    <button type="button"
-                                            title="Remove @company.Name"
-                                            aria-label="Remove @company.Name"
-                                            @onclick="() => RemovePublisher(company.Id)">
-                                        X
-                                    </button>
-                                </span>
-                            }
-                        </div>
-                    }
-                </div>
-
-                <label class="form-field">
-                    <span>Release Date</span>
-                    <input class="game-detail-input"
-                           type="date"
-                           @bind="releaseDate"
-                           @bind:event="oninput"
-                           placeholder="Release date"/>
-                </label>
-
-                <label class="form-field">
-                    <span>IGDB ID</span>
-                    <input class="game-detail-input"
-                           type="number"
-                           @bind="igdbId"
-                           @bind:event="oninput"
-                           placeholder="id"/>
-                </label>
-
-                <label class="form-field form-field-full">
-                    <span>Cover URL</span>
-                    <input class="game-detail-input"
-                           @bind="coverUrl"
-                           @bind:event="oninput"
-                           placeholder="Cover image URL"/>
-                </label>
-
-                <label class="form-field form-field-full">
-                    <span>Summary</span>
-                    <textarea class="game-detail-textarea"
-                          @bind="summary"
-                          @bind:event="oninput"
-                          placeholder="Summary"></textarea>
-                </label>
-
-                <div class="form-actions form-field-full">
-                    <button class="save-button"
-                            type="button"
-                            @onclick="HandleSaveGame"
-                            disabled="@string.IsNullOrWhiteSpace(gameName)">
-                        Add to Library
-                    </button>
-                </div>
-            </div>
-        </div>
     </div>
-</div>
+</AddPopupShell>

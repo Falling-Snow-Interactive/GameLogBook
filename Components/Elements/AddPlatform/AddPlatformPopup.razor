@@ -1,124 +1,106 @@
 @using GameLogBook.Models.Games
+@using GameLogBook.Components.Elements.AddPopup
 
-<div class="popup-backdrop">
-    <div class="platform-popup">
-        <div class="popup-header">
-            <div>
-                <h3>Add Platform</h3>
-                <p>Keep track of where each game lives.</p>
-            </div>
+<AddPopupShell Title="@PopupTitle"
+               Description="Keep track of where each game lives."
+               SearchFor="@IgdbSearchFor.Platforms"
+               SearchPlaceholder="Search for a platform"
+               PopupClass="popup platform-popup"
+               FormClass="platform-form"
+               OnClose="@OnClose"
+               OnPlatformSelected="HandlePlatformSelected">
+    @if (!string.IsNullOrWhiteSpace(searchErrorMessage))
+    {
+        <p class="platform-form-error form-field-full">@searchErrorMessage</p>
+    }
 
-            <button class="close-button"
-                    type="button"
-                    title="Close"
-                    @onclick="HandleClose">
-                X
-            </button>
-        </div>
+    <label class="form-field form-field-full">
+        <span>Name</span>
+        <input class="platform-input"
+               @bind="platformName"
+               @bind:event="oninput"
+               placeholder="Platform name" />
+    </label>
 
-        <div class="popup-content popup-form platform-form">
-            <div class="form-field-full">
-                <IGDBSearch SearchFor="@IgdbSearchFor.Platforms"
-                            Placeholder="Search for a platform"
-                            OnPlatformSelected="HandlePlatformSelected" />
+    <label class="form-field">
+        <span>Release Date</span>
+        <input class="platform-input"
+               type="date"
+               @bind="releaseDate"
+               @bind:event="oninput" />
+    </label>
 
-                @if (!string.IsNullOrWhiteSpace(searchErrorMessage))
+    <CompanyPicker/>
+    @* <div class="company-picker"> *@
+    @*     <span>Companies</span> *@
+    @* *@
+    @*     @if (Companies.Count == 0) *@
+    @*     { *@
+    @*         <p>No companies are available to link yet.</p> *@
+    @*     } *@
+    @*     else *@
+    @*     { *@
+    @*         <select class="platform-select" *@
+    @*                 @key="selectedCompanyIds.Count" *@
+    @*                 value="@selectedCompanyId" *@
+    @*                 @onchange="HandleCompanySelected"> *@
+    @*             <option value="">Select a company</option> *@
+    @* *@
+    @*             @foreach (Company company in AvailableCompanies) *@
+    @*             { *@
+    @*                 <option value="@company.Id">@company.Name</option> *@
+    @*             } *@
+    @*         </select> *@
+    @* *@
+    @*         @if (SelectedCompanies.Count > 0) *@
+    @*         { *@
+    @*             <div class="manufacturer-chip-list"> *@
+    @*                 @foreach (Company company in SelectedCompanies) *@
+    @*                 { *@
+    @*                     <span class="manufacturer-chip"> *@
+    @*                         @company.Name *@
+    @*                         <button type="button" *@
+    @*                                 title="Remove @company.Name" *@
+    @*                                 aria-label="Remove @company.Name" *@
+    @*                                 @onclick="() => RemoveCompany(company.Id)"> *@
+    @*                             X *@
+    @*                         </button> *@
+    @*                     </span> *@
+    @*                 } *@
+    @*             </div> *@
+    @*         } *@
+    @*     } *@
+    @* </div> *@
+
+    <div class="game-picker form-field-full">
+        <span>Games</span>
+
+        @if (Games.Count == 0)
+        {
+            <p>No games are available to link yet.</p>
+        }
+        else
+        {
+            <div class="game-picker-list">
+                @foreach (Game game in Games)
                 {
-                    <p class="platform-form-error">@searchErrorMessage</p>
+                    <label class="game-picker-item">
+                        <input type="checkbox"
+                               checked="@selectedGameIds.Contains(game.Id)"
+                               @onchange="args => ToggleGameSelection(game.Id, args)" />
+                        <span>@game.Name</span>
+                    </label>
                 }
             </div>
-
-            <hr class="popup-divider form-field-full" />
-
-            <label class="form-field form-field-full">
-                <span>Name</span>
-                <input class="platform-input"
-                       @bind="platformName"
-                       @bind:event="oninput"
-                       placeholder="Platform name" />
-            </label>
-
-            <label class="form-field">
-                <span>Release Date</span>
-                <input class="platform-input"
-                       type="date"
-                       @bind="releaseDate"
-                       @bind:event="oninput" />
-            </label>
-
-            <CompanyPicker/>
-            @* <div class="company-picker"> *@
-            @*     <span>Companies</span> *@
-            @* *@
-            @*     @if (Companies.Count == 0) *@
-            @*     { *@
-            @*         <p>No companies are available to link yet.</p> *@
-            @*     } *@
-            @*     else *@
-            @*     { *@
-            @*         <select class="platform-select" *@
-            @*                 @key="selectedCompanyIds.Count" *@
-            @*                 value="@selectedCompanyId" *@
-            @*                 @onchange="HandleCompanySelected"> *@
-            @*             <option value="">Select a company</option> *@
-            @* *@
-            @*             @foreach (Company company in AvailableCompanies) *@
-            @*             { *@
-            @*                 <option value="@company.Id">@company.Name</option> *@
-            @*             } *@
-            @*         </select> *@
-            @* *@
-            @*         @if (SelectedCompanies.Count > 0) *@
-            @*         { *@
-            @*             <div class="manufacturer-chip-list"> *@
-            @*                 @foreach (Company company in SelectedCompanies) *@
-            @*                 { *@
-            @*                     <span class="manufacturer-chip"> *@
-            @*                         @company.Name *@
-            @*                         <button type="button" *@
-            @*                                 title="Remove @company.Name" *@
-            @*                                 aria-label="Remove @company.Name" *@
-            @*                                 @onclick="() => RemoveCompany(company.Id)"> *@
-            @*                             X *@
-            @*                         </button> *@
-            @*                     </span> *@
-            @*                 } *@
-            @*             </div> *@
-            @*         } *@
-            @*     } *@
-            @* </div> *@
-
-            <div class="game-picker form-field-full">
-                <span>Games</span>
-
-                @if (Games.Count == 0)
-                {
-                    <p>No games are available to link yet.</p>
-                }
-                else
-                {
-                    <div class="game-picker-list">
-                        @foreach (Game game in Games)
-                        {
-                            <label class="game-picker-item">
-                                <input type="checkbox"
-                                       checked="@selectedGameIds.Contains(game.Id)"
-                                       @onchange="args => ToggleGameSelection(game.Id, args)" />
-                                <span>@game.Name</span>
-                            </label>
-                        }
-                    </div>
-                }
-            </div>
-
-            <div class="form-actions form-field-full">
-                <button class="save-button"
-                        type="button"
-                        disabled="@string.IsNullOrWhiteSpace(platformName)"
-                        @onclick="HandleSavePlatform">
-                    Add Platform
-                </button>
-            </div>
-        </div>
+        }
     </div>
-</div>
+
+    <div class="form-actions form-field-full">
+        <button class="save-button"
+                type="button"
+                disabled="@string.IsNullOrWhiteSpace(platformName)"
+                @onclick="HandleSavePlatform">
+            @SaveButtonText
+        </button>
+    </div>
+</AddPopupShell>

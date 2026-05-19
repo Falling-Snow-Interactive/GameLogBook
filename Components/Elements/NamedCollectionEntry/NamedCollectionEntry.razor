@@ -1,6 +1,9 @@
 @typeparam TItem
 
-<li class="named-collection-entry collection-card">
+<li class="named-collection-entry collection-card"
+    role="button"
+    tabindex="0"
+    @onclick="HandleClick">
     <div class="named-collection-copy">
         <h4>@Title</h4>
 
@@ -15,6 +18,7 @@
         <button class="collection-remove-button"
                 type="button"
                 title="Remove @Title"
+                @onclick:stopPropagation="true"
                 @onclick="HandleRemove">
             Remove
         </button>
@@ -33,6 +37,14 @@
 
     [Parameter]
     public EventCallback<TItem> OnRemove { get; set; }
+
+    [Parameter]
+    public EventCallback<TItem> OnClick { get; set; }
+
+    private async Task HandleClick()
+    {
+        await OnClick.InvokeAsync(Item);
+    }
 
     private async Task HandleRemove()
     {

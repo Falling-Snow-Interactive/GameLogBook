@@ -1,0 +1,36 @@
+@using GameLogBook.Components.Elements.AddPopup
+@using GameLogBook.Models.Companies
+
+<AddPopupShell Title="@PopupTitle"
+               Description="Search the shared catalog, import from IGDB, or save a local fallback for offline use."
+               SearchFor="@IgdbSearchFor.Companies"
+               SearchPlaceholder="Search for a company"
+               PopupClass="popup company-popup"
+               FormClass="company-form"
+               OnClose="@OnClose"
+               OnCompanySelected="HandleCompanySelected">
+    <label class="form-field form-field-full">
+        <span>Name</span>
+        <input class="company-input"
+               @bind="companyName"
+               @bind:event="oninput"
+               placeholder="Company name" />
+    </label>
+
+    <label class="form-field form-field-full">
+        <span>Cover URL</span>
+        <input class="company-input"
+               @bind="companyCoverUrl"
+               @bind:event="oninput"
+               placeholder="Cover image URL" />
+    </label>
+
+    <div class="form-actions form-field-full">
+        <button class="save-button"
+                type="button"
+                disabled="@string.IsNullOrWhiteSpace(companyName)"
+                @onclick="HandleSaveCompany">
+            @SaveButtonText
+        </button>
+    </div>
+</AddPopupShell>
