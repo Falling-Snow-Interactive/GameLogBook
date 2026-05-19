@@ -30,6 +30,9 @@ namespace GameLogBook.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<long?>("IgdbId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("IsDeveloper")
                         .HasColumnType("INTEGER");
 

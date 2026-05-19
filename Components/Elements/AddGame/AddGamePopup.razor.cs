@@ -3,6 +3,7 @@ using IGDB.Models;
 using GameLogBook.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Company = GameLogBook.Models.Companies.Company;
 using Cover = GameLogBook.Models.Games.Cover;
 using Game = GameLogBook.Models.Games.Game;
 using IgdbGame = IGDB.Models.Game;
@@ -30,6 +31,10 @@ public partial class AddGamePopup
     private bool canLoadMore;
     private int searchOffset;
     private string? errorMessage;
+    
+    private List<Company> companies = [];
+    private int? selectedDeveloperCompanyId;
+    private int? selectedPublisherCompanyId;
 
     private string gameName = string.Empty;
     private long igdbId;

@@ -1,0 +1,41 @@
+@using GameLogBook.Models.Companies
+<div class="company-picker">
+    <span>Companies</span>
+
+    @if (Companies.Count == 0)
+    {
+        <p>No companies are available to link yet.</p>
+    }
+    else
+    {
+        <select class="platform-select"
+                @key="selectedCompanyIds.Count"
+                value="@selectedCompanyId"
+                @onchange="HandleCompanySelected">
+            <option value="">Select a company</option>
+
+            @foreach (Company company in AvailableCompanies)
+            {
+                <option value="@company.Id">@company.Name</option>
+            }
+        </select>
+
+        @if (SelectedCompanies.Count > 0)
+        {
+            <div class="manufacturer-chip-list">
+                @foreach (Company company in SelectedCompanies)
+                {
+                    <span class="manufacturer-chip">
+                        @company.Name
+                        <button type="button"
+                                title="Remove @company.Name"
+                                aria-label="Remove @company.Name"
+                                @onclick="() => RemoveCompany(company.Id)">
+                            X
+                        </button>
+                    </span>
+                }
+            </div>
+        }
+    }
+</div>

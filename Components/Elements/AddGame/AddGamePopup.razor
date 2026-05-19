@@ -1,5 +1,6 @@
 @using GameLogBook.Components.Elements.GameEntry
 @using GameLogBook.Models.Games
+@using GameLogBook.Models.Companies
 
 <div class="popup-backdrop">
     <div class="popup">
@@ -57,18 +58,26 @@
 
                 <label class="form-field">
                     <span>Developer</span>
-                    <input class="game-detail-input"
-                           @bind="developer"
-                           @bind:event="oninput"
-                           placeholder="Developer"/>
+                    <select class="game-detail-input"
+                            @bind="selectedDeveloperCompanyId">
+                        <option value="">Select developer</option>
+                        @foreach (Company company in companies)
+                        {
+                            <option value="@company.Id">@company.Name</option>
+                        }
+                    </select>
                 </label>
 
                 <label class="form-field">
                     <span>Publisher</span>
-                    <input class="game-detail-input"
-                           @bind="publisher"
-                           @bind:event="oninput"
-                           placeholder="Publisher"/>
+                    <select class="game-detail-input"
+                            @bind="selectedPublisherCompanyId">
+                        <option value="">Select publisher</option>
+                        @foreach (Company company in companies)
+                        {
+                            <option value="@company.Id">@company.Name</option>
+                        }
+                    </select>
                 </label>
 
                 <label class="form-field">

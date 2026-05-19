@@ -302,6 +302,7 @@ public partial class Companies : CollectionPageBase<Company>
 
         return new Company
                {
+                   IgdbId = igdbCompany.Id,
                    Name = igdbCompany.Name ?? string.Empty,
                    CoverUrl = ToLocalCoverUrl(igdbCompany.Logo?.Value),
                    IsDeveloper = developedGameIds.Count > 0,
@@ -312,6 +313,18 @@ public partial class Companies : CollectionPageBase<Company>
                              .OrderBy(gameId => gameId)
                              .ToArray()
                };
+    }
+
+    public bool TryGetLocalCompany(long? igdbId, out Company? company)
+    {
+        if (!igdbId.HasValue)
+        {
+            company = null;
+            return false;
+        }
+
+        company = DbContext.Companies.FirstOrDefault(company => company.IgdbId == igdbId.Value);
+        return company != null;
     }
 
     private static HashSet<long> GetIgdbGameIds(IdentitiesOrValues<IgdbGame>? igdbGames)

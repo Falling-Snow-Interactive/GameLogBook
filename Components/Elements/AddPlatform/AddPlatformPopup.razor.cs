@@ -1,11 +1,9 @@
-using GameLogBook.Models.Companies;
 using GameLogBook.Models.Games;
 using GameLogBook.Models.Platforms;
 using GameLogBook.Services;
 using IGDB;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using IgdbCompany = IGDB.Models.Company;
 using IgdbGame = IGDB.Models.Game;
 using IgdbPlatform = IGDB.Models.Platform;
 using IgdbPlatformVersion = IGDB.Models.PlatformVersion;
@@ -21,8 +19,7 @@ public partial class AddPlatformPopup : ComponentBase
     private DateOnly? releaseDate;
     private long igdbId;
     private HashSet<int> selectedGameIds = [];
-    private HashSet<int> selectedManufacturerIds = [];
-    private string selectedManufacturerCompanyId = string.Empty;
+    private HashSet<int> companyIds = [];
 
     private bool isSearching;
     private string searchInput = string.Empty;
@@ -38,21 +35,6 @@ public partial class AddPlatformPopup : ComponentBase
 
     [Parameter]
     public IReadOnlyList<Game> Games { get; set; } = [];
-
-    [Parameter]
-    public IReadOnlyList<Company> Companies { get; set; } = [];
-
-    private IReadOnlyList<Company> AvailableManufacturerCompanies =>
-        Companies
-            .Where(company => !selectedManufacturerIds.Contains(company.Id))
-            .OrderBy(company => company.Name)
-            .ToList();
-
-    private IReadOnlyList<Company> SelectedManufacturerCompanies =>
-        Companies
-            .Where(company => selectedManufacturerIds.Contains(company.Id))
-            .OrderBy(company => company.Name)
-            .ToList();
 
     private async Task HandleClose()
     {
@@ -125,18 +107,17 @@ public partial class AddPlatformPopup : ComponentBase
                                         .Replace("\"", "\\\"");
 
             IgdbPlatform[] igdbResults = await IgdbClientProvider
-                                           .GetClient()
-                                           .QueryAsync<IgdbPlatform>(
-                                                                     IGDBClient.Endpoints.Platforms,
-                                                                     query: $"""
-                                                                             fields id, name,
-                                                                                    versions.main_manufacturer.company.id,
-                                                                                    versions.companies.company.id,
-                                                                                    versions.companies.manufacturer,
-                                                                                    versions.platform_version_release_dates.date;
-                                                                             where name ~ *"{escapedSearchInput}"*;
-                                                                             limit 10;
-                                                                             """);
+                                               .GetClient()
+                                               .QueryAsync<IgdbPlatform>(IGDBClient.Endpoints.Platforms,
+                                                                         query: $"""
+                                                                                 fields id, name,
+                                                                                        versions.main_manufacturer.company.id,
+                                                                                        versions.companies.company.id,
+                                                                                        versions.companies.manufacturer,
+                                                                                        versions.platform_version_release_dates.date;
+                                                                                 where name ~ *"{escapedSearchInput}"*;
+                                                                                 limit 10;
+                                                                                 """);
 
             if (cancellationToken.IsCancellationRequested)
             {
@@ -144,13 +125,12 @@ public partial class AddPlatformPopup : ComponentBase
             }
 
             List<PlatformSearchProjection> platformProjections = igdbResults
-                                                                  .Select(ToPlatformProjection)
-                                                                  .ToList();
-            Dictionary<long, string> manufacturerNames = await GetManufacturerNames(
-                platformProjections
-                    .SelectMany(projection => projection.ManufacturerCompanyIds)
-                    .Distinct()
-                    .ToArray());
+                                                                 .Select(ToPlatformProjection)
+                                                                 .ToList();
+            Dictionary<long, string> manufacturerNames = await GetCompanyNames(platformProjections
+                                                                               .SelectMany(projection => projection.ManufacturerCompanyIds)
+                                                                               .Distinct()
+                                                                               .ToArray());
 
             if (cancellationToken.IsCancellationRequested)
             {
@@ -158,14 +138,13 @@ public partial class AddPlatformPopup : ComponentBase
             }
 
             searchResults = platformProjections
-                            .Select(projection => new PlatformSearchResult(
-                                projection.Platform,
-                                projection.ManufacturerCompanyIds
-                                          .Where(manufacturerNames.ContainsKey)
-                                          .Select(manufacturerCompanyId => manufacturerNames[manufacturerCompanyId])
-                                          .Distinct(StringComparer.OrdinalIgnoreCase)
-                                          .OrderBy(name => name)
-                                          .ToArray()))
+                            .Select(projection => new PlatformSearchResult(projection.Platform,
+                                                                           projection.ManufacturerCompanyIds
+                                                                                     .Where(manufacturerNames.ContainsKey)
+                                                                                     .Select(manufacturerCompanyId => manufacturerNames[manufacturerCompanyId])
+                                                                                     .Distinct(StringComparer.OrdinalIgnoreCase)
+                                                                                     .OrderBy(name => name)
+                                                                                     .ToArray()))
                             .ToList();
         }
         catch (OperationCanceledException)
@@ -196,8 +175,8 @@ public partial class AddPlatformPopup : ComponentBase
         searchInput = platform.Name;
         searchResults.Clear();
         searchErrorMessage = null;
-        selectedManufacturerIds = GetMatchingLocalManufacturerIds(result.ManufacturerNames);
-        selectedManufacturerCompanyId = string.Empty;
+        // selectedCompanyIds = GetMatchingLocalManufacturerIds(result.ManufacturerNames);
+        // selectedCompanyId = string.Empty;
 
         await PopulateSelectedGames(platform.IgdbId);
     }
@@ -209,9 +188,9 @@ public partial class AddPlatformPopup : ComponentBase
                                 IgdbId = igdbId,
                                 Name = platformName.Trim(),
                                 ReleaseDate = releaseDate,
-                                ManufacturerIds = selectedManufacturerIds
-                                                  .OrderBy(companyId => companyId)
-                                                  .ToArray(),
+                                // ManufacturerIds = selectedCompanyIds
+                                //                   .OrderBy(companyId => companyId)
+                                //                   .ToArray(),
                                 GameIds = selectedGameIds
                                           .OrderBy(gameId => gameId)
                                           .ToArray()
@@ -229,23 +208,6 @@ public partial class AddPlatformPopup : ComponentBase
         }
 
         selectedGameIds.Remove(gameId);
-    }
-
-    private void HandleManufacturerSelected(ChangeEventArgs args)
-    {
-        selectedManufacturerCompanyId = args.Value?.ToString() ?? string.Empty;
-
-        if (int.TryParse(selectedManufacturerCompanyId, out int companyId))
-        {
-            selectedManufacturerIds.Add(companyId);
-        }
-
-        selectedManufacturerCompanyId = string.Empty;
-    }
-
-    private void RemoveManufacturer(int companyId)
-    {
-        selectedManufacturerIds.Remove(companyId);
     }
 
     private async Task PopulateSelectedGames(long platformIgdbId)
@@ -300,17 +262,6 @@ public partial class AddPlatformPopup : ComponentBase
         }
     }
 
-    private HashSet<int> GetMatchingLocalManufacturerIds(IEnumerable<string> manufacturerNames)
-    {
-        HashSet<string> normalizedManufacturerNames = manufacturerNames
-                                                      .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        return Companies
-               .Where(company => normalizedManufacturerNames.Contains(company.Name))
-               .Select(company => company.Id)
-               .ToHashSet();
-    }
-
     private static string GetPlatformSummary(PlatformSearchResult result)
     {
         string manufacturerSummary = result.ManufacturerNames.Length == 0
@@ -324,44 +275,17 @@ public partial class AddPlatformPopup : ComponentBase
         return $"{manufacturerSummary} · {releaseSummary}";
     }
 
-    private async Task<Dictionary<long, string>> GetManufacturerNames(long[] companyIds)
-    {
-        if (companyIds.Length == 0)
-        {
-            return [];
-        }
-
-        string companyIdsFilter = string.Join(",", companyIds);
-
-        IgdbCompany[] companies = await IgdbClientProvider
-                                  .GetClient()
-                                  .QueryAsync<IgdbCompany>(
-                                                             IGDBClient.Endpoints.Companies,
-                                                             query: $"""
-                                                                     fields id, name;
-                                                                     where id = ({companyIdsFilter});
-                                                                     limit {companyIds.Length};
-                                                                     """);
-
-        return companies
-               .Where(company => company.Id.HasValue
-                                 && !string.IsNullOrWhiteSpace(company.Name))
-               .ToDictionary(company => company.Id!.Value,
-                             company => company.Name!);
-    }
-
     private static PlatformSearchProjection ToPlatformProjection(IgdbPlatform igdbPlatform)
     {
         List<IgdbPlatformVersion> versions = igdbPlatform.Versions?.Values?.ToList() ?? [];
 
-        return new PlatformSearchProjection(
-            new Platform
-            {
-                IgdbId = igdbPlatform.Id ?? 0,
-                Name = igdbPlatform.Name ?? string.Empty,
-                ReleaseDate = GetReleaseDate(versions)
-            },
-            GetManufacturerCompanyIds(versions));
+        return new PlatformSearchProjection(new Platform
+                                            {
+                                                IgdbId = igdbPlatform.Id ?? 0,
+                                                Name = igdbPlatform.Name ?? string.Empty,
+                                                ReleaseDate = GetReleaseDate(versions)
+                                            },
+                                            GetManufacturerCompanyIds(versions));
     }
 
     private static long[] GetManufacturerCompanyIds(IEnumerable<IgdbPlatformVersion> versions)
@@ -408,4 +332,29 @@ public partial class AddPlatformPopup : ComponentBase
     private sealed record PlatformSearchProjection(Platform Platform, long[] ManufacturerCompanyIds);
 
     public sealed record PlatformSearchResult(Platform Platform, string[] ManufacturerNames);
+    
+    private async Task<Dictionary<long, string>> GetCompanyNames(long[] companyIds)
+    {
+        if (companyIds.Length == 0)
+        {
+            return [];
+        }
+
+        string companyIdsFilter = string.Join(",", companyIds);
+
+        IGDB.Models.Company[] companies = await IgdbClientProvider
+                                                .GetClient()
+                                                .QueryAsync<IGDB.Models.Company>(IGDBClient.Endpoints.Companies,
+                                                                                 query: $"""
+                                                                                         fields id, name;
+                                                                                         where id = ({companyIdsFilter});
+                                                                                         limit {companyIds.Length};
+                                                                                         """);
+
+        return companies
+               .Where(company => company.Id.HasValue
+                                 && !string.IsNullOrWhiteSpace(company.Name))
+               .ToDictionary(company => company.Id!.Value,
+                             company => company.Name!);
+    }
 }

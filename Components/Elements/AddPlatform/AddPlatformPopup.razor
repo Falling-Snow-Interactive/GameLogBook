@@ -1,6 +1,4 @@
-@using GameLogBook.Models.Companies
 @using GameLogBook.Models.Games
-@using GameLogBook.Models.Platforms
 
 <div class="popup-backdrop">
     <div class="platform-popup">
@@ -67,46 +65,47 @@
                        @bind:event="oninput" />
             </label>
 
-            <div class="manufacturer-picker">
-                <span>Manufacturers</span>
-
-                @if (Companies.Count == 0)
-                {
-                    <p>No companies are available to link yet.</p>
-                }
-                else
-                {
-                    <select class="platform-select"
-                            @key="selectedManufacturerIds.Count"
-                            value="@selectedManufacturerCompanyId"
-                            @onchange="HandleManufacturerSelected">
-                        <option value="">Select a company</option>
-
-                        @foreach (Company company in AvailableManufacturerCompanies)
-                        {
-                            <option value="@company.Id">@company.Name</option>
-                        }
-                    </select>
-
-                    @if (SelectedManufacturerCompanies.Count > 0)
-                    {
-                        <div class="manufacturer-chip-list">
-                            @foreach (Company company in SelectedManufacturerCompanies)
-                            {
-                                <span class="manufacturer-chip">
-                                    @company.Name
-                                    <button type="button"
-                                            title="Remove @company.Name"
-                                            aria-label="Remove @company.Name"
-                                            @onclick="() => RemoveManufacturer(company.Id)">
-                                        X
-                                    </button>
-                                </span>
-                            }
-                        </div>
-                    }
-                }
-            </div>
+            <CompanyPicker/>
+            @* <div class="company-picker"> *@
+            @*     <span>Companies</span> *@
+            @* *@
+            @*     @if (Companies.Count == 0) *@
+            @*     { *@
+            @*         <p>No companies are available to link yet.</p> *@
+            @*     } *@
+            @*     else *@
+            @*     { *@
+            @*         <select class="platform-select" *@
+            @*                 @key="selectedCompanyIds.Count" *@
+            @*                 value="@selectedCompanyId" *@
+            @*                 @onchange="HandleCompanySelected"> *@
+            @*             <option value="">Select a company</option> *@
+            @* *@
+            @*             @foreach (Company company in AvailableCompanies) *@
+            @*             { *@
+            @*                 <option value="@company.Id">@company.Name</option> *@
+            @*             } *@
+            @*         </select> *@
+            @* *@
+            @*         @if (SelectedCompanies.Count > 0) *@
+            @*         { *@
+            @*             <div class="manufacturer-chip-list"> *@
+            @*                 @foreach (Company company in SelectedCompanies) *@
+            @*                 { *@
+            @*                     <span class="manufacturer-chip"> *@
+            @*                         @company.Name *@
+            @*                         <button type="button" *@
+            @*                                 title="Remove @company.Name" *@
+            @*                                 aria-label="Remove @company.Name" *@
+            @*                                 @onclick="() => RemoveCompany(company.Id)"> *@
+            @*                             X *@
+            @*                         </button> *@
+            @*                     </span> *@
+            @*                 } *@
+            @*             </div> *@
+            @*         } *@
+            @*     } *@
+            @* </div> *@
 
             <div class="game-picker form-field-full">
                 <span>Games</span>
