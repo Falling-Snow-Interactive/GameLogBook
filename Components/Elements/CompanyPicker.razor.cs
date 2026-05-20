@@ -15,6 +15,12 @@ public partial class CompanyPicker : ComponentBase
     
     [Parameter]
     public IReadOnlyList<Company> Companies { get; set; } = [];
+
+    [Parameter]
+    public IReadOnlyCollection<int> SelectedCompanyIds { get; set; } = [];
+
+    [Parameter]
+    public EventCallback<HashSet<int>> SelectedCompanyIdsChanged { get; set; }
     
     private IReadOnlyList<Company> AvailableCompanies =>
         Companies
@@ -28,21 +34,28 @@ public partial class CompanyPicker : ComponentBase
             .OrderBy(company => company.Name)
             .ToList();
 
-    private void HandleCompanySelected(ChangeEventArgs args)
+    protected override void OnParametersSet()
+    {
+        selectedCompanyIds = SelectedCompanyIds.ToHashSet();
+    }
+
+    private async Task HandleCompanySelected(ChangeEventArgs args)
     {
         selectedCompanyId = args.Value?.ToString() ?? string.Empty;
 
         if (int.TryParse(selectedCompanyId, out int companyId))
         {
             selectedCompanyIds.Add(companyId);
+            await SelectedCompanyIdsChanged.InvokeAsync(selectedCompanyIds.ToHashSet());
         }
 
         selectedCompanyId = string.Empty;
     }
 
-    private void RemoveCompany(int companyId)
+    private async Task RemoveCompany(int companyId)
     {
         selectedCompanyIds.Remove(companyId);
+        await SelectedCompanyIdsChanged.InvokeAsync(selectedCompanyIds.ToHashSet());
     }
     
     private HashSet<int> GetMatchingLocalCompanyIds(IEnumerable<string> manufacturerNames)

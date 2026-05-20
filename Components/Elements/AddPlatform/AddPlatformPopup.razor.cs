@@ -1,4 +1,5 @@
 using GameLogBook.Components.Elements.IGDBSearch;
+using GameLogBook.Models.Companies;
 using GameLogBook.Models.Games;
 using GameLogBook.Models.Platforms;
 using GameLogBook.Services;
@@ -33,6 +34,9 @@ public partial class AddPlatformPopup : ComponentBase
 
     [Parameter]
     public IReadOnlyList<Game> Games { get; set; } = [];
+
+    [Parameter]
+    public IReadOnlyList<Company> Companies { get; set; } = [];
 
     [Parameter]
     public PlatformModel? InitialPlatform { get; set; }
@@ -93,6 +97,12 @@ public partial class AddPlatformPopup : ComponentBase
                                  };
 
         await OnPlatformSelected.InvokeAsync(platform);
+    }
+
+    private Task HandleCompanyIdsChanged(HashSet<int> updatedCompanyIds)
+    {
+        companyIds = updatedCompanyIds;
+        return Task.CompletedTask;
     }
 
     private void ToggleGameSelection(int gameId, ChangeEventArgs args)

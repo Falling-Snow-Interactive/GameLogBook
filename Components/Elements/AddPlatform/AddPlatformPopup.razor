@@ -1,3 +1,4 @@
+@using GameLogBook.Models.Companies
 @using GameLogBook.Models.Games
 @using GameLogBook.Components.Elements.AddPopup
 
@@ -38,7 +39,9 @@
                @bind:event="oninput" />
     </label>
 
-    <CompanyPicker/>
+    <CompanyPicker Companies="Companies"
+                   SelectedCompanyIds="companyIds"
+                   SelectedCompanyIdsChanged="HandleCompanyIdsChanged" />
     @* <div class="company-picker"> *@
     @*     <span>Companies</span> *@
     @* *@

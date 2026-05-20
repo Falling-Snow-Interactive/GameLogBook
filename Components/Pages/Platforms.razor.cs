@@ -24,12 +24,22 @@ public partial class Platforms : CollectionPageBase<PlatformModel>
         await base.OnInitializedAsync();
 
         games = await DbContext.Games
+                               .AsNoTracking()
                                .OrderBy(game => game.Name)
                                .ToListAsync();
 
         companies = await DbContext.Companies
+                                   .AsNoTracking()
                                    .OrderBy(company => company.Name)
                                    .ToListAsync();
+    }
+
+    private static string GetLinkedGameSummary(PlatformModel platform)
+    {
+        int linkedGameCount = platform.GameIds.Length;
+        return linkedGameCount == 0
+            ? "No linked games"
+            : $"{linkedGameCount} linked game{(linkedGameCount == 1 ? string.Empty : "s")}";
     }
 
     private async Task AddPlatform(PlatformModel platform)

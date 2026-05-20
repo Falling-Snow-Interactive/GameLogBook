@@ -1,1 +1,27 @@
-<Routes />
+@using GameLogBook.Components.Elements
+@using GameLogBook.Diagnostics
+@using GameLogBook.Components.Layout
+
+<LoggedErrorBoundary>
+    <ChildContent>
+        <Routes />
+    </ChildContent>
+    <ErrorContent Context="exception">
+        <LayoutView Layout="typeof(MainLayout)">
+            <div class="collection-page">
+                <div class="collection-header">
+                    <div>
+                        <h3>Something went wrong</h3>
+                        <p>The app hit an unexpected error while rendering this screen.</p>
+                    </div>
+                </div>
+
+                <div class="collection-empty-state">
+                    <h4>@exception.GetType().Name</h4>
+                    <p>@exception.Message</p>
+                    <p>Log file: @AppErrorLogger.LogFilePath</p>
+                </div>
+            </div>
+        </LayoutView>
+    </ErrorContent>
+</LoggedErrorBoundary>

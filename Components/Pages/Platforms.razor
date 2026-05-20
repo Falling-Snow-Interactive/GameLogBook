@@ -1,4 +1,4 @@
-@page "/Platforms"
+@page "/platforms"
 @using GameLogBook.Components.Elements.AddPlatform
 @using GameLogBook.Models.Platforms
 @inherits CollectionPageBase<Platform>
@@ -49,7 +49,7 @@
                             @(platform.ReleaseDate?.ToString("yyyy-MM-dd") ?? "Unknown release date")
                         </span>
                         <span class="platform-badge neutral-badge">
-                            @(platform.GameIds.Length == 0 ? "No linked games" : $"{platform.GameIds.Length} linked game{(platform.GameIds.Length == 1 ? string.Empty : "s")}")
+                            @GetLinkedGameSummary(platform)
                         </span>
                     </div>
                 </div>
@@ -62,7 +62,8 @@
 {
     <AddPlatformPopup OnClose="CloseAddPopup"
                       OnPlatformSelected="AddPlatform"
-                      Games="games" />
+                      Games="games"
+                      Companies="companies" />
 }
 
 @if (selectedPlatform is not null)
@@ -70,5 +71,6 @@
     <AddPlatformPopup OnClose="CloseEditPopup"
                       OnPlatformSelected="UpdatePlatform"
                       Games="games"
+                      Companies="companies"
                       InitialPlatform="@selectedPlatform" />
 }
