@@ -1,6 +1,5 @@
 using GameLogBook.Models.Companies;
 using GameLogBook.Models.Games;
-using GameLogBook.Models.Platforms;
 using Microsoft.EntityFrameworkCore;
 using PlatformModel = GameLogBook.Models.Platforms.Platform;
 
@@ -38,8 +37,8 @@ public partial class Platforms : CollectionPageBase<PlatformModel>
     {
         int linkedGameCount = platform.GameIds.Length;
         return linkedGameCount == 0
-            ? "No linked games"
-            : $"{linkedGameCount} linked game{(linkedGameCount == 1 ? string.Empty : "s")}";
+                   ? "No linked games"
+                   : $"{linkedGameCount} linked game{(linkedGameCount == 1 ? string.Empty : "s")}";
     }
 
     private async Task AddPlatform(PlatformModel platform)
@@ -66,6 +65,7 @@ public partial class Platforms : CollectionPageBase<PlatformModel>
 
         existingPlatform.IgdbId = updatedPlatform.IgdbId;
         existingPlatform.Name = updatedPlatform.Name.Trim();
+        existingPlatform.Abbreviation = updatedPlatform.Abbreviation.Trim();
         existingPlatform.CoverUrl = string.IsNullOrWhiteSpace(updatedPlatform.CoverUrl)
                                         ? null
                                         : updatedPlatform.CoverUrl.Trim();
@@ -84,16 +84,7 @@ public partial class Platforms : CollectionPageBase<PlatformModel>
 
     private void OpenEditPopup(PlatformModel platform)
     {
-        selectedPlatform = new PlatformModel
-                           {
-                               ID = platform.ID,
-                               IgdbId = platform.IgdbId,
-                               Name = platform.Name,
-                               CoverUrl = platform.CoverUrl,
-                               ReleaseDate = platform.ReleaseDate,
-                               ManufacturerIds = platform.ManufacturerIds.ToArray(),
-                               GameIds = platform.GameIds.ToArray()
-                           };
+        selectedPlatform = new PlatformModel(platform);
     }
 
     private void CloseEditPopup()

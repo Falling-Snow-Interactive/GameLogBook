@@ -18,9 +18,10 @@ public partial class AddPlatformPopup : ComponentBase
 
     private PlatformModel? previousInitialPlatform;
     private string platformName = string.Empty;
+    private string abbreviation = string.Empty;
     private string platformCoverUrl = string.Empty;
     private DateOnly? releaseDate;
-    private long igdbId;
+    private long? igdbId;
     private HashSet<int> selectedGameIds = [];
     private HashSet<int> companyIds = [];
 
@@ -79,22 +80,19 @@ public partial class AddPlatformPopup : ComponentBase
 
     private async Task HandleSavePlatform()
     {
-        PlatformModel platform = new()
-                                 {
-                                     ID = InitialPlatform?.ID ?? 0,
-                                     IgdbId = igdbId,
-                                     Name = platformName.Trim(),
-                                     CoverUrl = string.IsNullOrWhiteSpace(platformCoverUrl)
-                                                    ? null
-                                                    : platformCoverUrl.Trim(),
-                                     ReleaseDate = releaseDate,
-                                     ManufacturerIds = companyIds
-                                                       .OrderBy(companyId => companyId)
-                                                       .ToArray(),
-                                     GameIds = selectedGameIds
-                                               .OrderBy(gameId => gameId)
-                                               .ToArray()
-                                 };
+        var initialPlatform = InitialPlatform?.ID ?? 0;
+        var name = platformName.Trim();
+        var cover = string.IsNullOrWhiteSpace(platformCoverUrl)
+                        ? null
+                        : platformCoverUrl.Trim();
+        var manufacturerIds = companyIds
+                              .OrderBy(companyId => companyId)
+                              .ToArray();
+        var gameIds = selectedGameIds
+                      .OrderBy(gameId => gameId)
+                      .ToArray();
+
+        PlatformModel platform = new(igdbId, name, abbreviation, cover, releaseDate, manufacturerIds, gameIds);
 
         await OnPlatformSelected.InvokeAsync(platform);
     }
@@ -116,7 +114,7 @@ public partial class AddPlatformPopup : ComponentBase
         selectedGameIds.Remove(gameId);
     }
 
-    private async Task PopulateSelectedGames(long platformIgdbId)
+    private async Task PopulateSelectedGames(long? platformIgdbId)
     {
         selectedGameIds.Clear();
 

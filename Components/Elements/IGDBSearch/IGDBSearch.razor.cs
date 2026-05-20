@@ -573,12 +573,13 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     {
         List<IgdbPlatformVersion> versions = igdbPlatform.Versions?.Values?.ToList() ?? [];
 
-        return new PlatformSearchProjection(new LocalPlatform
-                                            {
-                                                IgdbId = igdbPlatform.Id ?? 0,
-                                                Name = igdbPlatform.Name ?? string.Empty,
-                                                ReleaseDate = GetReleaseDate(versions)
-                                            },
+        return new PlatformSearchProjection(new LocalPlatform(igdbPlatform.Id,
+                                                              igdbPlatform.Name,
+                                                              igdbPlatform.Abbreviation,
+                                                              igdbPlatform.PlatformLogo.Value.Url,
+                                                              GetReleaseDate(versions),
+                                                              [],
+                                                              []),
                                             GetManufacturerCompanyIds(versions),
                                             GetManufacturerCompanyNames(versions),
                                             GetManufacturerPlatformVersionCompanyIds(versions),
@@ -665,7 +666,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                              company => GetCompanyName(company.Company)!);
     }
 
-    private static long[] GetManufacturerCompanyIds(IEnumerable<IgdbPlatformVersion> versions)
+    public static long[] GetManufacturerCompanyIds(IEnumerable<IgdbPlatformVersion> versions)
     {
         return versions
                .SelectMany(version =>

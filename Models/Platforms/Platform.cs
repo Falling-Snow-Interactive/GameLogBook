@@ -2,28 +2,54 @@ namespace GameLogBook.Models.Platforms;
 
 public class Platform
 {
-    private int[] manufacturerIds = [];
-    private int[] gameIds = [];
-
     public int ID { get; set; }
 
-    public long IgdbId { get; set; }
+    public long? IgdbId { get; set; }
 
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; set; }
+    public string Abbreviation { get; set; }
 
     public string? CoverUrl { get; set; }
 
     public DateOnly? ReleaseDate { get; set; }
+    
+    public int[]? ManufacturerIds { get; set; }
 
-    public int[] ManufacturerIds
+    public int[]? GameIds { get; set; }
+
+    public Platform(long? igdbId, string name, string abbreviation, string? coverUrl, DateOnly? releaseDate, 
+                    int[] manufacturerIds, int[] gameIds)
     {
-        get => manufacturerIds;
-        set => manufacturerIds = value ?? [];
+        IgdbId = igdbId;
+        Abbreviation = abbreviation;
+        CoverUrl = coverUrl;
+        ReleaseDate = releaseDate;
+        ManufacturerIds = manufacturerIds;
+        GameIds = gameIds;
+        Name = name;
     }
 
-    public int[] GameIds
+    public Platform(Platform other)
     {
-        get => gameIds;
-        set => gameIds = value ?? [];
+        ID = other.ID;
+        IgdbId = other.IgdbId;
+        Name = other.Name;
+        Abbreviation = other.Abbreviation;
+        CoverUrl = other.CoverUrl;
+        ReleaseDate = other.ReleaseDate;
+        ManufacturerIds = other.ManufacturerIds;
+        GameIds = other.GameIds;
+    }
+
+    public void CopyInto(Platform other)
+    {
+        ID = other.ID;
+        IgdbId = other.IgdbId;
+        Name = other.Name;
+        Abbreviation = other.Abbreviation;
+        CoverUrl = other.CoverUrl;
+        ReleaseDate = other.ReleaseDate;
+        ManufacturerIds = other.ManufacturerIds;
+        GameIds = other.GameIds;
     }
 }
