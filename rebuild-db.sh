@@ -2,22 +2,12 @@
 
 set -e
 
-DB_FILE="GameLogBook.db"
-MIGRATION_NAME="RebuildDatabase"
+APP_DB_DIR="$HOME/Library/Containers/com.kiradinan.gamelogbook/Data/Library/Application Support"
+DB_FILE="${GAMELOGBOOK_DB_PATH:-$APP_DB_DIR/GameLogBook.db}"
 
-echo "Dropping database..."
-dotnet ef database drop --force
+mkdir -p "$(dirname "$DB_FILE")"
 
-echo "Removing old migrations..."
-rm -rf Migrations
-
-echo "Deleting local database file if it exists..."
-rm -f "$DB_FILE"
-
-echo "Creating new migration..."
-dotnet ef migrations add "$MIGRATION_NAME"
-
-echo "Building new database..."
-dotnet ef database update
+echo "Rebuilding database..."
+GAMELOGBOOK_DB_PATH="$DB_FILE" dotnet run --project tools/GameLogBook.DbTool -- rebuild
 
 echo "Database rebuild complete!"

@@ -69,4 +69,12 @@
         </Compile>
     </ItemGroup>
 
+    <ItemGroup>
+        <Compile Remove="tools\**\*.cs" />
+        <EmbeddedResource Remove="tools\**\*" />
+        <None Remove="tools\**\*" />
+        <Content Remove="tools\**\*" />
+        <MauiAsset Remove="tools\**\*" />
+    </ItemGroup>
+
 </Project>

@@ -33,8 +33,7 @@ public static class MauiProgram
         builder.Services.Configure<IgdbSettings>(builder.Configuration.GetSection("Igdb"));
         builder.Services.AddSingleton<IgdbClientProvider>();
 
-        string databasePath = Path.Combine(FileSystem.AppDataDirectory, "GameLogBook.db");
-        Directory.CreateDirectory(FileSystem.AppDataDirectory);
+        string databasePath = DatabasePathResolver.GetRuntimeDatabasePath();
 
         builder.Services.AddDbContext<GameLogBookDbContext>(options =>
             options.UseSqlite($"Data Source={databasePath}"));
