@@ -69,6 +69,7 @@ public partial class AddPlatformPopup : ComponentBase
         PlatformModel platform = result.Platform;
         igdbId = platform.IgdbId;
         platformName = platform.Name;
+        abbreviation = platform.Abbreviation;
         platformCoverUrl = platform.CoverUrl ?? string.Empty;
         releaseDate = platform.ReleaseDate;
         searchErrorMessage = null;
@@ -175,16 +176,18 @@ public partial class AddPlatformPopup : ComponentBase
     {
         igdbId = platform.IgdbId;
         platformName = platform.Name;
+        abbreviation = platform.Abbreviation;
         platformCoverUrl = platform.CoverUrl ?? string.Empty;
         releaseDate = platform.ReleaseDate;
-        selectedGameIds = platform.GameIds.ToHashSet();
-        companyIds = platform.ManufacturerIds.ToHashSet();
+        selectedGameIds = (platform.GameIds ?? []).ToHashSet();
+        companyIds = (platform.ManufacturerIds ?? []).ToHashSet();
         searchErrorMessage = null;
     }
 
     private void ResetForm()
     {
         platformName = string.Empty;
+        abbreviation = string.Empty;
         platformCoverUrl = string.Empty;
         releaseDate = null;
         igdbId = 0;

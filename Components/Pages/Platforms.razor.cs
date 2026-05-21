@@ -35,7 +35,7 @@ public partial class Platforms : CollectionPageBase<PlatformModel>
 
     private static string GetLinkedGameSummary(PlatformModel platform)
     {
-        int linkedGameCount = platform.GameIds.Length;
+        int linkedGameCount = platform.GameIds?.Length ?? 0;
         return linkedGameCount == 0
                    ? "No linked games"
                    : $"{linkedGameCount} linked game{(linkedGameCount == 1 ? string.Empty : "s")}";
@@ -70,8 +70,8 @@ public partial class Platforms : CollectionPageBase<PlatformModel>
                                         ? null
                                         : updatedPlatform.CoverUrl.Trim();
         existingPlatform.ReleaseDate = updatedPlatform.ReleaseDate;
-        existingPlatform.ManufacturerIds = updatedPlatform.ManufacturerIds;
-        existingPlatform.GameIds = updatedPlatform.GameIds;
+        existingPlatform.ManufacturerIds = updatedPlatform.ManufacturerIds ?? [];
+        existingPlatform.GameIds = updatedPlatform.GameIds ?? [];
 
         await UpdateItemAsync();
         CloseEditPopup();

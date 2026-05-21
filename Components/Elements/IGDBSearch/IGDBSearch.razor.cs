@@ -271,7 +271,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                                            .GetClient()
                                            .QueryAsync<IgdbPlatform>(IGDBClient.Endpoints.Platforms,
                                                                      query: $"""
-                                                                                     fields id, name,
+                                                                                     fields id, name, abbreviation, platform_logo.url,
                                                                                             versions.id,
                                                                                             versions.main_manufacturer.id,
                                                                                             versions.main_manufacturer.company.id,
@@ -574,9 +574,9 @@ public partial class IGDBSearch : ComponentBase, IDisposable
         List<IgdbPlatformVersion> versions = igdbPlatform.Versions?.Values?.ToList() ?? [];
 
         return new PlatformSearchProjection(new LocalPlatform(igdbPlatform.Id,
-                                                              igdbPlatform.Name,
-                                                              igdbPlatform.Abbreviation,
-                                                              igdbPlatform.PlatformLogo.Value.Url,
+                                                              igdbPlatform.Name ?? string.Empty,
+                                                              igdbPlatform.Abbreviation ?? string.Empty,
+                                                              ToAbsoluteUrl(igdbPlatform.PlatformLogo?.Value?.Url),
                                                               GetReleaseDate(versions),
                                                               [],
                                                               []),
@@ -827,14 +827,19 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
     private static string? ToLocalCoverUrl(IgdbCompanyLogo? igdbCompanyLogo)
     {
-        if (igdbCompanyLogo?.Url is null)
+        return ToAbsoluteUrl(igdbCompanyLogo?.Url);
+    }
+
+    private static string? ToAbsoluteUrl(string? url)
+    {
+        if (url is null)
         {
             return null;
         }
 
-        return igdbCompanyLogo.Url.StartsWith("//")
-                   ? $"https:{igdbCompanyLogo.Url}"
-                   : igdbCompanyLogo.Url;
+        return url.StartsWith("//")
+                   ? $"https:{url}"
+                   : url;
     }
 
     private static string GetGameSummary(LocalGame game)
