@@ -103,6 +103,7 @@
         border-color var(--transition-fast),
         box-shadow var(--transition-fast),
         background var(--transition-fast);
+    box-sizing: border-box;
 }
 
 .game-name-input,
@@ -210,4 +211,17 @@
     .popup-form {
         padding: 1rem;
     }
+}
+
+.game-detail-input[type="date"],
+.platform-input[type="date"] {
+    appearance: none;
+    -webkit-appearance: none;
+    inline-size: 100%;
+    width: 100%;
+    min-width: 0;
+    min-inline-size: 0;
+    max-width: 100%;
+    max-inline-size: 100%;
+    display: block;
 }
