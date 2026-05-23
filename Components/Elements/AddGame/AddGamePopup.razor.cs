@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
+using GameLogBook.Services;
 using Company = GameLogBook.Models.Companies.Company;
 using Cover = GameLogBook.Models.Games.Cover;
 using Game = GameLogBook.Models.Games.Game;
@@ -9,6 +11,9 @@ namespace GameLogBook.Components.Elements.AddGame;
 public partial class AddGamePopup
 {
     private Game? previousInitialGame;
+
+    [Inject]
+    private LocalImageService LocalImageService { get; set; } = null!;
 
     [Parameter]
     public EventCallback OnClose { get; set; }
@@ -30,14 +35,19 @@ public partial class AddGamePopup
     private string gameName = string.Empty;
     private long igdbId;
     private DateOnly? releaseDate;
-    private string coverUrl = string.Empty;
+    private string coverImagePath = string.Empty;
+    private string coverImageUrl = string.Empty;
+    private string? coverPreviewSource;
+    private IBrowserFile? uploadedCoverFile;
+    private string? imageErrorMessage;
+    private bool isSaving;
     private string summary = string.Empty;
 
     private string PopupTitle => InitialGame is null ? "Add Game" : "Edit Game";
 
     private string SaveButtonText => InitialGame is null ? "Add to Library" : "Save Changes";
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
         if (ReferenceEquals(previousInitialGame, InitialGame))
         {
@@ -52,17 +62,31 @@ public partial class AddGamePopup
             return;
         }
 
-        LoadGame(InitialGame);
+        await LoadGame(InitialGame);
     }
 
-    private Task HandleGameSelected(Game game)
+    private async Task HandleGameSelected(Game game)
     {
-        LoadGame(game);
-        return Task.CompletedTask;
+        await LoadGame(game);
     }
 
     private async Task HandleSaveGame()
     {
+        isSaving = true;
+        imageErrorMessage = null;
+
+        string? imagePath;
+        try
+        {
+            imagePath = await ResolveCoverImagePath();
+        }
+        catch (Exception exception)
+        {
+            imageErrorMessage = exception.Message;
+            isSaving = false;
+            return;
+        }
+
         Game game = new()
                     {
                         Id = InitialGame?.Id ?? 0,
@@ -70,19 +94,20 @@ public partial class AddGamePopup
                         Name = gameName.Trim(),
                         ReleaseDate = releaseDate,
                         Summary = string.IsNullOrWhiteSpace(summary) ? null : summary.Trim(),
-                        Cover = string.IsNullOrWhiteSpace(coverUrl)
+                        Cover = string.IsNullOrWhiteSpace(imagePath)
                                     ? null
                                     : new Cover
                                       {
-                                          Url = coverUrl.Trim()
+                                          ImagePath = imagePath
                                       },
                         Companies = BuildGameCompanies()
                     };
 
         await OnGameSelected.InvokeAsync(game);
+        isSaving = false;
     }
 
-    private void LoadGame(Game game)
+    private async Task LoadGame(Game game)
     {
         igdbId = game.IgdbId;
         gameName = game.Name;
@@ -91,7 +116,13 @@ public partial class AddGamePopup
         developerSearchText = string.Empty;
         publisherSearchText = string.Empty;
         releaseDate = game.ReleaseDate;
-        coverUrl = game.Cover?.Url ?? string.Empty;
+        coverImagePath = game.Cover?.ImagePath ?? string.Empty;
+        coverImageUrl = game.Cover?.PendingImageUrl ?? string.Empty;
+        uploadedCoverFile = null;
+        imageErrorMessage = null;
+        coverPreviewSource = !string.IsNullOrWhiteSpace(coverImageUrl)
+                                 ? coverImageUrl
+                                 : await LocalImageService.GetImageSourceAsync(coverImagePath);
         summary = game.Summary ?? string.Empty;
     }
 
@@ -104,8 +135,65 @@ public partial class AddGamePopup
         gameName = string.Empty;
         igdbId = 0;
         releaseDate = null;
-        coverUrl = string.Empty;
+        coverImagePath = string.Empty;
+        coverImageUrl = string.Empty;
+        coverPreviewSource = null;
+        uploadedCoverFile = null;
+        imageErrorMessage = null;
+        isSaving = false;
         summary = string.Empty;
+    }
+
+    private async Task HandleCoverUrlChanged(ChangeEventArgs args)
+    {
+        coverImageUrl = args.Value?.ToString() ?? string.Empty;
+        uploadedCoverFile = null;
+        imageErrorMessage = null;
+        coverPreviewSource = !string.IsNullOrWhiteSpace(coverImageUrl)
+                                 ? coverImageUrl
+                                 : await LocalImageService.GetImageSourceAsync(coverImagePath);
+    }
+
+    private async Task HandleCoverFileSelected(InputFileChangeEventArgs args)
+    {
+        uploadedCoverFile = args.File;
+        coverImageUrl = string.Empty;
+        imageErrorMessage = null;
+
+        try
+        {
+            coverPreviewSource = await LocalImageService.GetUploadPreviewSourceAsync(uploadedCoverFile);
+        }
+        catch (Exception exception)
+        {
+            uploadedCoverFile = null;
+            coverPreviewSource = await LocalImageService.GetImageSourceAsync(coverImagePath);
+            imageErrorMessage = exception.Message;
+        }
+    }
+
+    private void RemoveCoverImage()
+    {
+        coverImagePath = string.Empty;
+        coverImageUrl = string.Empty;
+        coverPreviewSource = null;
+        uploadedCoverFile = null;
+        imageErrorMessage = null;
+    }
+
+    private async Task<string?> ResolveCoverImagePath()
+    {
+        if (uploadedCoverFile is not null)
+        {
+            return await LocalImageService.SaveUploadedImageAsync(uploadedCoverFile, "games");
+        }
+
+        if (!string.IsNullOrWhiteSpace(coverImageUrl))
+        {
+            return await LocalImageService.DownloadImageAsync(coverImageUrl, "games");
+        }
+
+        return string.IsNullOrWhiteSpace(coverImagePath) ? null : coverImagePath;
     }
 
     private void SelectDeveloper(Company company)

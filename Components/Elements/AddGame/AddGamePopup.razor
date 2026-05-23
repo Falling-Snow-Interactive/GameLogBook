@@ -136,12 +136,39 @@
         </label>
 
         <label class="form-field form-field-full">
-            <span>Cover URL</span>
+            <span>Cover image URL</span>
             <input class="game-detail-input"
-                   @bind="coverUrl"
-                   @bind:event="oninput"
-                   placeholder="Cover image URL"/>
+                   value="@coverImageUrl"
+                   @oninput="HandleCoverUrlChanged"
+                   placeholder="Download image from URL"/>
         </label>
+
+        <label class="form-field form-field-full">
+            <span>Or upload cover image</span>
+            <InputFile class="game-detail-input"
+                       OnChange="HandleCoverFileSelected"
+                       accept="image/png,image/jpeg,image/gif,image/webp" />
+        </label>
+
+        @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
+        {
+            <p class="form-hint form-field-full">@imageErrorMessage</p>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(coverPreviewSource))
+        {
+            <div class="form-field form-field-full image-preview-field">
+                <span>Cover preview</span>
+                <img class="image-preview"
+                     src="@coverPreviewSource"
+                     alt="@gameName cover preview" />
+                <button class="collection-remove-button"
+                        type="button"
+                        @onclick="RemoveCoverImage">
+                    Remove image
+                </button>
+            </div>
+        }
 
         <label class="form-field form-field-full">
             <span>Summary</span>
@@ -155,8 +182,8 @@
             <button class="save-button"
                     type="button"
                     @onclick="HandleSaveGame"
-                    disabled="@string.IsNullOrWhiteSpace(gameName)">
-                @SaveButtonText
+                    disabled="@(isSaving || string.IsNullOrWhiteSpace(gameName))">
+                @(isSaving ? "Saving image..." : SaveButtonText)
             </button>
         </div>
     </div>

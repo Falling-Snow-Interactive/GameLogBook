@@ -3,11 +3,17 @@
      tabindex="0"
      @onclick="HandleClick">
 
-    @if (!string.IsNullOrWhiteSpace(Game.Cover?.BigCoverUrl))
+    @if (!string.IsNullOrWhiteSpace(Game.Cover?.ImagePath))
     { 
-        <img class="game-cover"
-         src="@Game.Cover.BigCoverUrl"
-         alt="@Game.Name cover" />
+        <LocalImage ImagePath="@Game.Cover.ImagePath"
+                    ImageClass="game-cover"
+                    AltText="@($"{Game.Name} cover")">
+            <Placeholder>
+                <div class="game-cover game-cover-placeholder">
+                    No Cover
+                </div>
+            </Placeholder>
+        </LocalImage>
     }
     else
     {

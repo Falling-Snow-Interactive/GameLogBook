@@ -537,7 +537,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                                         {
                                             IgdbId = companyIgdbId,
                                             Name = companyName,
-                                            CoverUrl = ToLocalCoverUrl(involvedCompany.Company?.Value?.Logo?.Value),
+                                            PendingImageUrl = ToPendingImageUrl(involvedCompany.Company?.Value?.Logo?.Value),
                                             LastSyncedAt = DateTimeOffset.UtcNow
                                         }
                           });
@@ -552,9 +552,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
         return new LocalCover
                {
-                   Url = igdbCover.Url.StartsWith("//")
-                             ? $"https:{igdbCover.Url}"
-                             : igdbCover.Url
+                   PendingImageUrl = ToAbsoluteUrl(igdbCover.Url)
                };
     }
 
@@ -564,7 +562,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                {
                    IgdbId = igdbCompany.Id,
                    Name = igdbCompany.Name ?? string.Empty,
-                   CoverUrl = ToLocalCoverUrl(igdbCompany.Logo?.Value),
+                   PendingImageUrl = ToPendingImageUrl(igdbCompany.Logo?.Value),
                    LastSyncedAt = DateTimeOffset.UtcNow
                };
     }
@@ -576,10 +574,13 @@ public partial class IGDBSearch : ComponentBase, IDisposable
         return new PlatformSearchProjection(new LocalPlatform(igdbPlatform.Id,
                                                               igdbPlatform.Name ?? string.Empty,
                                                               igdbPlatform.Abbreviation ?? string.Empty,
-                                                              ToAbsoluteUrl(igdbPlatform.PlatformLogo?.Value?.Url),
+                                                              null,
                                                               GetReleaseDate(versions),
                                                               [],
-                                                              []),
+                                                              [])
+                                            {
+                                                PendingImageUrl = ToAbsoluteUrl(igdbPlatform.PlatformLogo?.Value?.Url)
+                                            },
                                             GetManufacturerCompanyIds(versions),
                                             GetManufacturerCompanyNames(versions),
                                             GetManufacturerPlatformVersionCompanyIds(versions),
@@ -825,7 +826,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                    : null;
     }
 
-    private static string? ToLocalCoverUrl(IgdbCompanyLogo? igdbCompanyLogo)
+    private static string? ToPendingImageUrl(IgdbCompanyLogo? igdbCompanyLogo)
     {
         return ToAbsoluteUrl(igdbCompanyLogo?.Url);
     }

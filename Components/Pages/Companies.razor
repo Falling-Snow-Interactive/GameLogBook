@@ -20,11 +20,17 @@
                      role="button"
                      tabindex="0"
                      @onclick="() => OpenEditPopup(company)">
-                @if (!string.IsNullOrWhiteSpace(company.CoverUrl))
+                @if (!string.IsNullOrWhiteSpace(company.ImagePath))
                 {
-                    <img class="company-cover"
-                         src="@company.CoverUrl"
-                         alt="@company.Name cover" />
+                    <LocalImage ImagePath="@company.ImagePath"
+                                ImageClass="company-cover"
+                                AltText="@($"{company.Name} logo")">
+                        <Placeholder>
+                            <div class="company-cover company-cover-placeholder">
+                                <span class="bi bi-building" aria-hidden="true"></span>
+                            </div>
+                        </Placeholder>
+                    </LocalImage>
                 }
                 else
                 {

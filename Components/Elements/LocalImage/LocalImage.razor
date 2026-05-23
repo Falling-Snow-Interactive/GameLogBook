@@ -1,0 +1,10 @@
+@if (!string.IsNullOrWhiteSpace(imageSource))
+{
+    <img class="@ImageClass"
+         src="@imageSource"
+         alt="@AltText" />
+}
+else
+{
+    @Placeholder
+}

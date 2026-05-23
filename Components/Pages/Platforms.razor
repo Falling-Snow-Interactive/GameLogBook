@@ -19,11 +19,17 @@
                      role="button"
                      tabindex="0"
                      @onclick="() => OpenEditPopup(platform)">
-                @if (!string.IsNullOrWhiteSpace(platform.CoverUrl))
+                @if (!string.IsNullOrWhiteSpace(platform.ImagePath))
                 {
-                    <img class="platform-cover"
-                         src="@platform.CoverUrl"
-                         alt="@platform.Name cover" />
+                    <LocalImage ImagePath="@platform.ImagePath"
+                                ImageClass="platform-cover"
+                                AltText="@($"{platform.Name} cover")">
+                        <Placeholder>
+                            <div class="platform-cover platform-cover-placeholder">
+                                <span class="bi bi-controller" aria-hidden="true"></span>
+                            </div>
+                        </Placeholder>
+                    </LocalImage>
                 }
                 else
                 {

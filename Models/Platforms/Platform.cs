@@ -9,7 +9,10 @@ public class Platform
     public string Name { get; set; }
     public string Abbreviation { get; set; }
 
-    public string? CoverUrl { get; set; }
+    public string? ImagePath { get; set; }
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public string? PendingImageUrl { get; set; }
 
     public DateOnly? ReleaseDate { get; set; }
     
@@ -17,12 +20,12 @@ public class Platform
 
     public int[]? GameIds { get; set; }
 
-    public Platform(long? igdbId, string name, string abbreviation, string? coverUrl, DateOnly? releaseDate, 
+    public Platform(long? igdbId, string name, string abbreviation, string? imagePath, DateOnly? releaseDate, 
                     int[] manufacturerIds, int[] gameIds)
     {
         IgdbId = igdbId;
         Abbreviation = abbreviation;
-        CoverUrl = coverUrl;
+        ImagePath = imagePath;
         ReleaseDate = releaseDate;
         ManufacturerIds = manufacturerIds;
         GameIds = gameIds;
@@ -35,7 +38,8 @@ public class Platform
         IgdbId = other.IgdbId;
         Name = other.Name;
         Abbreviation = other.Abbreviation;
-        CoverUrl = other.CoverUrl;
+        ImagePath = other.ImagePath;
+        PendingImageUrl = other.PendingImageUrl;
         ReleaseDate = other.ReleaseDate;
         ManufacturerIds = other.ManufacturerIds;
         GameIds = other.GameIds;
@@ -47,7 +51,8 @@ public class Platform
         IgdbId = other.IgdbId;
         Name = other.Name;
         Abbreviation = other.Abbreviation;
-        CoverUrl = other.CoverUrl;
+        ImagePath = other.ImagePath;
+        PendingImageUrl = other.PendingImageUrl;
         ReleaseDate = other.ReleaseDate;
         ManufacturerIds = other.ManufacturerIds;
         GameIds = other.GameIds;
