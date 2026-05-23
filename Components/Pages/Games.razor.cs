@@ -1,4 +1,6 @@
 using GameLogBook.Models.Games;
+using GameLogBook.Services;
+using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameLogBook.Components.Pages;
@@ -7,6 +9,9 @@ public partial class Games : CollectionPageBase<Game>
 {
     private List<GameLogBook.Models.Companies.Company> companies = [];
     private Game? selectedGame;
+
+    [Inject]
+    private LocalImageService LocalImageService { get; set; } = null!;
 
     protected override DbSet<Game> EntitySet => DbContext.Games;
 
@@ -57,11 +62,11 @@ public partial class Games : CollectionPageBase<Game>
         existingGame.Name = updatedGame.Name.Trim();
         existingGame.ReleaseDate = updatedGame.ReleaseDate;
         existingGame.Summary = string.IsNullOrWhiteSpace(updatedGame.Summary) ? null : updatedGame.Summary.Trim();
-        existingGame.Cover = string.IsNullOrWhiteSpace(updatedGame.Cover?.Url)
+        existingGame.Cover = string.IsNullOrWhiteSpace(updatedGame.Cover?.ImagePath)
                                  ? null
                                  : new GameLogBook.Models.Games.Cover
                                    {
-                                       Url = updatedGame.Cover.Url.Trim()
+                                       ImagePath = updatedGame.Cover.ImagePath.Trim()
                                    };
 
         existingGame.Companies.Clear();
@@ -157,12 +162,34 @@ public partial class Games : CollectionPageBase<Game>
 
         company.IgdbId = selectedCompany.IgdbId;
         company.Name = selectedCompany.Name.Trim();
-        company.CoverUrl = string.IsNullOrWhiteSpace(selectedCompany.CoverUrl)
-                               ? company.CoverUrl
-                               : selectedCompany.CoverUrl.Trim();
+        company.ImagePath = await ResolveCompanyImagePath(company.ImagePath, selectedCompany);
         company.LastSyncedAt = selectedCompany.LastSyncedAt ?? DateTimeOffset.UtcNow;
 
         return company;
+    }
+
+    private async Task<string?> ResolveCompanyImagePath(
+        string? existingImagePath,
+        GameLogBook.Models.Companies.Company selectedCompany)
+    {
+        if (!string.IsNullOrWhiteSpace(selectedCompany.ImagePath))
+        {
+            return selectedCompany.ImagePath.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(selectedCompany.PendingImageUrl))
+        {
+            try
+            {
+                return await LocalImageService.DownloadImageAsync(selectedCompany.PendingImageUrl, "companies");
+            }
+            catch
+            {
+                return existingImagePath;
+            }
+        }
+
+        return existingImagePath;
     }
 
     private static Game CloneGame(Game game)
@@ -178,7 +205,7 @@ public partial class Games : CollectionPageBase<Game>
                                ? null
                                : new GameLogBook.Models.Games.Cover
                                  {
-                                     Url = game.Cover.Url
+                                     ImagePath = game.Cover.ImagePath
                                  },
                    Companies = game.Companies
                                    .Select(gameCompany => new GameCompany
@@ -191,7 +218,7 @@ public partial class Games : CollectionPageBase<Game>
                                                                             Id = gameCompany.Company.Id,
                                                                             IgdbId = gameCompany.Company.IgdbId,
                                                                             Name = gameCompany.Company.Name,
-                                                                            CoverUrl = gameCompany.Company.CoverUrl,
+                                                                            ImagePath = gameCompany.Company.ImagePath,
                                                                             LastSyncedAt = gameCompany.Company.LastSyncedAt
                                                                         }
                                                           })

@@ -18,19 +18,46 @@
     </label>
 
     <label class="form-field form-field-full">
-        <span>Cover URL</span>
+        <span>Logo image URL</span>
         <input class="company-input"
-               @bind="companyCoverUrl"
-               @bind:event="oninput"
-               placeholder="Cover image URL" />
+               value="@companyImageUrl"
+               @oninput="HandleCompanyImageUrlChanged"
+               placeholder="Download image from URL" />
     </label>
+
+    <label class="form-field form-field-full">
+        <span>Or upload logo image</span>
+        <InputFile class="company-input"
+                   OnChange="HandleCompanyImageFileSelected"
+                   accept="image/png,image/jpeg,image/gif,image/webp" />
+    </label>
+
+    @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
+    {
+        <p class="form-hint form-field-full">@imageErrorMessage</p>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(companyPreviewSource))
+    {
+        <div class="form-field form-field-full image-preview-field">
+            <span>Logo preview</span>
+            <img class="image-preview"
+                 src="@companyPreviewSource"
+                 alt="@companyName logo preview" />
+            <button class="collection-remove-button"
+                    type="button"
+                    @onclick="RemoveCompanyImage">
+                Remove image
+            </button>
+        </div>
+    }
 
     <div class="form-actions form-field-full">
         <button class="save-button"
                 type="button"
-                disabled="@string.IsNullOrWhiteSpace(companyName)"
+                disabled="@(isSaving || string.IsNullOrWhiteSpace(companyName))"
                 @onclick="HandleSaveCompany">
-            @SaveButtonText
+            @(isSaving ? "Saving image..." : SaveButtonText)
         </button>
     </div>
 </AddPopupShell>

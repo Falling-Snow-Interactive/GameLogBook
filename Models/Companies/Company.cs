@@ -8,7 +8,10 @@ public class Company
 
     public string Name { get; set; } = string.Empty;
 
-    public string? CoverUrl { get; set; }
+    public string? ImagePath { get; set; }
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public string? PendingImageUrl { get; set; }
 
     public DateTimeOffset? LastSyncedAt { get; set; }
 }

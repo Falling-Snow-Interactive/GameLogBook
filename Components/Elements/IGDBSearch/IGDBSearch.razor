@@ -41,10 +41,10 @@
                                     <button class="igdb-search-result igdb-search-game-result"
                                             type="button"
                                             @onclick="() => SelectGame(game)">
-                                        @if (!string.IsNullOrWhiteSpace(game.Cover?.Url))
+                                        @if (!string.IsNullOrWhiteSpace(game.Cover?.PendingImageUrl))
                                         {
                                             <img class="igdb-search-result-cover"
-                                                 src="@game.Cover.Url"
+                                                 src="@game.Cover.PendingImageUrl"
                                                  alt="@game.Name cover" />
                                         }
                                         else
@@ -90,10 +90,10 @@
                                     <button class="igdb-search-result"
                                             type="button"
                                             @onclick="() => SelectCompany(company)">
-                                        @if (!string.IsNullOrWhiteSpace(company.CoverUrl))
+                                        @if (!string.IsNullOrWhiteSpace(company.PendingImageUrl))
                                         {
                                             <img class="igdb-search-result-logo"
-                                                 src="@company.CoverUrl"
+                                                 src="@company.PendingImageUrl"
                                                  alt="@company.Name logo" />
                                         }
                                         else

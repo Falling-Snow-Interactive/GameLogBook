@@ -66,9 +66,9 @@ public partial class Platforms : CollectionPageBase<PlatformModel>
         existingPlatform.IgdbId = updatedPlatform.IgdbId;
         existingPlatform.Name = updatedPlatform.Name.Trim();
         existingPlatform.Abbreviation = updatedPlatform.Abbreviation.Trim();
-        existingPlatform.CoverUrl = string.IsNullOrWhiteSpace(updatedPlatform.CoverUrl)
+        existingPlatform.ImagePath = string.IsNullOrWhiteSpace(updatedPlatform.ImagePath)
                                         ? null
-                                        : updatedPlatform.CoverUrl.Trim();
+                                        : updatedPlatform.ImagePath.Trim();
         existingPlatform.ReleaseDate = updatedPlatform.ReleaseDate;
         existingPlatform.ManufacturerIds = updatedPlatform.ManufacturerIds ?? [];
         existingPlatform.GameIds = updatedPlatform.GameIds ?? [];

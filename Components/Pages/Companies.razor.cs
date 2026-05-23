@@ -45,9 +45,9 @@ public partial class Companies : CollectionPageBase<Company>
         if (existingCompany is not null)
         {
             existingCompany.Name = newCompany.Name.Trim();
-            existingCompany.CoverUrl = string.IsNullOrWhiteSpace(newCompany.CoverUrl)
-                                           ? existingCompany.CoverUrl
-                                           : newCompany.CoverUrl.Trim();
+            existingCompany.ImagePath = string.IsNullOrWhiteSpace(newCompany.ImagePath)
+                                            ? existingCompany.ImagePath
+                                            : newCompany.ImagePath.Trim();
             existingCompany.LastSyncedAt = DateTimeOffset.UtcNow;
             await DbContext.SaveChangesAsync();
             await LoadItemsAsync();
@@ -79,9 +79,9 @@ public partial class Companies : CollectionPageBase<Company>
 
         existingCompany.IgdbId = updatedCompany.IgdbId;
         existingCompany.Name = updatedCompany.Name.Trim();
-        existingCompany.CoverUrl = string.IsNullOrWhiteSpace(updatedCompany.CoverUrl)
+        existingCompany.ImagePath = string.IsNullOrWhiteSpace(updatedCompany.ImagePath)
                                        ? null
-                                       : updatedCompany.CoverUrl.Trim();
+                                       : updatedCompany.ImagePath.Trim();
         existingCompany.LastSyncedAt = DateTimeOffset.UtcNow;
 
         await UpdateItemAsync();
@@ -177,7 +177,7 @@ public partial class Companies : CollectionPageBase<Company>
                               Id = company.Id,
                               IgdbId = company.IgdbId,
                               Name = company.Name,
-                              CoverUrl = company.CoverUrl,
+                              ImagePath = company.ImagePath,
                               LastSyncedAt = company.LastSyncedAt
                           };
     }
