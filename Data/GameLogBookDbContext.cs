@@ -14,11 +14,8 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
     public DbSet<GameCompany> GameCompanies => Set<GameCompany>();
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<PlatformModel> Platforms => Set<PlatformModel>();
+    
     public DbSet<Playthrough> Playthroughs => Set<Playthrough>();
-
-    // public DbSet<User> Users => Set<User>();
-    // public DbSet<Playthrough> Playthroughs => Set<Playthrough>();
-    // public DbSet<GameLog> Logs => Set<GameLog>();
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
