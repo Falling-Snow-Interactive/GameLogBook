@@ -75,7 +75,7 @@ public partial class AddCompanyPopup
 
         Company company = new()
                           {
-                              Id = InitialCompany?.Id ?? 0,
+                              ID = InitialCompany?.ID ?? 0,
                               IgdbId = companyIgdbId,
                               Name = companyName.Trim(),
                               ImagePath = imagePath,

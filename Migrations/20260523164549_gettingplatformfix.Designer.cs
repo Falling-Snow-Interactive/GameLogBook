@@ -3,6 +3,7 @@ using System;
 using GameLogBook.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GameLogBook.Migrations
 {
     [DbContext(typeof(GameLogBookDbContext))]
-    partial class GameLogBookDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260523164549_gettingplatformfix")]
+    partial class gettingplatformfix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.8");
@@ -121,6 +124,9 @@ namespace GameLogBook.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.PrimitiveCollection<string>("GameIds")
+                        .HasColumnType("TEXT");
+
                     b.Property<long?>("IgdbId")
                         .HasColumnType("INTEGER");
 
@@ -208,7 +214,7 @@ namespace GameLogBook.Migrations
             modelBuilder.Entity("GameLogBook.Models.Games.Platform.GamePlatform", b =>
                 {
                     b.HasOne("GameLogBook.Models.Games.Game", "Game")
-                        .WithMany("GamePlatforms")
+                        .WithMany("Ownership")
                         .HasForeignKey("GameID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -228,7 +234,7 @@ namespace GameLogBook.Migrations
                 {
                     b.Navigation("GameCompanies");
 
-                    b.Navigation("GamePlatforms");
+                    b.Navigation("Ownership");
                 });
 #pragma warning restore 612, 618
         }

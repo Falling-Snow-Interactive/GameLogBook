@@ -522,7 +522,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
             return;
         }
 
-        companyIds.Add(company.Id);
+        companyIds.Add(company.ID);
     }
 
     private LocalCompany? ResolveLocalCompany(long? igdbId, string? companyName)
@@ -580,7 +580,6 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                                                               igdbPlatform.Abbreviation ?? string.Empty,
                                                               null,
                                                               GetReleaseDate(versions),
-                                                              [],
                                                               [])
                                             {
                                                 PendingImageUrl = ToAbsoluteUrl(igdbPlatform.PlatformLogo?.Value?.Url)
@@ -916,7 +915,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
         LocalCompany? localCompany = LocalCompanies.FirstOrDefault(candidate => candidate.IgdbId == company.IgdbId);
         string[] linkedRoles = localCompany is null
                                    ? []
-                                   : GetLinkedRoles(localCompany.Id);
+                                   : GetLinkedRoles(localCompany.ID);
 
         if (linkedRoles.Length > 0)
         {
@@ -928,7 +927,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
     private string? GetLocalCompanyName(int companyId)
     {
-        return LocalCompanies.FirstOrDefault(company => company.Id == companyId)?.Name;
+        return LocalCompanies.FirstOrDefault(company => company.ID == companyId)?.Name;
     }
 
     private string[] GetLinkedRoles(int companyId)

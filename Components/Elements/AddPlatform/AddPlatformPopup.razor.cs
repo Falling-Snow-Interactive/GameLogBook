@@ -118,7 +118,7 @@ public partial class AddPlatformPopup : ComponentBase
                       .OrderBy(gameId => gameId)
                       .ToArray();
 
-        PlatformModel platform = new(igdbId, name, abbreviation, imagePath, releaseDate, manufacturerIds, gameIds);
+        PlatformModel platform = new(igdbId, name, abbreviation, imagePath, releaseDate, manufacturerIds);
 
         await OnPlatformSelected.InvokeAsync(platform);
         isSaving = false;
@@ -210,7 +210,7 @@ public partial class AddPlatformPopup : ComponentBase
                                     ? platformImageUrl
                                     : await LocalImageService.GetImageSourceAsync(platformImagePath);
         releaseDate = platform.ReleaseDate;
-        selectedGameIds = (platform.GameIds ?? []).ToHashSet();
+        // selectedGameIds = (platform.GameIds ?? []).ToHashSet();
         companyIds = (platform.ManufacturerIds ?? []).ToHashSet();
         searchErrorMessage = null;
     }

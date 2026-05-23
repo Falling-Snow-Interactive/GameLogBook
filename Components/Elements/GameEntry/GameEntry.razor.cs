@@ -54,7 +54,7 @@ public partial class GameEntry
     private IReadOnlyList<string> GetCompanyNames(IEnumerable<int> companyIds)
     {
         return Companies
-                   .Where(company => companyIds.Contains(company.Id))
+                   .Where(company => companyIds.Contains(company.ID))
                    .Select(company => company.Name)
                    .Where(name => !string.IsNullOrWhiteSpace(name))
                    .Distinct(StringComparer.OrdinalIgnoreCase)

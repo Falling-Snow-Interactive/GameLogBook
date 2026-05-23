@@ -17,18 +17,15 @@ public class Platform
     public DateOnly? ReleaseDate { get; set; }
     
     public int[]? ManufacturerIds { get; set; }
-
-    public int[]? GameIds { get; set; }
-
+    
     public Platform(long? igdbId, string name, string abbreviation, string? imagePath, DateOnly? releaseDate, 
-                    int[] manufacturerIds, int[] gameIds)
+                    int[] manufacturerIds)
     {
         IgdbId = igdbId;
         Abbreviation = abbreviation;
         ImagePath = imagePath;
         ReleaseDate = releaseDate;
         ManufacturerIds = manufacturerIds;
-        GameIds = gameIds;
         Name = name;
     }
 
@@ -42,7 +39,6 @@ public class Platform
         PendingImageUrl = other.PendingImageUrl;
         ReleaseDate = other.ReleaseDate;
         ManufacturerIds = other.ManufacturerIds;
-        GameIds = other.GameIds;
     }
 
     public void CopyInto(Platform other)
@@ -55,6 +51,5 @@ public class Platform
         PendingImageUrl = other.PendingImageUrl;
         ReleaseDate = other.ReleaseDate;
         ManufacturerIds = other.ManufacturerIds;
-        GameIds = other.GameIds;
     }
 }

@@ -69,7 +69,7 @@ public partial class Companies : CollectionPageBase<Company>
         }
 
         Company? existingCompany = await DbContext.Companies
-                                                 .FirstOrDefaultAsync(company => company.Id == selectedCompany.Id);
+                                                  .FirstOrDefaultAsync(company => company.ID == selectedCompany.ID);
 
         if (existingCompany is null)
         {
@@ -80,8 +80,8 @@ public partial class Companies : CollectionPageBase<Company>
         existingCompany.IgdbId = updatedCompany.IgdbId;
         existingCompany.Name = updatedCompany.Name.Trim();
         existingCompany.ImagePath = string.IsNullOrWhiteSpace(updatedCompany.ImagePath)
-                                       ? null
-                                       : updatedCompany.ImagePath.Trim();
+                                        ? null
+                                        : updatedCompany.ImagePath.Trim();
         existingCompany.LastSyncedAt = DateTimeOffset.UtcNow;
 
         await UpdateItemAsync();
@@ -102,12 +102,12 @@ public partial class Companies : CollectionPageBase<Company>
 
     private IReadOnlyList<string> GetGameNames(Company company)
     {
-        return gameNamesByCompanyId.GetValueOrDefault(company.Id) ?? [];
+        return gameNamesByCompanyId.GetValueOrDefault(company.ID) ?? [];
     }
 
     private string GetCompanyRoleSummary(Company company)
     {
-        if (!rolesByCompanyId.TryGetValue(company.Id, out HashSet<string>? roles)
+        if (!rolesByCompanyId.TryGetValue(company.ID, out HashSet<string>? roles)
             || roles.Count == 0)
         {
             return "Metadata";
@@ -123,7 +123,7 @@ public partial class Companies : CollectionPageBase<Company>
 
     private bool CompanyHasLinkedGames(Company company)
     {
-        return gameNamesByCompanyId.ContainsKey(company.Id);
+        return gameNamesByCompanyId.ContainsKey(company.ID);
     }
 
     public bool TryGetLocalCompany(long? igdbId, out Company? company)
@@ -141,6 +141,7 @@ public partial class Companies : CollectionPageBase<Company>
     private async Task LoadGameCompanySummaries()
     {
         games = await DbContext.Games
+                               .Include(game => game.GameCompanies)
                                .OrderBy(game => game.Name)
                                .ToListAsync();
 
@@ -182,7 +183,7 @@ public partial class Companies : CollectionPageBase<Company>
     {
         selectedCompany = new Company
                           {
-                              Id = company.Id,
+                              ID = company.ID,
                               IgdbId = company.IgdbId,
                               Name = company.Name,
                               ImagePath = company.ImagePath,

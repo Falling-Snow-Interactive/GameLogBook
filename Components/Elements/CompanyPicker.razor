@@ -16,7 +16,7 @@
 
             @foreach (Company company in AvailableCompanies)
             {
-                <option value="@company.Id">@company.Name</option>
+                <option value="@company.ID">@company.Name</option>
             }
         </select>
 
@@ -30,7 +30,7 @@
                         <button type="button"
                                 title="Remove @company.Name"
                                 aria-label="Remove @company.Name"
-                                @onclick="() => RemoveCompany(company.Id)">
+                                @onclick="() => RemoveCompany(company.ID)">
                             X
                         </button>
                     </span>

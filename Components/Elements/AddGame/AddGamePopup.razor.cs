@@ -198,13 +198,13 @@ public partial class AddGamePopup
 
     private void SelectDeveloper(Company company)
     {
-        AddSelectedCompany(selectedDeveloperCompanyIds, company.Id);
+        AddSelectedCompany(selectedDeveloperCompanyIds, company.ID);
         developerSearchText = string.Empty;
     }
 
     private void SelectPublisher(Company company)
     {
-        AddSelectedCompany(selectedPublisherCompanyIds, company.Id);
+        AddSelectedCompany(selectedPublisherCompanyIds, company.ID);
         publisherSearchText = string.Empty;
     }
 
@@ -221,7 +221,7 @@ public partial class AddGamePopup
     private List<int> ResolveLocalCompanyIds(IEnumerable<int> companyIds)
     {
         return companyIds
-               .Where(companyId => Companies.Any(company => company.Id == companyId))
+               .Where(companyId => Companies.Any(company => company.ID == companyId))
                .Distinct()
                .Order()
                .ToList();
@@ -240,7 +240,7 @@ public partial class AddGamePopup
         string trimmedSearchText = searchText.Trim();
 
         return Companies
-               .Where(company => !selectedIds.Contains(company.Id))
+               .Where(company => !selectedIds.Contains(company.ID))
                .Where(company => string.IsNullOrWhiteSpace(trimmedSearchText)
                                   || company.Name.Contains(trimmedSearchText, StringComparison.OrdinalIgnoreCase))
                .OrderBy(company => company.Name)
@@ -251,7 +251,7 @@ public partial class AddGamePopup
     private IReadOnlyList<Company> GetSelectedCompanies(IEnumerable<int> selectedIds)
     {
         return Companies
-               .Where(company => selectedIds.Contains(company.Id))
+               .Where(company => selectedIds.Contains(company.ID))
                .OrderBy(company => company.Name)
                .ToList();
     }

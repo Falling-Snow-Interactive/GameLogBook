@@ -15,6 +15,11 @@ public partial class Games : CollectionPageBase<Game>
         return item.Name;
     }
 
+    protected override IQueryable<Game> BuildQuery()
+    {
+        return EntitySet.Include(game => game.GameCompanies);
+    }
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();

@@ -264,17 +264,20 @@ main {
     font-weight: 700;
 }
 
+.platform-games,
 .company-games {
     display: grid;
     gap: 0.45rem;
 }
 
+.platform-games-label,
 .company-games-label {
     color: var(--color-text-soft);
     font-size: 0.8125rem;
     font-weight: 700;
 }
 
+.platform-games-empty,
 .company-games-empty {
     color: var(--color-text-muted);
     font-size: 0.9rem;

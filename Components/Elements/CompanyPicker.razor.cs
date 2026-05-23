@@ -24,13 +24,13 @@ public partial class CompanyPicker : ComponentBase
     
     private IReadOnlyList<Company> AvailableCompanies =>
         Companies
-            .Where(company => !selectedCompanyIds.Contains(company.Id))
+            .Where(company => !selectedCompanyIds.Contains(company.ID))
             .OrderBy(company => company.Name)
             .ToList();
 
     private IReadOnlyList<Company> SelectedCompanies =>
         Companies
-            .Where(company => selectedCompanyIds.Contains(company.Id))
+            .Where(company => selectedCompanyIds.Contains(company.ID))
             .OrderBy(company => company.Name)
             .ToList();
 
@@ -64,7 +64,7 @@ public partial class CompanyPicker : ComponentBase
 
         return Companies
                .Where(company => normalizedManufacturerNames.Contains(company.Name))
-               .Select(company => company.Id)
+               .Select(company => company.ID)
                .ToHashSet();
     }
     

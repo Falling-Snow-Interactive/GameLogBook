@@ -2,7 +2,7 @@ namespace GameLogBook.Models.Companies;
 
 public class Company
 {
-    public int Id { get; set; }
+    public int ID { get; set; }
 
     public long? IgdbId { get; set; }
 
