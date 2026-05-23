@@ -21,6 +21,7 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<Game>().OwnsOne(game => game.Cover);
+        modelBuilder.Entity<Game>().ComplexProperty(game => game.Ownership);
 
         modelBuilder.Entity<Company>()
                     .HasIndex(company => company.IgdbId)

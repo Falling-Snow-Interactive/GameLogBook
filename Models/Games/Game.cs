@@ -9,6 +9,8 @@ public class Game
     public string Name { get; set; } = string.Empty;
 
     public string? Summary { get; set; }
+    
+    public GameType GameType { get; set; }
 
     public DateOnly? ReleaseDate { get; set; }
 
@@ -17,4 +19,8 @@ public class Game
     public int[] DeveloperCompanyIds { get; set; } = [];
 
     public int[] PublisherCompanyIds { get; set; } = [];
+    
+    public int Rating { get; set; }
+    
+    public Ownership Ownership { get; set; }
 }
