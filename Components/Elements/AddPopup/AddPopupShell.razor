@@ -27,6 +27,7 @@
                 <div class="form-field-full">
                     <IGDBSearch SearchFor="@SearchFor"
                                 Placeholder="@SearchPlaceholder"
+                                LocalCompanies="@LocalCompanies"
                                 OnGameSelected="@OnGameSelected"
                                 OnPlatformSelected="@OnPlatformSelected"
                                 OnCompanySelected="@OnCompanySelected" />
@@ -73,6 +74,9 @@
 
     [Parameter]
     public EventCallback<Company> OnCompanySelected { get; set; }
+
+    [Parameter]
+    public IReadOnlyList<Company> LocalCompanies { get; set; } = [];
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }

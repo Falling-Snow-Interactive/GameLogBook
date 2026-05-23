@@ -1,3 +1,4 @@
+using GameLogBook.Models.Companies;
 using GameLogBook.Models.Games;
 using Microsoft.AspNetCore.Components;
 
@@ -7,6 +8,9 @@ public partial class GameEntry
 {
     [Parameter]
     public Game Game { get; set; } = null!;
+
+    [Parameter]
+    public IReadOnlyList<Company> Companies { get; set; } = [];
 
     [Parameter]
     public bool ShowButtons { get; set; } = false;
@@ -23,9 +27,9 @@ public partial class GameEntry
     [Parameter]
     public EventCallback<Game> OnRemove { get; set; }
 
-    private IReadOnlyList<string> DeveloperNames => GetCompanyNames(GameCompanyRole.Developer);
+    private IReadOnlyList<string> DeveloperNames => GetCompanyNames(Game.DeveloperCompanyIds);
 
-    private IReadOnlyList<string> PublisherNames => GetCompanyNames(GameCompanyRole.Publisher);
+    private IReadOnlyList<string> PublisherNames => GetCompanyNames(Game.PublisherCompanyIds);
 
     private async Task HandleClick()
     {
@@ -47,11 +51,11 @@ public partial class GameEntry
         await OnRemove.InvokeAsync(Game);
     }
 
-    private IReadOnlyList<string> GetCompanyNames(GameCompanyRole role)
+    private IReadOnlyList<string> GetCompanyNames(IEnumerable<int> companyIds)
     {
-        return Game.Companies
-                   .Where(gameCompany => gameCompany.Role == role)
-                   .Select(gameCompany => gameCompany.Company.Name)
+        return Companies
+                   .Where(company => companyIds.Contains(company.Id))
+                   .Select(company => company.Name)
                    .Where(name => !string.IsNullOrWhiteSpace(name))
                    .Distinct(StringComparer.OrdinalIgnoreCase)
                    .OrderBy(name => name)

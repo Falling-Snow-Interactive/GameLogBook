@@ -14,5 +14,7 @@ public class Game
 
     public Cover? Cover { get; set; }
 
-    public List<GameCompany> Companies { get; set; } = [];
+    public int[] DeveloperCompanyIds { get; set; } = [];
+
+    public int[] PublisherCompanyIds { get; set; } = [];
 }

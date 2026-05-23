@@ -8,7 +8,7 @@ public partial class Companies : CollectionPageBase<Company>
 {
     private List<Game> games = [];
     private Dictionary<int, List<string>> gameNamesByCompanyId = [];
-    private Dictionary<int, HashSet<GameCompanyRole>> rolesByCompanyId = [];
+    private Dictionary<int, HashSet<string>> rolesByCompanyId = [];
     private Company? selectedCompany;
 
     protected override DbSet<Company> EntitySet => DbContext.Companies;
@@ -107,13 +107,13 @@ public partial class Companies : CollectionPageBase<Company>
 
     private string GetCompanyRoleSummary(Company company)
     {
-        if (!rolesByCompanyId.TryGetValue(company.Id, out HashSet<GameCompanyRole>? roles)
+        if (!rolesByCompanyId.TryGetValue(company.Id, out HashSet<string>? roles)
             || roles.Count == 0)
         {
             return "Metadata";
         }
 
-        return string.Join(" · ", roles.OrderBy(role => role).Select(role => role.ToString()));
+        return string.Join(" · ", roles.Order());
     }
 
     private string GetCompanySourceSummary(Company company)
@@ -141,17 +141,18 @@ public partial class Companies : CollectionPageBase<Company>
     private async Task LoadGameCompanySummaries()
     {
         games = await DbContext.Games
-                               .Include(game => game.Companies)
-                               .ThenInclude(gameCompany => gameCompany.Company)
                                .OrderBy(game => game.Name)
                                .ToListAsync();
 
         gameNamesByCompanyId = games
-                               .SelectMany(game => game.Companies.Select(gameCompany => new
-                                                                                        {
-                                                                                            game.Name,
-                                                                                            gameCompany.CompanyId
-                                                                                        }))
+                               .SelectMany(game => game.DeveloperCompanyIds
+                                                       .Concat(game.PublisherCompanyIds)
+                                                       .Distinct()
+                                                       .Select(companyId => new
+                                                                            {
+                                                                                game.Name,
+                                                                                CompanyId = companyId
+                                                                            }))
                                .GroupBy(item => item.CompanyId)
                                .ToDictionary(group => group.Key,
                                              group => group.Select(item => item.Name)
@@ -160,11 +161,18 @@ public partial class Companies : CollectionPageBase<Company>
                                                            .ToList());
 
         rolesByCompanyId = games
-                           .SelectMany(game => game.Companies.Select(gameCompany => new
+                           .SelectMany(game => game.DeveloperCompanyIds
+                                                   .Select(companyId => new
+                                                                        {
+                                                                            CompanyId = companyId,
+                                                                            Role = "Developer"
+                                                                        })
+                                                   .Concat(game.PublisherCompanyIds
+                                                               .Select(companyId => new
                                                                                     {
-                                                                                        gameCompany.CompanyId,
-                                                                                        gameCompany.Role
-                                                                                    }))
+                                                                                        CompanyId = companyId,
+                                                                                        Role = "Publisher"
+                                                                                    })))
                            .GroupBy(item => item.CompanyId)
                            .ToDictionary(group => group.Key,
                                          group => group.Select(item => item.Role).ToHashSet());

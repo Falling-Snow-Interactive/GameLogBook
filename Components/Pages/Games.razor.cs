@@ -1,6 +1,4 @@
 using GameLogBook.Models.Games;
-using GameLogBook.Services;
-using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameLogBook.Components.Pages;
@@ -10,21 +8,11 @@ public partial class Games : CollectionPageBase<Game>
     private List<GameLogBook.Models.Companies.Company> companies = [];
     private Game? selectedGame;
 
-    [Inject]
-    private LocalImageService LocalImageService { get; set; } = null!;
-
     protected override DbSet<Game> EntitySet => DbContext.Games;
 
     protected override string GetSortKey(Game item)
     {
         return item.Name;
-    }
-
-    protected override IQueryable<Game> BuildQuery()
-    {
-        return EntitySet
-               .Include(game => game.Companies)
-               .ThenInclude(gameCompany => gameCompany.Company);
     }
 
     protected override async Task OnInitializedAsync()
@@ -35,7 +23,8 @@ public partial class Games : CollectionPageBase<Game>
 
     private async Task AddGame(Game game)
     {
-        await PopulateCompaniesAsync(game);
+        game.DeveloperCompanyIds = NormalizeCompanyIds(game.DeveloperCompanyIds);
+        game.PublisherCompanyIds = NormalizeCompanyIds(game.PublisherCompanyIds);
 
         await AddItemAsync(game);
         await LoadItemsAsync();
@@ -68,22 +57,10 @@ public partial class Games : CollectionPageBase<Game>
                                    {
                                        ImagePath = updatedGame.Cover.ImagePath.Trim()
                                    };
-
-        existingGame.Companies.Clear();
-
-        foreach (GameCompany gameCompany in updatedGame.Companies)
-        {
-            existingGame.Companies.Add(new GameCompany
-                                       {
-                                           Company = gameCompany.Company,
-                                           Role = gameCompany.Role
-                                       });
-        }
-
-        await PopulateCompaniesAsync(existingGame);
+        existingGame.DeveloperCompanyIds = NormalizeCompanyIds(updatedGame.DeveloperCompanyIds);
+        existingGame.PublisherCompanyIds = NormalizeCompanyIds(updatedGame.PublisherCompanyIds);
 
         await UpdateItemAsync();
-        await LoadCompaniesAsync();
         CloseEditPopup();
     }
 
@@ -109,89 +86,6 @@ public partial class Games : CollectionPageBase<Game>
         selectedGame = null;
     }
 
-    private async Task PopulateCompaniesAsync(Game game)
-    {
-        List<GameCompany> selectedCompanies = game.Companies.ToList();
-        game.Companies.Clear();
-
-        foreach (GameCompany selectedCompany in selectedCompanies)
-        {
-            GameLogBook.Models.Companies.Company company = await GetOrCreateCompany(selectedCompany.Company);
-
-            if (game.Companies.Any(gameCompany => gameCompany.Company == company
-                                                  && gameCompany.Role == selectedCompany.Role))
-            {
-                continue;
-            }
-
-            game.Companies.Add(new GameCompany
-                               {
-                                   Company = company,
-                                   Role = selectedCompany.Role
-                               });
-        }
-    }
-
-    private async Task<GameLogBook.Models.Companies.Company> GetOrCreateCompany(GameLogBook.Models.Companies.Company selectedCompany)
-    {
-        GameLogBook.Models.Companies.Company? company = null;
-
-        if (selectedCompany.Id > 0)
-        {
-            company = await DbContext.Companies
-                                     .FirstOrDefaultAsync(existingCompany => existingCompany.Id == selectedCompany.Id);
-        }
-
-        if (company is null && selectedCompany.IgdbId.HasValue)
-        {
-            company = await DbContext.Companies
-                                     .FirstOrDefaultAsync(existingCompany =>
-                                                              existingCompany.IgdbId == selectedCompany.IgdbId.Value);
-        }
-
-        company ??= await DbContext.Companies
-                                   .FirstOrDefaultAsync(existingCompany =>
-                                                            existingCompany.IgdbId == null
-                                                            && existingCompany.Name == selectedCompany.Name);
-
-        if (company is null)
-        {
-            company = new GameLogBook.Models.Companies.Company();
-            DbContext.Companies.Add(company);
-        }
-
-        company.IgdbId = selectedCompany.IgdbId;
-        company.Name = selectedCompany.Name.Trim();
-        company.ImagePath = await ResolveCompanyImagePath(company.ImagePath, selectedCompany);
-        company.LastSyncedAt = selectedCompany.LastSyncedAt ?? DateTimeOffset.UtcNow;
-
-        return company;
-    }
-
-    private async Task<string?> ResolveCompanyImagePath(
-        string? existingImagePath,
-        GameLogBook.Models.Companies.Company selectedCompany)
-    {
-        if (!string.IsNullOrWhiteSpace(selectedCompany.ImagePath))
-        {
-            return selectedCompany.ImagePath.Trim();
-        }
-
-        if (!string.IsNullOrWhiteSpace(selectedCompany.PendingImageUrl))
-        {
-            try
-            {
-                return await LocalImageService.DownloadImageAsync(selectedCompany.PendingImageUrl, "companies");
-            }
-            catch
-            {
-                return existingImagePath;
-            }
-        }
-
-        return existingImagePath;
-    }
-
     private static Game CloneGame(Game game)
     {
         return new Game
@@ -207,22 +101,17 @@ public partial class Games : CollectionPageBase<Game>
                                  {
                                      ImagePath = game.Cover.ImagePath
                                  },
-                   Companies = game.Companies
-                                   .Select(gameCompany => new GameCompany
-                                                          {
-                                                              GameId = gameCompany.GameId,
-                                                              CompanyId = gameCompany.CompanyId,
-                                                              Role = gameCompany.Role,
-                                                              Company = new GameLogBook.Models.Companies.Company
-                                                                        {
-                                                                            Id = gameCompany.Company.Id,
-                                                                            IgdbId = gameCompany.Company.IgdbId,
-                                                                            Name = gameCompany.Company.Name,
-                                                                            ImagePath = gameCompany.Company.ImagePath,
-                                                                            LastSyncedAt = gameCompany.Company.LastSyncedAt
-                                                                        }
-                                                          })
-                                   .ToList()
+                   DeveloperCompanyIds = game.DeveloperCompanyIds.ToArray(),
+                   PublisherCompanyIds = game.PublisherCompanyIds.ToArray()
                };
+    }
+
+    private static int[] NormalizeCompanyIds(IEnumerable<int> companyIds)
+    {
+        return companyIds
+               .Where(companyId => companyId > 0)
+               .Distinct()
+               .Order()
+               .ToArray();
     }
 }

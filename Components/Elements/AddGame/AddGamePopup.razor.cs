@@ -4,7 +4,6 @@ using GameLogBook.Services;
 using Company = GameLogBook.Models.Companies.Company;
 using Cover = GameLogBook.Models.Games.Cover;
 using Game = GameLogBook.Models.Games.Game;
-using GameLogBook.Models.Games;
 
 namespace GameLogBook.Components.Elements.AddGame;
 
@@ -100,7 +99,8 @@ public partial class AddGamePopup
                                       {
                                           ImagePath = imagePath
                                       },
-                        Companies = BuildGameCompanies()
+                        DeveloperCompanyIds = selectedDeveloperCompanyIds.Distinct().ToArray(),
+                        PublisherCompanyIds = selectedPublisherCompanyIds.Distinct().ToArray()
                     };
 
         await OnGameSelected.InvokeAsync(game);
@@ -111,8 +111,8 @@ public partial class AddGamePopup
     {
         igdbId = game.IgdbId;
         gameName = game.Name;
-        selectedDeveloperCompanyIds = ResolveLocalCompanyIds(game, GameCompanyRole.Developer);
-        selectedPublisherCompanyIds = ResolveLocalCompanyIds(game, GameCompanyRole.Publisher);
+        selectedDeveloperCompanyIds = ResolveLocalCompanyIds(game.DeveloperCompanyIds);
+        selectedPublisherCompanyIds = ResolveLocalCompanyIds(game.PublisherCompanyIds);
         developerSearchText = string.Empty;
         publisherSearchText = string.Empty;
         releaseDate = game.ReleaseDate;
@@ -218,60 +218,13 @@ public partial class AddGamePopup
         selectedPublisherCompanyIds.Remove(companyId);
     }
 
-    private List<GameCompany> BuildGameCompaniesForRole(IEnumerable<int> companyIds, GameCompanyRole role)
+    private List<int> ResolveLocalCompanyIds(IEnumerable<int> companyIds)
     {
-        return Companies
-               .Where(company => companyIds.Contains(company.Id))
-               .Select(company => new GameCompany
-                                  {
-                                      Role = role,
-                                      Company = company
-                                  })
+        return companyIds
+               .Where(companyId => Companies.Any(company => company.Id == companyId))
+               .Distinct()
+               .Order()
                .ToList();
-    }
-
-    private List<GameCompany> BuildGameCompanies()
-    {
-        return BuildGameCompaniesForRole(selectedDeveloperCompanyIds, GameCompanyRole.Developer)
-               .Concat(BuildGameCompaniesForRole(selectedPublisherCompanyIds, GameCompanyRole.Publisher))
-               .ToList();
-    }
-
-    private List<int> ResolveLocalCompanyIds(Game game, GameCompanyRole role)
-    {
-        return game.Companies
-                   .Where(gameCompany => gameCompany.Role == role)
-                   .Select(gameCompany => ResolveLocalCompany(gameCompany.Company))
-                   .Where(company => company is not null)
-                   .Select(company => company!.Id)
-                   .Distinct()
-                   .ToList();
-    }
-
-    private Company? ResolveLocalCompany(Company company)
-    {
-        if (company.Id > 0)
-        {
-            Company? byId = Companies.FirstOrDefault(localCompany => localCompany.Id == company.Id);
-            if (byId is not null)
-            {
-                return byId;
-            }
-        }
-
-        if (company.IgdbId.HasValue)
-        {
-            Company? byIgdbId = Companies.FirstOrDefault(localCompany => localCompany.IgdbId == company.IgdbId.Value);
-            if (byIgdbId is not null)
-            {
-                return byIgdbId;
-            }
-        }
-
-        return Companies.FirstOrDefault(localCompany =>
-                                            string.Equals(localCompany.Name,
-                                                          company.Name,
-                                                          StringComparison.OrdinalIgnoreCase));
     }
 
     private IReadOnlyList<Company> DeveloperMatches => FilterCompanies(developerSearchText, selectedDeveloperCompanyIds);
