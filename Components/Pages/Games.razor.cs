@@ -82,7 +82,7 @@ public partial class Games : CollectionPageBase<Game>
 
     private void OnClickGame(Game game)
     {
-        selectedGame = CloneGame(game);
+        selectedGame = new Game(game);
     }
 
     private void CloseEditPopup()
@@ -90,17 +90,18 @@ public partial class Games : CollectionPageBase<Game>
         selectedGame = null;
     }
 
-    private static Game CloneGame(Game game)
-    {
-        return new Game(game);
-    }
-
     private static List<GameCompany> NormalizeCompanyIds(IEnumerable<GameCompany> companies)
     {
         return companies
                .Where(company => company.CompanyID > 0)
-               .Distinct()
-               .Order()
+               .GroupBy(company => new
+                                    {
+                                        company.CompanyID,
+                                        company.Role,
+                                    })
+               .Select(group => group.First())
+               .OrderBy(company => company.Role)
+               .ThenBy(company => company.CompanyID)
                .ToList();
     }
 

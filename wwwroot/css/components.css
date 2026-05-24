@@ -195,6 +195,65 @@ main {
     transform: translateY(-1px);
 }
 
+.game-view {
+    width: 100%;
+    min-height: 24rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.game-view-content {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.game-view .game-cover {
+    width: 12rem;
+    height: 18rem;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+}
+
+.game-details {
+    min-width: 0;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.game-view .game-title {
+    margin: 0;
+}
+
+.game-view .game-summary {
+    display: block;
+    margin: 0;
+    overflow-y: auto;
+    -webkit-line-clamp: unset;
+}
+
+.popup-button-container {
+    width: 100%;
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.popup-button {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: var(--radius-md);
+    color: var(--color-primary-ink);
+    background: var(--color-primary-soft);
+    font-weight: 700;
+    cursor: pointer;
+}
+
 .named-collection-entry {
     min-height: 5.25rem;
     align-items: center;

@@ -7,17 +7,17 @@
                      src="@Game.Cover.ImagePath"
                      alt="@Game.Name cover" />
             }
-
+    
             <div class="game-details">
                 <h2 class="game-title">@Game.Name</h2>
-
+    
                 @if (!string.IsNullOrWhiteSpace(Game.Summary))
                 {
                     <p class="game-summary">@Game.Summary</p>
                 }
             </div>
         </div>
-
+    
         <div class="popup-button-container">
             <button class="popup-button"
                     type="button"
@@ -25,7 +25,7 @@
                     @onclick="HandleEdit">
                 Edit
             </button>
-
+    
             <button class="popup-button"
                     type="button"
                     title="Close"
