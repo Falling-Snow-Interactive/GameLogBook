@@ -1,11 +1,11 @@
-.game-information {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
-    flex: 1;
-}
+/*.game-information {*/
+/*    min-width: 0;*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    align-items: flex-start;*/
+/*    gap: 0.25rem;*/
+/*    flex: 1;*/
+/*}*/
 
 .game-title {
     margin: 0;

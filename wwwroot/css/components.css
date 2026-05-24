@@ -123,15 +123,14 @@ main {
 
 .game-information {
     display: flex;
-    
     flex: 1;
     flex-direction: column;
-
+    
     min-width: 0;
-    
-    align-items: flex-start;
-    
     gap: 0.25rem;
+
+    align-items: flex-start;
+    justify-content: flex-end;
 }
 
 .game-title {

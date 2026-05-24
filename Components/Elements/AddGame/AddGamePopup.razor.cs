@@ -11,6 +11,7 @@ namespace GameLogBook.Components.Elements.AddGame;
 public partial class AddGamePopup
 {
     private Game? previousInitialGame;
+    private IReadOnlyList<Company>? previousCompanies;
 
     [Inject]
     private LocalImageService LocalImageService { get; set; } = null!;
@@ -33,6 +34,7 @@ public partial class AddGamePopup
     [Parameter]
     public Game? InitialGame { get; set; }
 
+    private List<Company> availableCompanies = [];
     private List<int> selectedDeveloperCompanyIDs = [];
     private List<int> selectedPublisherCompanyIDs = [];
     private string developerSearchText = string.Empty;
@@ -56,6 +58,14 @@ public partial class AddGamePopup
 
     protected override async Task OnParametersSetAsync()
     {
+        if (!ReferenceEquals(previousCompanies, Companies))
+        {
+            previousCompanies = Companies;
+            availableCompanies = Companies
+                                 .OrderBy(company => company.Name)
+                                 .ToList();
+        }
+
         if (ReferenceEquals(previousInitialGame, InitialGame))
         {
             return;
@@ -230,9 +240,45 @@ public partial class AddGamePopup
     private List<int> ResolveLocalCompanyIds(IEnumerable<int> companyIds)
     {
         return companyIds
-               .Where(companyId => Companies.Any(company => company.ID == companyId))
+               .Where(companyId => availableCompanies.Any(company => company.ID == companyId))
                .Distinct()
                .Order()
                .ToList();
+    }
+
+    private async Task<Company?> HandleCompanyAdded(Company company)
+    {
+        if (OnCompanyAdded is null)
+        {
+            return null;
+        }
+
+        Company? savedCompany = await OnCompanyAdded.Invoke(company);
+
+        if (savedCompany is not null)
+        {
+            AddOrUpdateAvailableCompany(savedCompany);
+            await InvokeAsync(StateHasChanged);
+        }
+
+        return savedCompany;
+    }
+
+    private void AddOrUpdateAvailableCompany(Company company)
+    {
+        int existingIndex = availableCompanies.FindIndex(existingCompany => existingCompany.ID == company.ID);
+
+        if (existingIndex >= 0)
+        {
+            availableCompanies[existingIndex] = company;
+        }
+        else
+        {
+            availableCompanies.Add(company);
+        }
+
+        availableCompanies = availableCompanies
+                             .OrderBy(existingCompany => existingCompany.Name, StringComparer.OrdinalIgnoreCase)
+                             .ToList();
     }
 }

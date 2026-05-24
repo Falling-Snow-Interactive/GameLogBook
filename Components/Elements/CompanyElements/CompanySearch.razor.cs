@@ -131,7 +131,6 @@ public partial class CompanySearch : ComponentBase
         if (savedCompany is not null)
         {
             await AddSelectedCompanyAsync(savedCompany.ID);
-            await SetSearchTextAsync(string.Empty);
         }
     }
 }

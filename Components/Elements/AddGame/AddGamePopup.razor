@@ -32,7 +32,7 @@
         </label>
 
         <div class="form-field form-field-full">
-            @if (Companies.Count == 0)
+            @if (availableCompanies.Count == 0)
             {
                 <p class="form-hint">No shared companies exist yet, so this game will save without developer or publisher links.</p>
             }
@@ -40,19 +40,19 @@
 
         <div class="form-field">
             <span>Developer</span>
-            <CompanySearch Companies="Companies"
+            <CompanySearch Companies="availableCompanies"
                            @bind-SelectedCompanyIds="selectedDeveloperCompanyIDs"
                            @bind-SearchText="developerSearchText"
-                           OnCompanyAdded="OnCompanyAdded"
+                           OnCompanyAdded="HandleCompanyAdded"
                            Placeholder="Search companies..." />
         </div>
 
         <div class="form-field">
             <span>Publisher</span>
-            <CompanySearch Companies="Companies"
+            <CompanySearch Companies="availableCompanies"
                            @bind-SelectedCompanyIds="selectedPublisherCompanyIDs"
                            @bind-SearchText="publisherSearchText"
-                           OnCompanyAdded="OnCompanyAdded"
+                           OnCompanyAdded="HandleCompanyAdded"
                            Placeholder="Search companies..." />
         </div>
 
