@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace GameLogBook.Components.Elements.CompanyElements;
 
-public partial class DeveloperSearch : ComponentBase
+public partial class CompanySearch : ComponentBase
 {
     [Parameter]
     public IReadOnlyList<Company>? Companies { get; set; } = [];
@@ -11,12 +11,17 @@ public partial class DeveloperSearch : ComponentBase
     [Parameter]
     public string? Placeholder { get; set; }
     
-    private string developerSearchText = string.Empty;
-    private List<int> selectedDeveloperCompanyIDs = [];
-    
-    private IReadOnlyList<Company>? DeveloperMatches => FilterCompanies(developerSearchText, selectedDeveloperCompanyIDs);
-    private IReadOnlyList<Company>? SelectedDeveloperCompanies => GetSelectedCompanies(selectedDeveloperCompanyIDs);
-    
+    [Parameter]
+    public string SearchText { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> SearchTextChanged { get; set; }
+
+    private List<int> selectedCompanyIDs = [];
+
+    private IReadOnlyList<Company>? CompanyMatches => FilterCompanies(SearchText, selectedCompanyIDs);
+    private IReadOnlyList<Company>? SelectedCompanies => GetSelectedCompanies(selectedCompanyIDs);
+
     private IReadOnlyList<Company>? FilterCompanies(string searchText, IReadOnlyCollection<int> selectedIds)
     {
         string trimmedSearchText = searchText.Trim();
@@ -30,10 +35,10 @@ public partial class DeveloperSearch : ComponentBase
                .ToList();
     }
 
-    private void SelectDeveloper(Company company)
+    private async Task SelectCompany(Company company)
     {
-        AddSelectedCompany(selectedDeveloperCompanyIDs, company.ID);
-        developerSearchText = string.Empty;
+        AddSelectedCompany(selectedCompanyIDs, company.ID);
+        await SetSearchTextAsync(string.Empty);
     }
     
     private static void AddSelectedCompany(List<int> selectedIds, int companyId)
@@ -55,13 +60,33 @@ public partial class DeveloperSearch : ComponentBase
                .ToList();
     }
     
-    private void RemoveDeveloper(int companyId)
+    private void RemoveCompany(int companyId)
     {
-        selectedDeveloperCompanyIDs.Remove(companyId);
+        selectedCompanyIDs.Remove(companyId);
     }
     
     private static string GetCompanyBadge(Company company)
     {
         return company.IgdbId.HasValue ? "Shared IGDB company" : "Shared local company";
+    }
+    
+    #region Search
+
+    private async Task OnSearchTextChanged(ChangeEventArgs e)
+    {
+        await SetSearchTextAsync(e.Value?.ToString() ?? string.Empty);
+    }
+
+    private async Task SetSearchTextAsync(string value)
+    {
+        SearchText = value;
+        await SearchTextChanged.InvokeAsync(SearchText);
+    }
+    
+    #endregion
+
+    private void HandlePlusClicked()
+    {
+        
     }
 }

@@ -146,6 +146,37 @@
     transform: translateY(0);
 }
 
+.plus-button {
+    width: 2.75rem;
+    height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 50%;
+    padding: 0;
+    background: var(--color-primary-soft);
+    color: var(--color-primary-ink);
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1;
+    transition:
+            transform var(--transition-fast),
+            background var(--transition-fast),
+            box-shadow var(--transition-fast);
+}
+
+.plus-button:hover {
+    background: var(--color-primary-soft-hover);
+    box-shadow: 0 6px 16px rgba(103, 80, 164, 0.18);
+    transform: translateY(-1px);
+}
+
+.plus-button:active {
+    transform: translateY(0);
+}
+
 .close-button {
     width: 2.75rem;
     height: 2.75rem;

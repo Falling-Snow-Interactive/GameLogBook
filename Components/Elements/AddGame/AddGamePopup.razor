@@ -40,51 +40,9 @@
 
         <div class="form-field">
             <span>Developer</span>
-            <DeveloperSearch Companies="Companies" 
-                             Placeholder="Search shared companies"/>
-            
-            @* <input class="game-detail-input" *@
-            @*        @bind="developerSearchText" *@
-            @*        @bind:event="oninput" *@
-            @*        placeholder="Search shared companies" /> *@
-
-            @* @if (DeveloperMatches.Count > 0) *@
-            @* { *@
-            @*     <div class="company-search-results"> *@
-            @*         @foreach (Company company in DeveloperMatches) *@
-            @*         { *@
-            @*             <button class="igdb-search-result" *@
-            @*                     type="button" *@
-            @*                     @onclick="() => SelectDeveloper(company)"> *@
-            @*                 <span class="igdb-search-result-icon bi bi-building" *@
-            @*                       aria-hidden="true"></span> *@
-            @* *@
-            @*                 <span class="igdb-search-result-copy"> *@
-            @*                     <strong>@company.Name</strong> *@
-            @*                     <small>@GetCompanyBadge(company)</small> *@
-            @*                 </span> *@
-            @*             </button> *@
-            @*         } *@
-            @*     </div> *@
-            @* } *@
-
-            @if (selectedDeveloperCompanyIDs.Count > 0)
-            {
-                <div class="manufacturer-chip-list">
-                    @foreach (Company company in SelectedDeveloperCompanies)
-                    {
-                        <span class="manufacturer-chip">
-                            @company.Name
-                            <button type="button"
-                                    title="Remove @company.Name"
-                                    aria-label="Remove @company.Name"
-                                    @onclick="() => RemoveDeveloper(company.ID)">
-                                X
-                            </button>
-                        </span>
-                    }
-                </div>
-            }
+            <CompanySearch Companies="Companies"
+                           @bind-SearchText="developerSearchText"
+                           Placeholder="Search companies..." />
         </div>
 
         <div class="form-field">

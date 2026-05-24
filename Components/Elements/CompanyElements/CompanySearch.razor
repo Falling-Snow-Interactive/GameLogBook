@@ -1,0 +1,53 @@
+@using GameLogBook.Models.Companies
+
+<div class="search-input">
+    <input class="game-detail-input"
+           value="@SearchText"
+           @oninput="OnSearchTextChanged"
+           placeholder="@Placeholder"/>
+    <button class="plus-button"
+            @onclick="HandlePlusClicked">
+        +
+    </button>
+</div>
+
+@if (CompanyMatches?.Count > 0)
+{
+    <div class="company-search-results">
+        @foreach (Company company in CompanyMatches)
+        {
+            <button class="igdb-search-result"
+                    type="button"
+                    @onclick="() => SelectCompany(company)">
+                <span class="igdb-search-result-icon bi bi-building"
+                      aria-hidden="true"></span>
+
+                <span class="igdb-search-result-copy">
+                    <strong>@company.Name</strong>
+                    <small>@GetCompanyBadge(company)</small>
+                </span>
+            </button>
+        }
+    </div>
+}
+
+@if (selectedCompanyIDs.Count > 0)
+{
+    <div class="manufacturer-chip-list">
+        @if (SelectedCompanies != null)
+        {
+            @foreach (Company company in SelectedCompanies)
+            {
+                <span class="manufacturer-chip">
+                    @company.Name
+                    <button type="button"
+                            title="Remove @company.Name"
+                            aria-label="Remove @company.Name"
+                            @onclick="() => RemoveCompany(company.ID)">
+                        X
+                    </button>
+                </span>
+            }
+        }
+    </div>
+}
