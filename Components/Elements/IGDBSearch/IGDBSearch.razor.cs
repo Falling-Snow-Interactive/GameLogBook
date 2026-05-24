@@ -544,9 +544,9 @@ public partial class IGDBSearch : ComponentBase, IDisposable
         }
 
         return LocalCompanies.FirstOrDefault(company =>
-                                                string.Equals(company.Name,
-                                                              companyName,
-                                                              StringComparison.OrdinalIgnoreCase));
+                                                 string.Equals(company.Name,
+                                                               companyName,
+                                                               StringComparison.OrdinalIgnoreCase));
     }
 
     private static LocalCover? ToLocalCover(IgdbCover? igdbCover)

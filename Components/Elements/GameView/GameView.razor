@@ -3,9 +3,21 @@
         <div class="game-view-content">
             @if (!string.IsNullOrWhiteSpace(Game.Cover?.ImagePath))
             {
-                <img class="game-cover"
-                     src="@Game.Cover.ImagePath"
-                     alt="@Game.Name cover" />
+                <LocalImage ImagePath="@Game.Cover.ImagePath"
+                            ImageClass="game-cover"
+                            AltText="@($"{Game.Name} cover")">
+                    <Placeholder>
+                        <div class="game-cover game-cover-placeholder">
+                            No Cover
+                        </div>
+                    </Placeholder>
+                </LocalImage>
+            }
+            else
+            {
+                <div class="game-cover game-cover-placeholder">
+                    No Cover
+                </div>
             }
     
             <div class="game-details">
