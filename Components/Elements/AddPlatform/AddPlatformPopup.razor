@@ -8,7 +8,7 @@
                SearchPlaceholder="Search for a platform"
                PopupClass="popup platform-popup"
                FormClass="platform-form"
-               OnClose="@OnClose"
+               OnClose="HandleClose"
                OnPlatformSelected="HandlePlatformSelected">
     @if (!string.IsNullOrWhiteSpace(searchErrorMessage))
     {

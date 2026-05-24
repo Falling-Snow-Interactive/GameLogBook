@@ -1,5 +1,6 @@
 using GameLogBook.Models;
 using GameLogBook.Models.Games;
+using GameLogBook.Services;
 using Microsoft.AspNetCore.Components;
 
 namespace GameLogBook.Components.Elements.AddPlaythrough;
@@ -23,6 +24,9 @@ public partial class AddPlaythroughPopup : ComponentBase
 
     [Parameter]
     public Playthrough? InitialPlaythrough { get; set; }
+
+    [CascadingParameter]
+    private PopupInstance? Popup { get; set; }
 
     private string PopupTitle => InitialPlaythrough is null ? "Add Playthrough" : "Edit Playthrough";
 
@@ -54,6 +58,12 @@ public partial class AddPlaythroughPopup : ComponentBase
 
     private async Task HandleClose()
     {
+        if (Popup is not null)
+        {
+            await Popup.CloseAsync();
+            return;
+        }
+
         await OnClose.InvokeAsync();
     }
 
@@ -111,7 +121,14 @@ public partial class AddPlaythroughPopup : ComponentBase
                                       GameIds = selectedGameIds.ToArray()
                                   };
 
-        await OnPlaythroughSelected.InvokeAsync(playthrough);
+        if (Popup is not null)
+        {
+            await Popup.CloseAsync(playthrough);
+        }
+        else
+        {
+            await OnPlaythroughSelected.InvokeAsync(playthrough);
+        }
     }
 
     private void LoadPlaythrough(Playthrough playthrough)

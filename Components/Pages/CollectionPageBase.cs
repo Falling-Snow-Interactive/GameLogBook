@@ -12,8 +12,6 @@ public abstract class CollectionPageBase<TEntity> : ComponentBase
 
     protected List<TEntity> Items { get; private set; } = [];
 
-    protected bool IsAddPopupOpen { get; private set; }
-
     protected abstract DbSet<TEntity> EntitySet { get; }
 
     protected abstract string GetSortKey(TEntity item);
@@ -35,14 +33,9 @@ public abstract class CollectionPageBase<TEntity> : ComponentBase
                 .ToList();
     }
 
-    protected void OpenAddPopup()
+    protected virtual Task OpenAddPopup()
     {
-        IsAddPopupOpen = true;
-    }
-
-    protected virtual void CloseAddPopup()
-    {
-        IsAddPopupOpen = false;
+        return Task.CompletedTask;
     }
 
     protected async Task AddItemAsync(TEntity item)

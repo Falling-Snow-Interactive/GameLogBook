@@ -1,5 +1,8 @@
+using GameLogBook.Components.Elements.AddPlaythrough;
 using GameLogBook.Models;
 using GameLogBook.Models.Games;
+using GameLogBook.Services;
+using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameLogBook.Components.Pages;
@@ -7,7 +10,9 @@ namespace GameLogBook.Components.Pages;
 public partial class Playthroughs : CollectionPageBase<Playthrough>
 {
     public IReadOnlyList<Game> Games { get; set; } = [];
-    private Playthrough? selectedPlaythrough;
+
+    [Inject]
+    private PopupService PopupService { get; set; } = null!;
 
     protected override DbSet<Playthrough> EntitySet => DbContext.Playthroughs;
 
@@ -27,22 +32,15 @@ public partial class Playthroughs : CollectionPageBase<Playthrough>
     private async Task AddPlaythrough(Playthrough playthrough)
     {
         await AddItemAsync(playthrough);
-        CloseAddPopup();
     }
 
     private async Task UpdatePlaythrough(Playthrough updatedPlaythrough)
     {
-        if (selectedPlaythrough is null)
-        {
-            return;
-        }
-
         Playthrough? existingPlaythrough = await DbContext.Playthroughs
-                                                          .FirstOrDefaultAsync(playthrough => playthrough.ID == selectedPlaythrough.ID);
+                                                          .FirstOrDefaultAsync(playthrough => playthrough.ID == updatedPlaythrough.ID);
 
         if (existingPlaythrough is null)
         {
-            CloseEditPopup();
             return;
         }
 
@@ -50,7 +48,6 @@ public partial class Playthroughs : CollectionPageBase<Playthrough>
         existingPlaythrough.GameIds = updatedPlaythrough.GameIds.Distinct().ToArray();
 
         await UpdateItemAsync();
-        CloseEditPopup();
     }
 
     private async Task RemovePlaythrough(Playthrough playthrough)
@@ -58,19 +55,40 @@ public partial class Playthroughs : CollectionPageBase<Playthrough>
         await RemoveItemAsync(playthrough);
     }
 
-    private void OpenEditPopup(Playthrough playthrough)
+    protected override async Task OpenAddPopup()
     {
-        selectedPlaythrough = new Playthrough
-                              {
-                                  ID = playthrough.ID,
-                                  Name = playthrough.Name,
-                                  GameIds = playthrough.GameIds.ToArray()
-                              };
+        Playthrough? playthrough = await PopupService.ShowAsync<AddPlaythroughPopup, Playthrough>(
+            new Dictionary<string, object?>
+            {
+                [nameof(AddPlaythroughPopup.LibraryGames)] = Games
+            });
+
+        if (playthrough is not null)
+        {
+            await AddPlaythrough(playthrough);
+        }
     }
 
-    private void CloseEditPopup()
+    private async Task OpenEditPopup(Playthrough playthrough)
     {
-        selectedPlaythrough = null;
+        Playthrough editablePlaythrough = new()
+                                          {
+                                              ID = playthrough.ID,
+                                              Name = playthrough.Name,
+                                              GameIds = playthrough.GameIds.ToArray()
+                                          };
+
+        Playthrough? updatedPlaythrough = await PopupService.ShowAsync<AddPlaythroughPopup, Playthrough>(
+            new Dictionary<string, object?>
+            {
+                [nameof(AddPlaythroughPopup.InitialPlaythrough)] = editablePlaythrough,
+                [nameof(AddPlaythroughPopup.LibraryGames)] = Games
+            });
+
+        if (updatedPlaythrough is not null)
+        {
+            await UpdatePlaythrough(updatedPlaythrough);
+        }
     }
 
     private static string GetPlaythroughSummary(Playthrough playthrough)

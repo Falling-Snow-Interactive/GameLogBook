@@ -1,12 +1,16 @@
+using GameLogBook.Components.Elements.AddCompany;
 using GameLogBook.Models.Companies;
+using GameLogBook.Services;
 using Microsoft.AspNetCore.Components;
 
 namespace GameLogBook.Components.Elements.CompanyElements;
 
 public partial class CompanySearch : ComponentBase
 {
-    private bool isAddCompanyPopupOpen;
     private List<int> selectedCompanyIDs = [];
+
+    [Inject]
+    private PopupService PopupService { get; set; } = null!;
 
     [Parameter]
     public IReadOnlyList<Company>? Companies { get; set; } = [];
@@ -105,21 +109,20 @@ public partial class CompanySearch : ComponentBase
     
     #endregion
 
-    private void HandlePlusClicked()
+    private async Task HandlePlusClicked()
     {
-        isAddCompanyPopupOpen = true;
-    }
+        Company? company = await PopupService.ShowAsync<AddCompanyPopup, Company>();
 
-    private void CloseAddCompanyPopup()
-    {
-        isAddCompanyPopupOpen = false;
+        if (company is not null)
+        {
+            await HandleCompanySaved(company);
+        }
     }
 
     private async Task HandleCompanySaved(Company company)
     {
         if (OnCompanyAdded is null)
         {
-            CloseAddCompanyPopup();
             return;
         }
 
@@ -130,7 +133,5 @@ public partial class CompanySearch : ComponentBase
             await AddSelectedCompanyAsync(savedCompany.ID);
             await SetSearchTextAsync(string.Empty);
         }
-
-        CloseAddCompanyPopup();
     }
 }

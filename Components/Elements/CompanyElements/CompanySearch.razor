@@ -1,4 +1,3 @@
-@using GameLogBook.Components.Elements.AddCompany
 @using GameLogBook.Models.Companies
 
 <div class="search-input">
@@ -31,12 +30,6 @@
             </button>
         }
     </div>
-}
-
-@if (isAddCompanyPopupOpen)
-{
-    <AddCompanyPopup OnClose="CloseAddCompanyPopup"
-                     OnCompanySaved="HandleCompanySaved" />
 }
 
 @if (selectedCompanyIDs.Count > 0)

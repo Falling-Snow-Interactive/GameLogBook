@@ -24,18 +24,3 @@
         }
     </ul>
 </CollectionPageShell>
-
-@if (IsAddPopupOpen)
-{
-    <AddPlaythroughPopup OnClose="CloseAddPopup"
-                         OnPlaythroughSelected="AddPlaythrough"
-                         LibraryGames="Games"/>
-}
-
-@if (selectedPlaythrough is not null)
-{
-    <AddPlaythroughPopup OnClose="CloseEditPopup"
-                         OnPlaythroughSelected="UpdatePlaythrough"
-                         LibraryGames="Games"
-                         InitialPlaythrough="@selectedPlaythrough" />
-}

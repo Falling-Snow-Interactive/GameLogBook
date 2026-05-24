@@ -1,5 +1,8 @@
+using GameLogBook.Components.Elements.AddCompany;
 using GameLogBook.Models.Companies;
 using GameLogBook.Models.Games;
+using GameLogBook.Services;
+using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameLogBook.Components.Pages;
@@ -9,7 +12,9 @@ public partial class Companies : CollectionPageBase<Company>
     private List<Game> games = [];
     private Dictionary<int, List<string>> gameNamesByCompanyId = [];
     private Dictionary<int, HashSet<string>> rolesByCompanyId = [];
-    private Company? selectedCompany;
+
+    [Inject]
+    private PopupService PopupService { get; set; } = null!;
 
     protected override DbSet<Company> EntitySet => DbContext.Companies;
 
@@ -52,28 +57,20 @@ public partial class Companies : CollectionPageBase<Company>
             await DbContext.SaveChangesAsync();
             await LoadItemsAsync();
             await LoadGameCompanySummaries();
-            CloseAddPopup();
             return;
         }
 
         await AddItemAsync(newCompany);
         await LoadGameCompanySummaries();
-        CloseAddPopup();
     }
 
     private async Task UpdateCompany(Company updatedCompany)
     {
-        if (selectedCompany is null)
-        {
-            return;
-        }
-
         Company? existingCompany = await DbContext.Companies
-                                                  .FirstOrDefaultAsync(company => company.ID == selectedCompany.ID);
+                                                  .FirstOrDefaultAsync(company => company.ID == updatedCompany.ID);
 
         if (existingCompany is null)
         {
-            CloseEditPopup();
             return;
         }
 
@@ -86,7 +83,6 @@ public partial class Companies : CollectionPageBase<Company>
 
         await UpdateItemAsync();
         await LoadGameCompanySummaries();
-        CloseEditPopup();
     }
 
     private async Task HandleRemove(Company company)
@@ -179,20 +175,36 @@ public partial class Companies : CollectionPageBase<Company>
                                          group => group.Select(item => item.Role).ToHashSet());
     }
 
-    private void OpenEditPopup(Company company)
+    protected override async Task OpenAddPopup()
     {
-        selectedCompany = new Company
-                          {
-                              ID = company.ID,
-                              IgdbId = company.IgdbId,
-                              Name = company.Name,
-                              ImagePath = company.ImagePath,
-                              LastSyncedAt = company.LastSyncedAt
-                          };
+        Company? company = await PopupService.ShowAsync<AddCompanyPopup, Company>();
+
+        if (company is not null)
+        {
+            await AddCompany(company);
+        }
     }
 
-    private void CloseEditPopup()
+    private async Task OpenEditPopup(Company company)
     {
-        selectedCompany = null;
+        Company editableCompany = new()
+                                  {
+                                      ID = company.ID,
+                                      IgdbId = company.IgdbId,
+                                      Name = company.Name,
+                                      ImagePath = company.ImagePath,
+                                      LastSyncedAt = company.LastSyncedAt
+                                  };
+
+        Company? updatedCompany = await PopupService.ShowAsync<AddCompanyPopup, Company>(
+            new Dictionary<string, object?>
+            {
+                [nameof(AddCompanyPopup.InitialCompany)] = editableCompany
+            });
+
+        if (updatedCompany is not null)
+        {
+            await UpdateCompany(updatedCompany);
+        }
     }
 }

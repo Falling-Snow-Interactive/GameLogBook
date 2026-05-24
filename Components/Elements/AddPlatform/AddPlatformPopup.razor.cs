@@ -18,6 +18,9 @@ public partial class AddPlatformPopup : ComponentBase
     [Inject]
     protected LocalImageService LocalImageService { get; set; } = null!;
 
+    [CascadingParameter]
+    private PopupInstance? Popup { get; set; }
+
     private PlatformModel? previousInitialPlatform;
     private string platformName = string.Empty;
     private string abbreviation = string.Empty;
@@ -116,10 +119,32 @@ public partial class AddPlatformPopup : ComponentBase
                         .OrderBy(gameId => gameId)
                         .ToArray();
 
-        PlatformModel platform = new(igdbId, name, abbreviation, imagePath, releaseDate, manufacturerIds);
+        PlatformModel platform = new(igdbId, name, abbreviation, imagePath, releaseDate, manufacturerIds)
+                                 {
+                                     ID = InitialPlatform?.ID ?? 0
+                                 };
 
-        await OnPlatformSelected.InvokeAsync(platform);
+        if (Popup is not null)
+        {
+            await Popup.CloseAsync(platform);
+        }
+        else
+        {
+            await OnPlatformSelected.InvokeAsync(platform);
+        }
+
         isSaving = false;
+    }
+
+    private async Task HandleClose()
+    {
+        if (Popup is not null)
+        {
+            await Popup.CloseAsync();
+            return;
+        }
+
+        await OnClose.InvokeAsync();
     }
 
     private Task HandleCompanyIdsChanged(HashSet<int> updatedCompanyIds)

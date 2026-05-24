@@ -1,0 +1,28 @@
+@using GameLogBook.Services
+@inject PopupService PopupService
+@implements IDisposable
+
+@foreach (PopupInstance popup in PopupService.Popups)
+{
+    <CascadingValue Value="popup" IsFixed="true">
+        <DynamicComponent Type="popup.ComponentType"
+                          Parameters="popup.Parameters" />
+    </CascadingValue>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        PopupService.Changed += HandlePopupsChanged;
+    }
+
+    private void HandlePopupsChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        PopupService.Changed -= HandlePopupsChanged;
+    }
+}

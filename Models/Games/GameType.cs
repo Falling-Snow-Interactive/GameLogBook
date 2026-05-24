@@ -11,11 +11,13 @@ public enum GameType
     Update = 4,
     
     Port = 5, 
-    Bundle = 6,
+    Remaster = 6,
+    Remake = 7, 
     
-    PackAddon = 7,
+    Bundle = 8,
     
-    Mod = 8,
+    PackAddon = 9,
     
-    ROMHack = 9,
+    Mod = 10,
+    ROMHack = 11,
 }

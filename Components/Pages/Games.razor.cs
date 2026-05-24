@@ -1,6 +1,10 @@
+using GameLogBook.Components.Elements.AddGame;
+using GameLogBook.Components.Elements.GameElements.GameView;
 using GameLogBook.Models.Games;
 using GameLogBook.Models.Games.Company;
+using GameLogBook.Services;
 using Company = GameLogBook.Models.Companies.Company;
+using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameLogBook.Components.Pages;
@@ -8,7 +12,9 @@ namespace GameLogBook.Components.Pages;
 public partial class Games : CollectionPageBase<Game>
 {
     private List<Company> companies = [];
-    private Game? selectedGame;
+
+    [Inject]
+    private PopupService PopupService { get; set; } = null!;
 
     protected override DbSet<Game> EntitySet => DbContext.Games;
 
@@ -34,7 +40,6 @@ public partial class Games : CollectionPageBase<Game>
 
         await AddItemAsync(game);
         await LoadItemsAsync();
-        CloseAddPopup();
     }
 
     private async Task<Company?> AddCompanyFromSearch(Company newCompany)
@@ -84,17 +89,11 @@ public partial class Games : CollectionPageBase<Game>
 
     private async Task UpdateGame(Game updatedGame)
     {
-        if (selectedGame is null)
-        {
-            return;
-        }
-
         Game? existingGame = await BuildQuery()
-                                 .FirstOrDefaultAsync(game => game.ID == selectedGame.ID);
+                                 .FirstOrDefaultAsync(game => game.ID == updatedGame.ID);
 
         if (existingGame is null)
         {
-            CloseEditPopup();
             return;
         }
 
@@ -111,7 +110,6 @@ public partial class Games : CollectionPageBase<Game>
         existingGame.GameCompanies = NormalizeCompanyIds(updatedGame.GameCompanies);
 
         await UpdateItemAsync();
-        CloseEditPopup();
     }
 
     private async Task RemoveGame(Game game)
@@ -126,14 +124,34 @@ public partial class Games : CollectionPageBase<Game>
                                    .ToListAsync();
     }
 
-    private void OnClickGame(Game game)
+    protected override async Task OpenAddPopup()
     {
-        selectedGame = new Game(game);
+        Game? game = await PopupService.ShowAsync<AddGamePopup, Game>(
+            new Dictionary<string, object?>
+            {
+                [nameof(AddGamePopup.Companies)] = companies,
+                [nameof(AddGamePopup.OnCompanyAdded)] = new Func<Company, Task<Company?>>(AddCompanyFromSearch)
+            });
+
+        if (game is not null)
+        {
+            await AddGame(game);
+        }
     }
 
-    private void CloseEditPopup()
+    private async Task OnClickGame(Game game)
     {
-        selectedGame = null;
+        Game selectedGame = new(game);
+        bool? shouldEdit = await PopupService.ShowAsync<GameView, bool>(
+            new Dictionary<string, object?>
+            {
+                [nameof(GameView.Game)] = selectedGame
+            });
+
+        if (shouldEdit == true)
+        {
+            await OpenEditPopup(selectedGame);
+        }
     }
 
     private static List<GameCompany> NormalizeCompanyIds(IEnumerable<GameCompany> companies)
@@ -151,13 +169,19 @@ public partial class Games : CollectionPageBase<Game>
                .ToList();
     }
 
-    private void HandleGameViewClose()
+    private async Task OpenEditPopup(Game game)
     {
-        selectedGame = null;
-    }
+        Game? updatedGame = await PopupService.ShowAsync<AddGamePopup, Game>(
+            new Dictionary<string, object?>
+            {
+                [nameof(AddGamePopup.InitialGame)] = game,
+                [nameof(AddGamePopup.Companies)] = companies,
+                [nameof(AddGamePopup.OnCompanyAdded)] = new Func<Company, Task<Company?>>(AddCompanyFromSearch)
+            });
 
-    private void HandleGameViewEdit()
-    {
-        
+        if (updatedGame is not null)
+        {
+            await UpdateGame(updatedGame);
+        }
     }
 }

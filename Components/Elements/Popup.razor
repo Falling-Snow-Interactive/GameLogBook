@@ -1,5 +1,5 @@
-<div class="popup-backdrop">
-    <div class="popup">
+<div class="popup-backdrop" @onclick="HandleClose">
+    <div class="popup" @onclick:stopPropagation="true">
         <div class="popup-content">
             @ChildContent
         </div>

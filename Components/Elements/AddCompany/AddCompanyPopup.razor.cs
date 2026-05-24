@@ -20,6 +20,9 @@ public partial class AddCompanyPopup
     [Inject]
     private LocalImageService LocalImageService { get; set; } = null!;
 
+    [CascadingParameter]
+    private PopupInstance? Popup { get; set; }
+
     [Parameter]
     public EventCallback OnClose { get; set; }
 
@@ -82,8 +85,27 @@ public partial class AddCompanyPopup
                               LastSyncedAt = DateTimeOffset.UtcNow
                           };
 
-        await OnCompanySaved.InvokeAsync(company);
+        if (Popup is not null)
+        {
+            await Popup.CloseAsync(company);
+        }
+        else
+        {
+            await OnCompanySaved.InvokeAsync(company);
+        }
+
         isSaving = false;
+    }
+
+    private async Task HandleClose()
+    {
+        if (Popup is not null)
+        {
+            await Popup.CloseAsync();
+            return;
+        }
+
+        await OnClose.InvokeAsync();
     }
 
     private async Task LoadCompany(Company company)

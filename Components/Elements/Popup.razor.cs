@@ -1,3 +1,4 @@
+using GameLogBook.Services;
 using Microsoft.AspNetCore.Components;
 
 namespace GameLogBook.Components.Elements;
@@ -16,8 +17,17 @@ public partial class Popup : ComponentBase
     [Parameter]
     public EventCallback OnClose { get; set; }
 
+    [CascadingParameter]
+    private PopupInstance? PopupInstance { get; set; }
+
     private async Task HandleClose()
     {
+        if (PopupInstance is not null)
+        {
+            await PopupInstance.CloseAsync();
+            return;
+        }
+
         await OnClose.InvokeAsync();
     }
 }

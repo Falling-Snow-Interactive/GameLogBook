@@ -35,6 +35,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<HttpClient>();
         builder.Services.AddSingleton<IGDBClientProvider>();
         builder.Services.AddSingleton<LocalImageService>();
+        builder.Services.AddScoped<PopupService>();
 
         string databasePath = DatabasePathResolver.GetRuntimeDatabasePath();
 

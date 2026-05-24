@@ -1,8 +1,8 @@
 @using GameLogBook.Models.Companies
 @using GameLogBook.Models.Games
 
-<div class="popup-backdrop">
-    <div class="@PopupClass">
+<div class="popup-backdrop" @onclick="HandleClose">
+    <div class="@PopupClass" @onclick:stopPropagation="true">
         <div class="popup-header">
             <div>
                 <h3>@Title</h3>

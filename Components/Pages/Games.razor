@@ -29,18 +29,3 @@
         }
     </ul>
 </CollectionPageShell>
-
-@if (IsAddPopupOpen)
-{
-    <AddGamePopup OnClose="CloseAddPopup"
-                  OnGameSelected="AddGame"
-                  OnCompanyAdded="AddCompanyFromSearch"
-                  Companies="@companies" />
-}
-
-@if (selectedGame is not null)
-{
-    <GameView Game="@selectedGame" 
-              OnEdit="@HandleGameViewEdit"
-              OnClose="@HandleGameViewClose" />
-}

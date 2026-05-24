@@ -78,20 +78,3 @@
         }
     </div>
 </CollectionPageShell>
-
-@if (IsAddPopupOpen)
-{
-    <AddPlatformPopup OnClose="CloseAddPopup"
-                      OnPlatformSelected="AddPlatform"
-                      Games="games"
-                      Companies="companies" />
-}
-
-@if (selectedPlatform is not null)
-{
-    <AddPlatformPopup OnClose="CloseEditPopup"
-                      OnPlatformSelected="UpdatePlatform"
-                      Games="games"
-                      Companies="companies"
-                      InitialPlatform="@selectedPlatform" />
-}

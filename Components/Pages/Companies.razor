@@ -79,16 +79,3 @@
         }
     </div>
 </CollectionPageShell>
-
-@if (IsAddPopupOpen)
-{
-    <AddCompanyPopup OnClose="CloseAddPopup"
-                     OnCompanySaved="AddCompany" />
-}
-
-@if (selectedCompany is not null)
-{
-    <AddCompanyPopup OnClose="CloseEditPopup"
-                     OnCompanySaved="UpdateCompany"
-                     InitialCompany="@selectedCompany" />
-}

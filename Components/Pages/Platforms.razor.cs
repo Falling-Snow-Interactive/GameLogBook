@@ -1,5 +1,8 @@
+using GameLogBook.Components.Elements.AddPlatform;
 using GameLogBook.Models.Companies;
 using GameLogBook.Models.Games;
+using GameLogBook.Services;
+using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using PlatformModel = GameLogBook.Models.Platforms.Platform;
 
@@ -9,7 +12,9 @@ public partial class Platforms : CollectionPageBase<PlatformModel>
 {
     private List<Game> games = [];
     private List<Company> companies = [];
-    private PlatformModel? selectedPlatform;
+
+    [Inject]
+    private PopupService PopupService { get; set; } = null!;
 
     protected override DbSet<PlatformModel> EntitySet => DbContext.Platforms;
     
@@ -47,22 +52,15 @@ public partial class Platforms : CollectionPageBase<PlatformModel>
     private async Task AddPlatform(PlatformModel platform)
     {
         await AddItemAsync(platform);
-        CloseAddPopup();
     }
 
     private async Task UpdatePlatform(PlatformModel updatedPlatform)
     {
-        if (selectedPlatform is null)
-        {
-            return;
-        }
-
         PlatformModel? existingPlatform = await DbContext.Platforms
-                                                         .FirstOrDefaultAsync(platform => platform.ID == selectedPlatform.ID);
+                                                         .FirstOrDefaultAsync(platform => platform.ID == updatedPlatform.ID);
 
         if (existingPlatform is null)
         {
-            CloseEditPopup();
             return;
         }
 
@@ -77,7 +75,6 @@ public partial class Platforms : CollectionPageBase<PlatformModel>
         // existingPlatform.GameIds = updatedPlatform.GameIds ?? [];
 
         await UpdateItemAsync();
-        CloseEditPopup();
     }
 
     private async Task RemovePlatform(PlatformModel platform)
@@ -85,14 +82,35 @@ public partial class Platforms : CollectionPageBase<PlatformModel>
         await RemoveItemAsync(platform);
     }
 
-    private void OpenEditPopup(PlatformModel platform)
+    protected override async Task OpenAddPopup()
     {
-        selectedPlatform = new PlatformModel(platform);
+        PlatformModel? platform = await PopupService.ShowAsync<AddPlatformPopup, PlatformModel>(
+            new Dictionary<string, object?>
+            {
+                [nameof(AddPlatformPopup.Games)] = games,
+                [nameof(AddPlatformPopup.Companies)] = companies
+            });
+
+        if (platform is not null)
+        {
+            await AddPlatform(platform);
+        }
     }
 
-    private void CloseEditPopup()
+    private async Task OpenEditPopup(PlatformModel platform)
     {
-        selectedPlatform = null;
+        PlatformModel? updatedPlatform = await PopupService.ShowAsync<AddPlatformPopup, PlatformModel>(
+            new Dictionary<string, object?>
+            {
+                [nameof(AddPlatformPopup.InitialPlatform)] = new PlatformModel(platform),
+                [nameof(AddPlatformPopup.Games)] = games,
+                [nameof(AddPlatformPopup.Companies)] = companies
+            });
+
+        if (updatedPlatform is not null)
+        {
+            await UpdatePlatform(updatedPlatform);
+        }
     }
 
     private List<string> GetGameNames(PlatformModel platform)

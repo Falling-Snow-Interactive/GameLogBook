@@ -60,6 +60,8 @@ public class Game
                        "bundle" => GameType.Bundle,
                        "pack/addon" => GameType.PackAddon,
                        "mod" => GameType.Mod,
+                       "remake" => GameType.Remake,
+                       "remaster" => GameType.Remaster,
                        _ => GameType.Base,
                    };
         
