@@ -101,22 +101,27 @@ main {
 }
 
 .game-cover {
-    width: 6rem;
+    height: 8rem;
     aspect-ratio: 3 / 4;
-    flex-shrink: 0;
-    flex-grow: 0;
+    
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
+    
     background: var(--color-surface-subtle);
+    
     object-fit: cover;
 }
 
 .game-information {
-    min-width: 0;
     display: flex;
+    
     flex: 1;
     flex-direction: column;
+
+    min-width: 0;
+    
     align-items: flex-start;
+    
     gap: 0.25rem;
 }
 
@@ -210,7 +215,7 @@ main {
     padding: 1rem;
 }
 
-.game-view .game-cover {
+.game-view {
     width: 12rem;
     height: 18rem;
     object-fit: cover;
