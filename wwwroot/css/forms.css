@@ -81,15 +81,19 @@
 }
 
 .image-field-widget {
-    display: grid;
-    grid-template-columns: minmax(8rem, 10rem) minmax(0, 1fr);
-    gap: 0.875rem;
+    --image-field-row-height: 3rem;
+    --image-field-row-gap: 0.75rem;
+    --image-field-column-gap: 0.875rem;
+    display: flex;
+    gap: var(--image-field-column-gap);
     align-items: stretch;
 }
 
 .image-field-preview {
-    width: 100%;
-    aspect-ratio: 3 / 4;
+    flex: 0 0 var(--image-field-preview-width);
+    width: var(--image-field-preview-width);
+    height: var(--image-field-preview-height);
+    aspect-ratio: 2 / 3;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -113,14 +117,16 @@
 .image-field-preview img {
     width: 100%;
     height: 100%;
+    display: block;
     object-fit: contain;
 }
 
 .image-field-controls {
+    flex: 1 1 auto;
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: var(--image-field-row-gap);
 }
 
 .image-field-url-row,
@@ -138,7 +144,7 @@
 
 .image-field-action-button,
 .image-field-reset-button {
-    min-height: 3rem;
+    min-height: var(--image-field-row-height);
     border-radius: var(--radius-pill);
     padding: 0.75rem 1rem;
     font: inherit;
@@ -339,11 +345,14 @@
     }
 
     .image-field-widget {
-        grid-template-columns: 1fr;
+        flex-direction: column;
     }
 
     .image-field-preview {
-        max-width: 12rem;
+        width: min(12rem, 100%);
+        height: auto;
+        flex-basis: auto;
+        align-self: flex-start;
     }
 
     .image-field-url-row,

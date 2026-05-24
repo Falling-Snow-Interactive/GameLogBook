@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace GameLogBook.Components.Elements.AddGame;
+namespace GameLogBook.Components.Elements.GameElements;
 
 public partial class AddGameButton : ComponentBase
 {

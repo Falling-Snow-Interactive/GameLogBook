@@ -1,12 +1,12 @@
-using GameLogBook.Models.Games;
-using Microsoft.AspNetCore.Components;
 using GameLogBook.Components.Elements.ImageField;
+using GameLogBook.Models.Games;
 using GameLogBook.Services;
+using Microsoft.AspNetCore.Components;
 using Company = GameLogBook.Models.Companies.Company;
 using Cover = GameLogBook.Models.Games.Cover;
 using Game = GameLogBook.Models.Games.Game;
 
-namespace GameLogBook.Components.Elements.AddGame;
+namespace GameLogBook.Components.Elements.GameElements;
 
 public partial class AddGamePopup
 {

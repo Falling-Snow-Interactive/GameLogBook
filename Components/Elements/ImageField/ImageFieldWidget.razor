@@ -1,7 +1,7 @@
-<div class="@RootClass" @attributes="AttributesWithoutClass">
+<div class="@RootClass" @attributes="AttributesWithoutClass!">
     <span>@Label</span>
 
-    <div class="image-field-widget">
+    <div class="image-field-widget" @ref="widgetElement">
         <div class="image-field-preview" aria-live="polite">
             @if (!string.IsNullOrWhiteSpace(previewSource))
             {
@@ -14,7 +14,7 @@
             }
         </div>
 
-        <div class="image-field-controls">
+        <div class="image-field-controls" @ref="controlsElement">
             <div class="image-field-url-row">
                 <input id="@UrlInputId"
                        class="@InputClass"
@@ -42,22 +42,6 @@
                     @onclick="ResetImage">
                 Reset
             </button>
-            
-            @* <div class="image-field-action-row"> *@
-            @*     <label class="image-field-action-button image-field-upload-button"> *@
-            @*         <InputFile class="image-field-upload-input" *@
-            @*                    OnChange="UploadImage" *@
-            @*                    accept="@Accept" /> *@
-            @*         <span>Upload</span> *@
-            @*     </label> *@
-            @* *@
-            @*     <button class="image-field-reset-button" *@
-            @*             type="button" *@
-            @*             disabled="@isBusy" *@
-            @*             @onclick="ResetImage"> *@
-            @*         Reset *@
-            @*     </button> *@
-            @* </div> *@
         </div>
     </div>
 

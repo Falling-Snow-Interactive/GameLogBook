@@ -1,6 +1,7 @@
 using GameLogBook.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.JSInterop;
 
 namespace GameLogBook.Components.Elements.ImageField;
 
@@ -17,9 +18,15 @@ public partial class ImageFieldWidget : IAsyncDisposable
     private string? errorMessage;
     private bool isBusy;
     private bool resetRequested;
+    private bool isPreviewObserverConnected;
+    private ElementReference widgetElement;
+    private ElementReference controlsElement;
 
     [Inject]
     private LocalImageService LocalImageService { get; set; } = null!;
+
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; } = null!;
 
     [Parameter]
     public string Label { get; set; } = "Image";
@@ -89,6 +96,17 @@ public partial class ImageFieldWidget : IAsyncDisposable
         resetRequested = false;
         errorMessage = null;
         previewSource = await LocalImageService.GetImageSourceAsync(existingImagePath);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        await JSRuntime.InvokeVoidAsync("gameLogBookImageField.observe", widgetElement, controlsElement);
+        isPreviewObserverConnected = true;
     }
 
     public async Task<string?> CommitAsync()
@@ -186,6 +204,20 @@ public partial class ImageFieldWidget : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
+        if (isPreviewObserverConnected)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("gameLogBookImageField.cleanup", widgetElement);
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+            catch (InvalidOperationException)
+            {
+            }
+        }
+
         await DeleteCurrentTempImage();
     }
 }

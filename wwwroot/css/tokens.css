@@ -38,6 +38,9 @@
     --space-6: 1.5rem;
     --space-8: 2rem;
 
+    --image-field-preview-width: 6.5rem;
+    --image-field-preview-height: 9.75rem;
+
     --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.08);
     --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.1);
     --shadow-lg: 0 18px 48px rgba(15, 23, 42, 0.18);
