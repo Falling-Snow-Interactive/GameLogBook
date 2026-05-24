@@ -1,28 +1,11 @@
 <Popup Title="@Game.Name">
     <div class="game-view">
         <div class="game-view-content">
-            @if (!string.IsNullOrWhiteSpace(Game.Cover?.ImagePath))
-            {
-                <LocalImage ImagePath="@Game.Cover.ImagePath"
-                            ImageClass="game-cover"
-                            AltText="@($"{Game.Name} cover")">
-                    <Placeholder>
-                        <div class="game-cover game-cover-placeholder">
-                            No Cover
-                        </div>
-                    </Placeholder>
-                </LocalImage>
-            }
-            else
-            {
-                <div class="game-cover game-cover-placeholder">
-                    No Cover
-                </div>
-            }
-    
+            <GameCoverWidget Game="Game"/>
+
             <div class="game-details">
                 <h2 class="game-title">@Game.Name</h2>
-    
+
                 @if (!string.IsNullOrWhiteSpace(Game.Summary))
                 {
                     <p class="game-summary">@Game.Summary</p>

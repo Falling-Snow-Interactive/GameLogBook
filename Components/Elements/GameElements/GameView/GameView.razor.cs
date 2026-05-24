@@ -1,7 +1,7 @@
 using GameLogBook.Models.Games;
 using Microsoft.AspNetCore.Components;
 
-namespace GameLogBook.Components.Elements.GameView;
+namespace GameLogBook.Components.Elements.GameElements.GameView;
 
 public partial class GameView : ComponentBase
 {

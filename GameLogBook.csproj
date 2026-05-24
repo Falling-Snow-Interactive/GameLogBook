@@ -77,4 +77,9 @@
         <MauiAsset Remove="tools\**\*" />
     </ItemGroup>
 
+    <ItemGroup>
+      <AdditionalFiles Include="Components\Elements\GameElements\GameEntry\GameEntry.razor" />
+      <AdditionalFiles Include="Components\Elements\GameElements\GameEntry\GameEntry.razor.css" />
+    </ItemGroup>
+
 </Project>

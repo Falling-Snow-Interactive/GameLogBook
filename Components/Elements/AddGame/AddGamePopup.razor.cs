@@ -42,6 +42,7 @@ public partial class AddGamePopup
     private string? imageErrorMessage;
     private bool isSaving;
     private string summary = string.Empty;
+    private GameType gameType;
 
     private string PopupTitle => InitialGame is null ? "Add Game" : "Edit Game";
 
@@ -92,6 +93,7 @@ public partial class AddGamePopup
                         ID = InitialGame?.ID ?? 0,
                         IgdbId = igdb,
                         Name = gameName.Trim(),
+                        GameType = gameType,
                         ReleaseDate = releaseDate,
                         Summary = string.IsNullOrWhiteSpace(summary) ? null : summary.Trim(),
                         Cover = string.IsNullOrWhiteSpace(imagePath)
@@ -126,6 +128,7 @@ public partial class AddGamePopup
                                  ? coverImageUrl
                                  : await LocalImageService.GetImageSourceAsync(coverImagePath);
         summary = game.Summary ?? string.Empty;
+        gameType = game.GameType;
     }
 
     private void ResetForm()
@@ -144,6 +147,7 @@ public partial class AddGamePopup
         imageErrorMessage = null;
         isSaving = false;
         summary = string.Empty;
+        gameType = GameType.None;
     }
 
     private async Task HandleCoverUrlChanged(ChangeEventArgs args)

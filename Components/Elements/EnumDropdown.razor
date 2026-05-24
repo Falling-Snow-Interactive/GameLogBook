@@ -1,0 +1,79 @@
+@using System.ComponentModel.DataAnnotations
+@using System.Reflection
+@using System.Text
+@typeparam TEnum where TEnum : struct, Enum
+
+<select @attributes="AdditionalAttributes"
+        value="@ValueName"
+        @onchange="HandleChanged">
+    @foreach (TEnum option in Options)
+    {
+        <option value="@option.ToString()">@GetLabel(option)</option>
+    }
+</select>
+
+@code {
+    private static readonly IReadOnlyList<TEnum> Options = Enum.GetValues<TEnum>();
+
+    [Parameter]
+    public TEnum Value { get; set; }
+
+    [Parameter]
+    public EventCallback<TEnum> ValueChanged { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string ValueName => Value.ToString();
+
+    private async Task HandleChanged(ChangeEventArgs args)
+    {
+        string? selectedValue = args.Value?.ToString();
+
+        if (Enum.TryParse(selectedValue, out TEnum parsedValue))
+        {
+            await ValueChanged.InvokeAsync(parsedValue);
+        }
+    }
+
+    private static string GetLabel(TEnum value)
+    {
+        string name = value.ToString();
+        MemberInfo? member = typeof(TEnum).GetMember(name).FirstOrDefault();
+        DisplayAttribute? displayAttribute = member?.GetCustomAttribute<DisplayAttribute>();
+
+        return displayAttribute?.GetName() ?? SplitPascalCase(name);
+    }
+
+    private static string SplitPascalCase(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return value;
+        }
+
+        StringBuilder builder = new(value.Length + 8);
+
+        for (int index = 0; index < value.Length; index++)
+        {
+            char current = value[index];
+            char? previous = index > 0 ? value[index - 1] : null;
+            char? next = index < value.Length - 1 ? value[index + 1] : null;
+
+            bool startsNewWord = previous is not null
+                                 && char.IsUpper(current)
+                                 && (char.IsLower(previous.Value)
+                                     || char.IsDigit(previous.Value)
+                                     || (next is not null && char.IsLower(next.Value) && char.IsUpper(previous.Value)));
+
+            if (startsNewWord)
+            {
+                builder.Append(' ');
+            }
+
+            builder.Append(current);
+        }
+
+        return builder.ToString();
+    }
+}

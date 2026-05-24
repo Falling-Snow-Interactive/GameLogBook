@@ -1,5 +1,7 @@
 @using GameLogBook.Models.Companies
+@using GameLogBook.Models.Games
 @using GameLogBook.Components.Elements.AddPopup
+@using GameLogBook.Components.Elements.GameElements
 
 <AddPopupShell Title="@PopupTitle"
                SearchFor="@IgdbSearchFor.Games"
@@ -16,9 +18,19 @@
                    placeholder="Game name"/>
         </label>
 
+        <label class="form-field form-field">
+            <span>Type</span>
+            <EnumDropdown TEnum="GameType"
+                          class="game-detail-input"
+                          @bind-Value="gameType" />
+        </label>
+
+        <label class="form-field form-field">
+            <span>Ownership</span>
+            <OwnershipInputWidget/>
+        </label>
+
         <div class="form-field form-field-full">
-            <span>Companies are shared across the instance</span>
-            <p class="form-hint">Pick from the shared company catalog below. If a company is missing, add it from the Companies page first.</p>
             @if (Companies.Count == 0)
             {
                 <p class="form-hint">No shared companies exist yet, so this game will save without developer or publisher links.</p>

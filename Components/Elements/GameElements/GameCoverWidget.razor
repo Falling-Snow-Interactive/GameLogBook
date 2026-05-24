@@ -1,0 +1,18 @@
+@if (!string.IsNullOrWhiteSpace(@Game.Cover?.ImagePath))
+{
+    <LocalImage ImagePath="@Game.Cover.ImagePath"
+                ImageClass="game-cover"
+                AltText="@($"{@Game.Name} cover")">
+        <Placeholder>
+            <div class="game-cover game-cover-placeholder">
+                No Cover
+            </div>
+        </Placeholder>
+    </LocalImage>
+}
+else
+{
+    <div class="game-cover game-cover-placeholder">
+        No Cover
+    </div>
+}
