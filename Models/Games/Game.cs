@@ -1,8 +1,5 @@
-using GameLogBook.Data;
 using GameLogBook.Models.Games.Company;
 using GameLogBook.Models.Games.Platform;
-using GameLogBook.Utilities;
-using Microsoft.AspNetCore.Components;
 
 namespace GameLogBook.Models.Games;
 
@@ -29,10 +26,6 @@ public class Game
     public List<GamePlatform> GamePlatforms { get; set; }
     
     public int Rating { get; set; }
-    
-    // Inject
-    [Inject]
-    protected GameLogBookDbContext DbContext { get; set; } = null!;
 
     public Game()
     {
@@ -45,47 +38,10 @@ public class Game
         Summary = string.Empty;
         ReleaseDate = DateOnly.MinValue;
         Cover = null;
+        Hero = null;
 
         GameCompanies = [];
         GamePlatforms = [];
-    }
-
-    public Game(IGDB.Models.Game igdb)
-    {
-        ID = -1;
-        IgdbId = igdb.Id;
-
-        GameType = igdb.GameType.Value.Type.ToLower() switch
-                   {
-                       "expansion" => GameType.Expansion,
-                       "port" => GameType.Port,
-                       "dlc" => GameType.DLC,
-                       "bundle" => GameType.Bundle,
-                       "pack/addon" => GameType.PackAddon,
-                       "mod" => GameType.Mod,
-                       "remake" => GameType.Remake,
-                       "remaster" => GameType.Remaster,
-                       _ => GameType.Base,
-                   };
-        
-        Name = igdb.Name;
-        Summary = igdb.Summary;
-        if(igdb.FirstReleaseDate.HasValue)
-        {
-            ReleaseDate = DateOnly.FromDateTime(igdb.FirstReleaseDate.Value.Date);
-        }
-        else
-        {
-            ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
-        }
-
-        if (igdb.Cover?.Value.Url is not null)
-        {
-            Cover = new Image()
-                    {
-                        PendingImageUrl = IGDBUtility.CoverUrlToBigCoverUrl(igdb.Cover.Value.Url),
-                    };
-        }
     }
 
     public Game(Game copyFrom)
@@ -99,6 +55,7 @@ public class Game
         Summary = copyFrom.Summary;
         ReleaseDate = copyFrom.ReleaseDate;
         Cover = copyFrom.Cover;
+        Hero = copyFrom.Hero;
         
         GameCompanies = copyFrom.GameCompanies;
         GamePlatforms = copyFrom.GamePlatforms;
