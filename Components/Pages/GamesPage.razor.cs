@@ -109,6 +109,12 @@ public partial class GamesPage : CollectionPageBase<Game>
                                    {
                                        ImagePath = updatedGame.Cover.ImagePath.Trim()
                                    };
+        existingGame.Hero = string.IsNullOrWhiteSpace(updatedGame.Hero?.ImagePath)
+                                ? null
+                                : new Image
+                                  {
+                                      ImagePath = updatedGame.Hero.ImagePath.Trim()
+                                  };
         existingGame.GameCompanies = NormalizeCompanyIds(updatedGame.GameCompanies);
 
         await UpdateItemAsync();

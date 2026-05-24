@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Maui.Graphics.Platform;
+using GraphicsIImage = Microsoft.Maui.Graphics.IImage;
+using GraphicsImageFormat = Microsoft.Maui.Graphics.ImageFormat;
 
 namespace GameLogBook.Services;
 
@@ -150,7 +153,11 @@ public class LocalImageService
         return Task.CompletedTask;
     }
 
-    public async Task<string?> GetImageSourceAsync(string? imagePath, CancellationToken cancellationToken = default)
+    public async Task<string?> GetImageSourceAsync(
+        string? imagePath,
+        int? maxWidth = null,
+        int? maxHeight = null,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(imagePath) || Uri.TryCreate(imagePath, UriKind.Absolute, out _))
         {
@@ -161,6 +168,11 @@ public class LocalImageService
         if (!File.Exists(absolutePath))
         {
             return null;
+        }
+
+        if (maxWidth is > 0 && maxHeight is > 0)
+        {
+            absolutePath = await GetThumbnailPathAsync(imagePath, absolutePath, maxWidth.Value, maxHeight.Value, cancellationToken);
         }
 
         byte[] imageBytes = await File.ReadAllBytesAsync(absolutePath, cancellationToken);
@@ -208,6 +220,66 @@ public class LocalImageService
         }
     }
 
+    private static async Task<string> GetThumbnailPathAsync(
+        string imagePath,
+        string absolutePath,
+        int maxWidth,
+        int maxHeight,
+        CancellationToken cancellationToken)
+    {
+        string thumbnailPath = GetThumbnailAbsolutePath(imagePath, maxWidth, maxHeight);
+        FileInfo sourceFile = new(absolutePath);
+        FileInfo thumbnailFile = new(thumbnailPath);
+
+        if (thumbnailFile.Exists && thumbnailFile.LastWriteTimeUtc >= sourceFile.LastWriteTimeUtc)
+        {
+            return thumbnailPath;
+        }
+
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(thumbnailPath)!);
+
+            GraphicsIImage? sourceImage = null;
+            GraphicsIImage? thumbnailImage = null;
+
+            try
+            {
+                await using FileStream sourceStream = File.OpenRead(absolutePath);
+                sourceImage = PlatformImage.FromStream(sourceStream, GetImageFormat(Path.GetExtension(absolutePath)));
+                thumbnailImage = sourceImage.Downsize(maxWidth, maxHeight, true);
+
+                await using FileStream thumbnailStream = File.Create(thumbnailPath);
+                await thumbnailImage.SaveAsync(thumbnailStream, GraphicsImageFormat.Jpeg, 0.72f);
+            }
+            finally
+            {
+                if (thumbnailImage is not null
+                    && !ReferenceEquals(thumbnailImage, sourceImage)
+                    && thumbnailImage is IDisposable disposableThumbnail)
+                {
+                    disposableThumbnail.Dispose();
+                }
+
+                if (sourceImage is IDisposable disposableSource)
+                {
+                    disposableSource.Dispose();
+                }
+            }
+
+            return thumbnailPath;
+        }
+        catch
+        {
+            if (File.Exists(thumbnailPath))
+            {
+                File.Delete(thumbnailPath);
+            }
+
+            return absolutePath;
+        }
+    }
+
     private static void ValidateContentType(string? contentType)
     {
         if (string.IsNullOrWhiteSpace(contentType)
@@ -241,6 +313,20 @@ public class LocalImageService
         return Path.Combine(FileSystem.AppDataDirectory, normalizedPath);
     }
 
+    private static string GetThumbnailAbsolutePath(string imagePath, int maxWidth, int maxHeight)
+    {
+        string normalizedPath = imagePath.Replace('\\', '/').Trim('/');
+        string safeName = string.Concat(normalizedPath.Select(character => char.IsLetterOrDigit(character)
+                                                                              ? character
+                                                                              : '_'));
+
+        return Path.Combine(FileSystem.AppDataDirectory,
+                            "images",
+                            "thumbnails",
+                            $"{maxWidth}x{maxHeight}",
+                            $"{safeName}.jpg");
+    }
+
     private static string GetExtension(string pathOrName, string contentType)
     {
         string extension = Path.GetExtension(pathOrName);
@@ -268,6 +354,17 @@ public class LocalImageService
                    ".gif" => "image/gif",
                    ".webp" => "image/webp",
                    _ => "application/octet-stream"
+               };
+    }
+
+    private static GraphicsImageFormat GetImageFormat(string extension)
+    {
+        return extension.ToLowerInvariant() switch
+               {
+                   ".jpg" or ".jpeg" => GraphicsImageFormat.Jpeg,
+                   ".png" => GraphicsImageFormat.Png,
+                   ".gif" => GraphicsImageFormat.Gif,
+                   _ => GraphicsImageFormat.Png
                };
     }
 }

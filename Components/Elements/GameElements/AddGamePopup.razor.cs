@@ -179,6 +179,8 @@ public partial class AddGamePopup
         releaseDate = game.ReleaseDate;
         coverImagePath = game.Cover?.ImagePath ?? string.Empty;
         coverImageUrl = game.Cover?.PendingImageUrl ?? string.Empty;
+        heroImagePath = game.Hero?.ImagePath ?? string.Empty;
+        heroImageUrl = game.Hero?.PendingImageUrl ?? string.Empty;
         imageErrorMessage = null;
         summary = game.Summary ?? string.Empty;
         gameType = game.GameType;
@@ -195,6 +197,8 @@ public partial class AddGamePopup
         releaseDate = null;
         coverImagePath = string.Empty;
         coverImageUrl = string.Empty;
+        heroImagePath = string.Empty;
+        heroImageUrl = string.Empty;
         imageErrorMessage = null;
         isSaving = false;
         summary = string.Empty;
