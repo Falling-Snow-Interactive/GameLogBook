@@ -25,6 +25,9 @@ public partial class AddGamePopup
     public IReadOnlyList<Company> Companies { get; set; } = [];
 
     [Parameter]
+    public Func<Company, Task<Company?>>? OnCompanyAdded { get; set; }
+
+    [Parameter]
     public Game? InitialGame { get; set; }
 
     private List<int> selectedDeveloperCompanyIDs = [];
@@ -202,28 +205,6 @@ public partial class AddGamePopup
         return string.IsNullOrWhiteSpace(coverImagePath) ? null : coverImagePath;
     }
 
-    private void SelectDeveloper(Company company)
-    {
-        AddSelectedCompany(selectedDeveloperCompanyIDs, company.ID);
-        developerSearchText = string.Empty;
-    }
-
-    private void SelectPublisher(Company company)
-    {
-        AddSelectedCompany(selectedPublisherCompanyIDs, company.ID);
-        publisherSearchText = string.Empty;
-    }
-
-    private void RemoveDeveloper(int companyId)
-    {
-        selectedDeveloperCompanyIDs.Remove(companyId);
-    }
-
-    private void RemovePublisher(int companyId)
-    {
-        selectedPublisherCompanyIDs.Remove(companyId);
-    }
-
     private List<int> ResolveLocalCompanyIds(IEnumerable<int> companyIds)
     {
         return companyIds
@@ -231,50 +212,5 @@ public partial class AddGamePopup
                .Distinct()
                .Order()
                .ToList();
-    }
-
-    private IReadOnlyList<Company> DeveloperMatches => FilterCompanies(developerSearchText, selectedDeveloperCompanyIDs);
-
-    private IReadOnlyList<Company> PublisherMatches => FilterCompanies(publisherSearchText, selectedPublisherCompanyIDs);
-
-    private IReadOnlyList<Company> SelectedDeveloperCompanies => GetSelectedCompanies(selectedDeveloperCompanyIDs);
-
-    private IReadOnlyList<Company> SelectedPublisherCompanies => GetSelectedCompanies(selectedPublisherCompanyIDs);
-
-    private IReadOnlyList<Company> FilterCompanies(string searchText, IReadOnlyCollection<int> selectedIds)
-    {
-        string trimmedSearchText = searchText.Trim();
-
-        return Companies
-               .Where(company => !selectedIds.Contains(company.ID))
-               .Where(company => string.IsNullOrWhiteSpace(trimmedSearchText)
-                                 || company.Name.Contains(trimmedSearchText, StringComparison.OrdinalIgnoreCase))
-               .OrderBy(company => company.Name)
-               .Take(10)
-               .ToList();
-    }
-
-    private IReadOnlyList<Company> GetSelectedCompanies(IEnumerable<int> selectedIds)
-    {
-        return Companies
-               .Where(company => selectedIds.Contains(company.ID))
-               .OrderBy(company => company.Name)
-               .ToList();
-    }
-
-    private static void AddSelectedCompany(List<int> selectedIds, int companyId)
-    {
-        if (selectedIds.Contains(companyId))
-        {
-            return;
-        }
-
-        selectedIds.Add(companyId);
-        selectedIds.Sort();
-    }
-
-    private static string GetCompanyBadge(Company company)
-    {
-        return company.IgdbId.HasValue ? "Shared IGDB company" : "Shared local company";
     }
 }

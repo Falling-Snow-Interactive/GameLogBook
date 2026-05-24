@@ -1,12 +1,13 @@
 using GameLogBook.Models.Games;
 using GameLogBook.Models.Games.Company;
+using Company = GameLogBook.Models.Companies.Company;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameLogBook.Components.Pages;
 
 public partial class Games : CollectionPageBase<Game>
 {
-    private List<GameLogBook.Models.Companies.Company> companies = [];
+    private List<Company> companies = [];
     private Game? selectedGame;
 
     protected override DbSet<Game> EntitySet => DbContext.Games;
@@ -34,6 +35,51 @@ public partial class Games : CollectionPageBase<Game>
         await AddItemAsync(game);
         await LoadItemsAsync();
         CloseAddPopup();
+    }
+
+    private async Task<Company?> AddCompanyFromSearch(Company newCompany)
+    {
+        Company? existingCompany = null;
+
+        if (newCompany.IgdbId.HasValue)
+        {
+            existingCompany = await DbContext.Companies
+                                             .FirstOrDefaultAsync(company => company.IgdbId == newCompany.IgdbId.Value);
+        }
+
+        if (existingCompany is null && !string.IsNullOrWhiteSpace(newCompany.Name))
+        {
+            string trimmedName = newCompany.Name.Trim();
+
+            existingCompany = await DbContext.Companies
+                                             .FirstOrDefaultAsync(company => company.IgdbId == null
+                                                                             && company.Name == trimmedName);
+        }
+
+        if (existingCompany is not null)
+        {
+            existingCompany.Name = newCompany.Name.Trim();
+            existingCompany.ImagePath = string.IsNullOrWhiteSpace(newCompany.ImagePath)
+                                            ? existingCompany.ImagePath
+                                            : newCompany.ImagePath.Trim();
+            existingCompany.LastSyncedAt = DateTimeOffset.UtcNow;
+
+            await DbContext.SaveChangesAsync();
+            await LoadCompaniesAsync();
+            return existingCompany;
+        }
+
+        newCompany.Name = newCompany.Name.Trim();
+        newCompany.ImagePath = string.IsNullOrWhiteSpace(newCompany.ImagePath)
+                                   ? null
+                                   : newCompany.ImagePath.Trim();
+        newCompany.LastSyncedAt = DateTimeOffset.UtcNow;
+
+        DbContext.Companies.Add(newCompany);
+        await DbContext.SaveChangesAsync();
+        await LoadCompaniesAsync();
+
+        return newCompany;
     }
 
     private async Task UpdateGame(Game updatedGame)

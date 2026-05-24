@@ -5,6 +5,9 @@ namespace GameLogBook.Components.Elements.CompanyElements;
 
 public partial class CompanySearch : ComponentBase
 {
+    private bool isAddCompanyPopupOpen;
+    private List<int> selectedCompanyIDs = [];
+
     [Parameter]
     public IReadOnlyList<Company>? Companies { get; set; } = [];
     
@@ -17,10 +20,25 @@ public partial class CompanySearch : ComponentBase
     [Parameter]
     public EventCallback<string> SearchTextChanged { get; set; }
 
-    private List<int> selectedCompanyIDs = [];
+    [Parameter]
+    public List<int> SelectedCompanyIds { get; set; } = [];
+
+    [Parameter]
+    public EventCallback<List<int>> SelectedCompanyIdsChanged { get; set; }
+
+    [Parameter]
+    public Func<Company, Task<Company?>>? OnCompanyAdded { get; set; }
 
     private IReadOnlyList<Company>? CompanyMatches => FilterCompanies(SearchText, selectedCompanyIDs);
     private IReadOnlyList<Company>? SelectedCompanies => GetSelectedCompanies(selectedCompanyIDs);
+
+    protected override void OnParametersSet()
+    {
+        selectedCompanyIDs = SelectedCompanyIds
+                             .Distinct()
+                             .Order()
+                             .ToList();
+    }
 
     private IReadOnlyList<Company>? FilterCompanies(string searchText, IReadOnlyCollection<int> selectedIds)
     {
@@ -37,19 +55,20 @@ public partial class CompanySearch : ComponentBase
 
     private async Task SelectCompany(Company company)
     {
-        AddSelectedCompany(selectedCompanyIDs, company.ID);
+        await AddSelectedCompanyAsync(company.ID);
         await SetSearchTextAsync(string.Empty);
     }
     
-    private static void AddSelectedCompany(List<int> selectedIds, int companyId)
+    private async Task AddSelectedCompanyAsync(int companyId)
     {
-        if (selectedIds.Contains(companyId))
+        if (selectedCompanyIDs.Contains(companyId))
         {
             return;
         }
 
-        selectedIds.Add(companyId);
-        selectedIds.Sort();
+        selectedCompanyIDs.Add(companyId);
+        selectedCompanyIDs.Sort();
+        await SelectedCompanyIdsChanged.InvokeAsync([..selectedCompanyIDs]);
     }
     
     private List<Company>? GetSelectedCompanies(IEnumerable<int> selectedIds)
@@ -60,9 +79,10 @@ public partial class CompanySearch : ComponentBase
                .ToList();
     }
     
-    private void RemoveCompany(int companyId)
+    private async Task RemoveCompany(int companyId)
     {
         selectedCompanyIDs.Remove(companyId);
+        await SelectedCompanyIdsChanged.InvokeAsync([..selectedCompanyIDs]);
     }
     
     private static string GetCompanyBadge(Company company)
@@ -87,6 +107,30 @@ public partial class CompanySearch : ComponentBase
 
     private void HandlePlusClicked()
     {
-        
+        isAddCompanyPopupOpen = true;
+    }
+
+    private void CloseAddCompanyPopup()
+    {
+        isAddCompanyPopupOpen = false;
+    }
+
+    private async Task HandleCompanySaved(Company company)
+    {
+        if (OnCompanyAdded is null)
+        {
+            CloseAddCompanyPopup();
+            return;
+        }
+
+        Company? savedCompany = await OnCompanyAdded.Invoke(company);
+
+        if (savedCompany is not null)
+        {
+            await AddSelectedCompanyAsync(savedCompany.ID);
+            await SetSearchTextAsync(string.Empty);
+        }
+
+        CloseAddCompanyPopup();
     }
 }

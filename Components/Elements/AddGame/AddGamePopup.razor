@@ -41,54 +41,19 @@
         <div class="form-field">
             <span>Developer</span>
             <CompanySearch Companies="Companies"
+                           @bind-SelectedCompanyIds="selectedDeveloperCompanyIDs"
                            @bind-SearchText="developerSearchText"
+                           OnCompanyAdded="OnCompanyAdded"
                            Placeholder="Search companies..." />
         </div>
 
         <div class="form-field">
             <span>Publisher</span>
-            <input class="game-detail-input"
-                   @bind="publisherSearchText"
-                   @bind:event="oninput"
-                   placeholder="Search shared companies" />
-
-            @if (PublisherMatches.Count > 0)
-            {
-                <div class="company-search-results">
-                    @foreach (Company company in PublisherMatches)
-                    {
-                        <button class="igdb-search-result"
-                                type="button"
-                                @onclick="() => SelectPublisher(company)">
-                            <span class="igdb-search-result-icon bi bi-building"
-                                  aria-hidden="true"></span>
-
-                            <span class="igdb-search-result-copy">
-                                <strong>@company.Name</strong>
-                                <small>@GetCompanyBadge(company)</small>
-                            </span>
-                        </button>
-                    }
-                </div>
-            }
-
-            @if (selectedPublisherCompanyIDs.Count > 0)
-            {
-                <div class="manufacturer-chip-list">
-                    @foreach (Company company in SelectedPublisherCompanies)
-                    {
-                        <span class="manufacturer-chip">
-                            @company.Name
-                            <button type="button"
-                                    title="Remove @company.Name"
-                                    aria-label="Remove @company.Name"
-                                    @onclick="() => RemovePublisher(company.ID)">
-                                X
-                            </button>
-                        </span>
-                    }
-                </div>
-            }
+            <CompanySearch Companies="Companies"
+                           @bind-SelectedCompanyIds="selectedPublisherCompanyIDs"
+                           @bind-SearchText="publisherSearchText"
+                           OnCompanyAdded="OnCompanyAdded"
+                           Placeholder="Search companies..." />
         </div>
 
         <label class="form-field">
