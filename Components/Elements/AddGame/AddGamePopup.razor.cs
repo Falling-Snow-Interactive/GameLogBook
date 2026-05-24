@@ -15,6 +15,9 @@ public partial class AddGamePopup
     [Inject]
     private LocalImageService LocalImageService { get; set; } = null!;
 
+    [CascadingParameter]
+    private PopupInstance? Popup { get; set; }
+
     [Parameter]
     public EventCallback OnClose { get; set; }
 
@@ -110,8 +113,27 @@ public partial class AddGamePopup
         game.AddCompaniesByID(GameCompanyRole.Developer, selectedDeveloperCompanyIDs);
         game.AddCompaniesByID(GameCompanyRole.Publisher, selectedPublisherCompanyIDs);
 
-        await OnGameSelected.InvokeAsync(game);
+        if (Popup is not null)
+        {
+            await Popup.CloseAsync(game);
+        }
+        else
+        {
+            await OnGameSelected.InvokeAsync(game);
+        }
+
         isSaving = false;
+    }
+
+    private async Task HandleClose()
+    {
+        if (Popup is not null)
+        {
+            await Popup.CloseAsync();
+            return;
+        }
+
+        await OnClose.InvokeAsync();
     }
 
     private async Task LoadGame(Game game)
