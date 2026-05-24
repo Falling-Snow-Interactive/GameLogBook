@@ -75,12 +75,25 @@
 
         <ImageFieldWidget @ref="coverImageField"
                           class="form-field-full"
-                          Label="Cover image"
+                          Label="Cover"
                           FieldName="cover"
                           Category="games"
+                          AspectRatioWidth="2"
+                          AspectRatioHeight="3"
                           ImagePath="@coverImagePath"
                           PendingImageUrl="@coverImageUrl"
                           AltText="@($"{gameName} cover preview")" />
+
+        <ImageFieldWidget @ref="heroImageField"
+                          class="form-field-full"
+                          Label="Hero"
+                          FieldName="hero"
+                          Category="games"
+                          AspectRatioWidth="96"
+                          AspectRatioHeight="31"
+                          ImagePath="@heroImagePath"
+                          PendingImageUrl="@heroImageUrl"
+                          AltText="@($"{gameName} hero preview")" />
 
         @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
         {

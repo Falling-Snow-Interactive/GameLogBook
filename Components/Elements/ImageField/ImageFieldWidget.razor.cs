@@ -55,6 +55,12 @@ public partial class ImageFieldWidget : IAsyncDisposable
     [Parameter]
     public string Accept { get; set; } = DefaultAccept;
 
+    [Parameter]
+    public double AspectRatioWidth { get; set; } = 2;
+
+    [Parameter]
+    public double AspectRatioHeight { get; set; } = 3;
+
     [Parameter(CaptureUnmatchedValues = true)]
     public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
 
@@ -74,6 +80,18 @@ public partial class ImageFieldWidget : IAsyncDisposable
         ?? [];
 
     private string UrlInputId => $"{FieldName}-image-url";
+
+    private double SafeAspectRatioWidth => AspectRatioWidth > 0 ? AspectRatioWidth : 2;
+
+    private double SafeAspectRatioHeight => AspectRatioHeight > 0 ? AspectRatioHeight : 3;
+
+    private bool IsWideAspectRatio => SafeAspectRatioWidth > SafeAspectRatioHeight;
+
+    private string WidgetClass => IsWideAspectRatio
+                                      ? "image-field-widget image-field-widget-wide"
+                                      : "image-field-widget image-field-widget-tall";
+
+    private string WidgetStyle => $"--image-field-preview-aspect-width: {SafeAspectRatioWidth}; --image-field-preview-aspect-height: {SafeAspectRatioHeight};";
 
     private string PreviewAltText => string.IsNullOrWhiteSpace(AltText)
                                          ? $"{Label} preview"

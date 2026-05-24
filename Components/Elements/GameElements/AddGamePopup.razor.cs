@@ -3,8 +3,8 @@ using GameLogBook.Models.Games;
 using GameLogBook.Services;
 using Microsoft.AspNetCore.Components;
 using Company = GameLogBook.Models.Companies.Company;
-using Cover = GameLogBook.Models.Games.Cover;
 using Game = GameLogBook.Models.Games.Game;
+using Image = GameLogBook.Models.Games.Image;
 
 namespace GameLogBook.Components.Elements.GameElements;
 
@@ -13,6 +13,7 @@ public partial class AddGamePopup
     private Game? previousInitialGame;
     private IReadOnlyList<Company>? previousCompanies;
     private ImageFieldWidget? coverImageField;
+    private ImageFieldWidget? heroImageField;
 
     [CascadingParameter]
     private PopupInstance? Popup { get; set; }
@@ -42,7 +43,9 @@ public partial class AddGamePopup
     private long? igdb;
     private DateOnly? releaseDate;
     private string coverImagePath = string.Empty;
+    private string heroImagePath = string.Empty;
     private string coverImageUrl = string.Empty;
+    private string heroImageUrl = string.Empty;
     private string? imageErrorMessage;
     private bool isSaving;
     private string summary = string.Empty;
@@ -88,10 +91,22 @@ public partial class AddGamePopup
         isSaving = true;
         imageErrorMessage = null;
 
-        string? imagePath;
+        string? coverPath;
         try
         {
-            imagePath = coverImageField is null ? ResolveExistingCoverImagePath() : await coverImageField.CommitAsync();
+            coverPath = coverImageField is null ? ResolveExistingCoverImagePath() : await coverImageField.CommitAsync();
+        }
+        catch (Exception exception)
+        {
+            imageErrorMessage = exception.Message;
+            isSaving = false;
+            return;
+        }
+
+        string? heroPath;
+        try
+        {
+            heroPath = heroImageField is null ? ResolveExistingHeroImagePath() : await heroImageField.CommitAsync();
         }
         catch (Exception exception)
         {
@@ -103,17 +118,28 @@ public partial class AddGamePopup
         Game game = new()
                     {
                         ID = InitialGame?.ID ?? 0,
+                        
                         IgdbId = igdb,
+                        
                         Name = gameName.Trim(),
                         GameType = gameType,
                         ReleaseDate = releaseDate,
+                        
                         Summary = string.IsNullOrWhiteSpace(summary) ? null : summary.Trim(),
-                        Cover = string.IsNullOrWhiteSpace(imagePath)
+                        
+                        Cover = string.IsNullOrWhiteSpace(coverPath)
                                     ? null
-                                    : new Cover
+                                    : new Image
                                       {
-                                          ImagePath = imagePath
+                                          ImagePath = coverPath
                                       },
+                        
+                        Hero = string.IsNullOrWhiteSpace(heroPath) 
+                                   ? null 
+                                   : new Image
+                                     {
+                                         ImagePath = heroPath,
+                                     },
                     };
         
         game.AddCompaniesByID(GameCompanyRole.Developer, selectedDeveloperCompanyIDs);
@@ -178,6 +204,11 @@ public partial class AddGamePopup
     private string? ResolveExistingCoverImagePath()
     {
         return string.IsNullOrWhiteSpace(coverImagePath) ? null : coverImagePath;
+    }
+    
+    private string? ResolveExistingHeroImagePath()
+    {
+        return string.IsNullOrWhiteSpace(heroImagePath) ? null : heroImagePath;
     }
 
     private List<int> ResolveLocalCompanyIds(IEnumerable<int> companyIds)

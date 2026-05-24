@@ -1,7 +1,7 @@
 <div class="@RootClass" @attributes="AttributesWithoutClass!">
     <span>@Label</span>
 
-    <div class="image-field-widget" @ref="widgetElement">
+    <div class="@WidgetClass" style="@WidgetStyle" @ref="widgetElement">
         <div class="image-field-preview" aria-live="polite">
             @if (!string.IsNullOrWhiteSpace(previewSource))
             {

@@ -6,6 +6,7 @@ using GameLogBook.Services;
 using Company = GameLogBook.Models.Companies.Company;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using Image = GameLogBook.Models.Games.Image;
 
 namespace GameLogBook.Components.Pages;
 
@@ -104,7 +105,7 @@ public partial class GamesPage : CollectionPageBase<Game>
         existingGame.Summary = string.IsNullOrWhiteSpace(updatedGame.Summary) ? null : updatedGame.Summary.Trim();
         existingGame.Cover = string.IsNullOrWhiteSpace(updatedGame.Cover?.ImagePath)
                                  ? null
-                                 : new Cover
+                                 : new Image
                                    {
                                        ImagePath = updatedGame.Cover.ImagePath.Trim()
                                    };

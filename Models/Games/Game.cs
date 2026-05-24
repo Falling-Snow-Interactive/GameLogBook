@@ -20,7 +20,10 @@ public class Game
     public string Name { get; set; }
     public string? Summary { get; set; }
     public DateOnly? ReleaseDate { get; set; }
-    public Cover? Cover { get; set; }
+    
+    // Images
+    public Image? Cover { get; set; }
+    public Image? Hero { get; set; }
 
     public List<GameCompany> GameCompanies { get; set; }
     public List<GamePlatform> GamePlatforms { get; set; }
@@ -78,7 +81,7 @@ public class Game
 
         if (igdb.Cover?.Value.Url is not null)
         {
-            Cover = new Cover()
+            Cover = new Image()
                     {
                         PendingImageUrl = IGDBUtility.CoverUrlToBigCoverUrl(igdb.Cover.Value.Url),
                     };

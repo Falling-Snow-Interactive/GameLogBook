@@ -1,6 +1,6 @@
 namespace GameLogBook.Models.Games;
 
-public class Cover
+public class Image
 {
     public string? ImagePath { get; set; }
 

@@ -40,6 +40,9 @@
 
     --image-field-preview-width: 6.5rem;
     --image-field-preview-height: 9.75rem;
+    --image-field-preview-max-width: 6.5rem;
+    --image-field-preview-max-height: 9.75rem;
+    --image-field-wide-preview-max-height: 16rem;
 
     --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.08);
     --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.1);
