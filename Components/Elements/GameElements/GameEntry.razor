@@ -3,7 +3,7 @@
      tabindex="0"
      @onclick="HandleClick">
 
-    <div class="">
+    <div class="game-entry-header">
         @if (!string.IsNullOrWhiteSpace(Game.Cover?.ImagePath))
         { 
             <LocalImage ImagePath="@Game.Cover.ImagePath"
@@ -22,34 +22,34 @@
                 No Cover
             </div>
         }
-    </div>
 
-    <div class="game-information">
-        <label class="game-title">@Game.Name</label>
-        @if (!string.IsNullOrWhiteSpace(Game.ReleaseDate?.ToString()))
-        {
-            <label class="game-release-date">@Game.ReleaseDate?.ToString()</label>
-        }
+        <div class="game-information">
+            <label class="game-title">@Game.Name</label>
+            @if (!string.IsNullOrWhiteSpace(Game.ReleaseDate?.ToString()))
+            {
+                <label class="game-release-date">@Game.ReleaseDate?.ToString()</label>
+            }
         
-        @if (DeveloperNames.Count > 0 && PublisherNames.Count > 0)
-        {
-            <label class="game-developer">
-                @string.Join(", ", DeveloperNames) - @string.Join(", ", PublisherNames)
-            </label>
-        }
-        else if (DeveloperNames.Count > 0)
-        {
-            <label class="game-developer">@string.Join(", ", DeveloperNames)</label>
-        }
-        else if (PublisherNames.Count > 0)
-        {
-            <label class="game-developer">@string.Join(", ", PublisherNames)</label>
-        }
+            @if (DeveloperNames.Count > 0 && PublisherNames.Count > 0)
+            {
+                <label class="game-developer">
+                    @string.Join(", ", DeveloperNames) - @string.Join(", ", PublisherNames)
+                </label>
+            }
+            else if (DeveloperNames.Count > 0)
+            {
+                <label class="game-developer">@string.Join(", ", DeveloperNames)</label>
+            }
+            else if (PublisherNames.Count > 0)
+            {
+                <label class="game-developer">@string.Join(", ", PublisherNames)</label>
+            }
 
-        @if (!string.IsNullOrWhiteSpace(Game.Summary))
-        { 
-            <p class="game-summary">@Game.Summary</p>
-        }
+            @if (!string.IsNullOrWhiteSpace(Game.Summary))
+            { 
+                <p class="game-summary">@Game.Summary</p>
+            }
+        </div>
     </div>
     
     @if (ShowButtons)

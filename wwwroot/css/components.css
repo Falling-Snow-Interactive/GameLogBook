@@ -86,6 +86,13 @@ main {
     height: 1rem;
 }
 
+.game-entry-header {
+    display: flex;
+    flex-direction: row;
+    
+    gap: 1rem;
+}
+
 .game-entry-content {
     width: 100%;
     min-height: 10rem;
