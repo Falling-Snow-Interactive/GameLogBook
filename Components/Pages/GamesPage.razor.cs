@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using GameLogBook.Components.Elements.AddGame;
 using GameLogBook.Components.Elements.GameElements;
 using GameLogBook.Models.Games;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GameLogBook.Components.Pages;
 
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public partial class GamesPage : CollectionPageBase<Game>
 {
     private List<Company> companies = [];
