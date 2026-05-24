@@ -33,7 +33,7 @@
                                 <option value="">Select a game...</option>
                                 @foreach (Game game in AvailableGamesToAdd)
                                 {
-                                    <option value="@game.Id">@game.Name</option>
+                                    <option value="@game.ID">@game.Name</option>
                                 }
                             </select>
 
@@ -54,12 +54,12 @@
                             <div class="selected-games-list">
                                 @foreach (Game game in SelectedGames)
                                 {
-                                    <div class="selected-game-row" @key="game.Id">
+                                    <div class="selected-game-row" @key="game.ID">
                                         <span>@game.Name</span>
                                         <button class="remove-game-button"
                                                 type="button"
                                                 title="Remove @game.Name"
-                                                @onclick="() => HandleRemoveGame(game.Id)">
+                                                @onclick="() => HandleRemoveGame(game.ID)">
                                             Remove
                                         </button>
                                     </div>

@@ -87,8 +87,8 @@
                 {
                     <label class="game-picker-item">
                         <input type="checkbox"
-                               checked="@selectedGameIds.Contains(game.Id)"
-                               @onchange="args => ToggleGameSelection(game.Id, args)" />
+                               checked="@selectedGameIds.Contains(game.ID)"
+                               @onchange="args => ToggleGameSelection(game.ID, args)" />
                         <span>@game.Name</span>
                     </label>
                 }

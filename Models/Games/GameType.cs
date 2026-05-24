@@ -2,8 +2,20 @@ namespace GameLogBook.Models.Games;
 
 public enum GameType
 {
-    Base = 0,
-    Expansion = 1,
-    DLC = 2, 
-    Update = 3,
+    None = 0,
+    
+    Base = 1,
+    
+    Expansion = 2,
+    DLC = 3, 
+    Update = 4,
+    
+    Port = 5, 
+    Bundle = 6,
+    
+    PackAddon = 7,
+    
+    Mod = 8,
+    
+    ROMHack = 9,
 }

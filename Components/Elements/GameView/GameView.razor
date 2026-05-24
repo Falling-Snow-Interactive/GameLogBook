@@ -1,0 +1,37 @@
+<Popup Title="@Game.Name">
+    <div class="game-view">
+        <div class="game-view-content">
+            @if (!string.IsNullOrWhiteSpace(Game.Cover?.ImagePath))
+            {
+                <img class="game-cover"
+                     src="@Game.Cover.ImagePath"
+                     alt="@Game.Name cover" />
+            }
+
+            <div class="game-details">
+                <h2 class="game-title">@Game.Name</h2>
+
+                @if (!string.IsNullOrWhiteSpace(Game.Summary))
+                {
+                    <p class="game-summary">@Game.Summary</p>
+                }
+            </div>
+        </div>
+
+        <div class="popup-button-container">
+            <button class="popup-button"
+                    type="button"
+                    title="Edit"
+                    @onclick="HandleEdit">
+                Edit
+            </button>
+
+            <button class="popup-button"
+                    type="button"
+                    title="Close"
+                    @onclick="HandleClose">
+                Close
+            </button>
+        </div>
+    </div>
+</Popup>

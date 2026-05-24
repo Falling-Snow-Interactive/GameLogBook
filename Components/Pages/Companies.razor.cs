@@ -146,8 +146,8 @@ public partial class Companies : CollectionPageBase<Company>
                                .ToListAsync();
 
         gameNamesByCompanyId = games
-                               .SelectMany(game => game.DeveloperCompanyIds
-                                                       .Concat(game.PublisherCompanyIds)
+                               .SelectMany(game => game.GetDeveloperIDs()
+                                                       .Concat(game.GetPublisherIDs())
                                                        .Distinct()
                                                        .Select(companyId => new
                                                                             {
@@ -162,13 +162,13 @@ public partial class Companies : CollectionPageBase<Company>
                                                            .ToList());
 
         rolesByCompanyId = games
-                           .SelectMany(game => game.DeveloperCompanyIds
+                           .SelectMany(game => game.GetDeveloperIDs()
                                                    .Select(companyId => new
                                                                         {
                                                                             CompanyId = companyId,
                                                                             Role = "Developer"
                                                                         })
-                                                   .Concat(game.PublisherCompanyIds
+                                                   .Concat(game.GetPublisherIDs()
                                                                .Select(companyId => new
                                                                                     {
                                                                                         CompanyId = companyId,

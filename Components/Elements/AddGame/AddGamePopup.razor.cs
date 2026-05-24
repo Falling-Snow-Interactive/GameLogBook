@@ -1,3 +1,4 @@
+using GameLogBook.Models.Games;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using GameLogBook.Services;
@@ -26,13 +27,13 @@ public partial class AddGamePopup
     [Parameter]
     public Game? InitialGame { get; set; }
 
-    private List<int> selectedDeveloperCompanyIds = [];
-    private List<int> selectedPublisherCompanyIds = [];
+    private List<int> selectedDeveloperCompanyIDs = [];
+    private List<int> selectedPublisherCompanyIDs = [];
     private string developerSearchText = string.Empty;
     private string publisherSearchText = string.Empty;
 
     private string gameName = string.Empty;
-    private long igdbId;
+    private long? igdb;
     private DateOnly? releaseDate;
     private string coverImagePath = string.Empty;
     private string coverImageUrl = string.Empty;
@@ -85,11 +86,11 @@ public partial class AddGamePopup
             isSaving = false;
             return;
         }
-
+        
         Game game = new()
                     {
-                        Id = InitialGame?.Id ?? 0,
-                        IgdbId = igdbId,
+                        ID = InitialGame?.ID ?? 0,
+                        IgdbId = igdb,
                         Name = gameName.Trim(),
                         ReleaseDate = releaseDate,
                         Summary = string.IsNullOrWhiteSpace(summary) ? null : summary.Trim(),
@@ -99,9 +100,10 @@ public partial class AddGamePopup
                                       {
                                           ImagePath = imagePath
                                       },
-                        DeveloperCompanyIds = selectedDeveloperCompanyIds.Distinct().ToArray(),
-                        PublisherCompanyIds = selectedPublisherCompanyIds.Distinct().ToArray()
                     };
+        
+        game.AddCompaniesByID(GameCompanyRole.Developer, selectedDeveloperCompanyIDs);
+        game.AddCompaniesByID(GameCompanyRole.Publisher, selectedPublisherCompanyIDs);
 
         await OnGameSelected.InvokeAsync(game);
         isSaving = false;
@@ -109,10 +111,10 @@ public partial class AddGamePopup
 
     private async Task LoadGame(Game game)
     {
-        igdbId = game.IgdbId;
+        igdb = game.IgdbId;
         gameName = game.Name;
-        selectedDeveloperCompanyIds = ResolveLocalCompanyIds(game.DeveloperCompanyIds);
-        selectedPublisherCompanyIds = ResolveLocalCompanyIds(game.PublisherCompanyIds);
+        selectedDeveloperCompanyIDs = ResolveLocalCompanyIds(game.GetDeveloperIDs());
+        selectedPublisherCompanyIDs = ResolveLocalCompanyIds(game.GetPublisherIDs());
         developerSearchText = string.Empty;
         publisherSearchText = string.Empty;
         releaseDate = game.ReleaseDate;
@@ -128,12 +130,12 @@ public partial class AddGamePopup
 
     private void ResetForm()
     {
-        selectedDeveloperCompanyIds = [];
-        selectedPublisherCompanyIds = [];
+        selectedDeveloperCompanyIDs = [];
+        selectedPublisherCompanyIDs = [];
         developerSearchText = string.Empty;
         publisherSearchText = string.Empty;
         gameName = string.Empty;
-        igdbId = 0;
+        igdb = 0;
         releaseDate = null;
         coverImagePath = string.Empty;
         coverImageUrl = string.Empty;
@@ -198,24 +200,24 @@ public partial class AddGamePopup
 
     private void SelectDeveloper(Company company)
     {
-        AddSelectedCompany(selectedDeveloperCompanyIds, company.ID);
+        AddSelectedCompany(selectedDeveloperCompanyIDs, company.ID);
         developerSearchText = string.Empty;
     }
 
     private void SelectPublisher(Company company)
     {
-        AddSelectedCompany(selectedPublisherCompanyIds, company.ID);
+        AddSelectedCompany(selectedPublisherCompanyIDs, company.ID);
         publisherSearchText = string.Empty;
     }
 
     private void RemoveDeveloper(int companyId)
     {
-        selectedDeveloperCompanyIds.Remove(companyId);
+        selectedDeveloperCompanyIDs.Remove(companyId);
     }
 
     private void RemovePublisher(int companyId)
     {
-        selectedPublisherCompanyIds.Remove(companyId);
+        selectedPublisherCompanyIDs.Remove(companyId);
     }
 
     private List<int> ResolveLocalCompanyIds(IEnumerable<int> companyIds)
@@ -227,13 +229,13 @@ public partial class AddGamePopup
                .ToList();
     }
 
-    private IReadOnlyList<Company> DeveloperMatches => FilterCompanies(developerSearchText, selectedDeveloperCompanyIds);
+    private IReadOnlyList<Company> DeveloperMatches => FilterCompanies(developerSearchText, selectedDeveloperCompanyIDs);
 
-    private IReadOnlyList<Company> PublisherMatches => FilterCompanies(publisherSearchText, selectedPublisherCompanyIds);
+    private IReadOnlyList<Company> PublisherMatches => FilterCompanies(publisherSearchText, selectedPublisherCompanyIDs);
 
-    private IReadOnlyList<Company> SelectedDeveloperCompanies => GetSelectedCompanies(selectedDeveloperCompanyIds);
+    private IReadOnlyList<Company> SelectedDeveloperCompanies => GetSelectedCompanies(selectedDeveloperCompanyIDs);
 
-    private IReadOnlyList<Company> SelectedPublisherCompanies => GetSelectedCompanies(selectedPublisherCompanyIds);
+    private IReadOnlyList<Company> SelectedPublisherCompanies => GetSelectedCompanies(selectedPublisherCompanyIDs);
 
     private IReadOnlyList<Company> FilterCompanies(string searchText, IReadOnlyCollection<int> selectedIds)
     {
@@ -242,7 +244,7 @@ public partial class AddGamePopup
         return Companies
                .Where(company => !selectedIds.Contains(company.ID))
                .Where(company => string.IsNullOrWhiteSpace(trimmedSearchText)
-                                  || company.Name.Contains(trimmedSearchText, StringComparison.OrdinalIgnoreCase))
+                                 || company.Name.Contains(trimmedSearchText, StringComparison.OrdinalIgnoreCase))
                .OrderBy(company => company.Name)
                .Take(10)
                .ToList();

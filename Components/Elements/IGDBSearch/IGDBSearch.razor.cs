@@ -40,7 +40,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     private List<LocalCompany> companyResultCandidates = [];
 
     [Inject]
-    private IgdbClientProvider IgdbClientProvider { get; set; } = null!;
+    private IGDBClientProvider IgdbClientProvider { get; set; } = null!;
 
     [Parameter]
     public string Label { get; set; } = "Search IGDB";
@@ -477,8 +477,8 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
     private LocalGame ToLocalGame(IgdbGame igdbGame)
     {
-        HashSet<int> developerCompanyIds = [];
-        HashSet<int> publisherCompanyIds = [];
+        HashSet<int> developerCompanyIDs = [];
+        HashSet<int> publisherCompanyIDs = [];
 
         if (igdbGame.InvolvedCompanies?.Values is not null)
         {
@@ -486,26 +486,28 @@ public partial class IGDBSearch : ComponentBase, IDisposable
             {
                 if (involvedCompany?.Developer is true)
                 {
-                    AddGameCompanyId(developerCompanyIds, involvedCompany);
+                    AddGameCompanyId(developerCompanyIDs, involvedCompany);
                 }
 
                 if (involvedCompany?.Publisher is true)
                 {
-                    AddGameCompanyId(publisherCompanyIds, involvedCompany);
+                    AddGameCompanyId(publisherCompanyIDs, involvedCompany);
                 }
             }
         }
 
-        return new LocalGame
-               {
-                   IgdbId = igdbGame.Id ?? 0,
-                   Name = igdbGame.Name ?? string.Empty,
-                   Summary = igdbGame.Summary,
-                   ReleaseDate = ToDateOnly(igdbGame.FirstReleaseDate?.ToUnixTimeSeconds()),
-                   Cover = ToLocalCover(igdbGame.Cover?.Value),
-                   DeveloperCompanyIds = developerCompanyIds.Order().ToArray(),
-                   PublisherCompanyIds = publisherCompanyIds.Order().ToArray()
-               };
+        LocalGame localGame = new()
+                              {
+                                  IgdbId = igdbGame.Id ?? 0,
+                                  Name = igdbGame.Name ?? string.Empty,
+                                  Summary = igdbGame.Summary,
+                                  ReleaseDate = ToDateOnly(igdbGame.FirstReleaseDate?.ToUnixTimeSeconds()),
+                                  Cover = ToLocalCover(igdbGame.Cover?.Value),
+                              };
+        localGame.AddCompaniesByID(GameCompanyRole.Developer, developerCompanyIDs.Order().ToList());
+        localGame.AddCompaniesByID(GameCompanyRole.Publisher, publisherCompanyIDs.Order().ToList());
+
+        return localGame;
     }
 
     private void AddGameCompanyId(
@@ -556,7 +558,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
         return new LocalCover
                {
-                   PendingImageUrl = ToAbsoluteUrl(igdbCover.Url)
+                   PendingImageUrl = ToBigCoverUrl(igdbCover.Url)
                };
     }
 
@@ -831,7 +833,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
     private static string? ToPendingImageUrl(IgdbCompanyLogo? igdbCompanyLogo)
     {
-        return ToAbsoluteUrl(igdbCompanyLogo?.Url);
+        return ToBigCoverUrl(igdbCompanyLogo?.Url);
     }
 
     private static string? ToAbsoluteUrl(string? url)
@@ -846,6 +848,13 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                    : url;
     }
 
+    private static string? ToBigCoverUrl(string? url)
+    {
+        string? absoluteUrl = ToAbsoluteUrl(url);
+
+        return absoluteUrl?.Replace("/t_thumb/", "/t_cover_big/", StringComparison.OrdinalIgnoreCase);
+    }
+
     private string GetGameSummary(LocalGame game)
     {
         string releaseSummary = game.ReleaseDate.HasValue
@@ -853,8 +862,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                                     : "Unknown release date";
 
         string companySummary = string.Join(", ",
-                                            game.DeveloperCompanyIds
-                                                .Concat(game.PublisherCompanyIds)
+                                            game.GetAllCompanyIDs()
                                                 .Distinct()
                                                 .Select(GetLocalCompanyName)
                                                 .Where(value => !string.IsNullOrWhiteSpace(value))
@@ -941,12 +949,15 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
     private static IEnumerable<string> GetRolesForGameCompany(LocalGame game, int companyId)
     {
-        if (game.DeveloperCompanyIds.Contains(companyId))
+        List<int> devs = game.GetDeveloperIDs();
+        List<int> pubs = game.GetPublisherIDs();
+        
+        if (devs.Contains(companyId))
         {
             yield return "Developer";
         }
 
-        if (game.PublisherCompanyIds.Contains(companyId))
+        if (pubs.Contains(companyId))
         {
             yield return "Publisher";
         }

@@ -113,8 +113,8 @@ public partial class Platforms : CollectionPageBase<PlatformModel>
                                .ToListAsync();
 
         gameNamesByPlatformID = games
-                                .SelectMany(game => game.DeveloperCompanyIds
-                                                        .Concat(game.PublisherCompanyIds)
+                                .SelectMany(game => game.GetDeveloperIDs()
+                                                        .Concat(game.GetPublisherIDs())
                                                         .Distinct()
                                                         .Select(companyId => new
                                                                              {

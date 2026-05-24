@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 
 namespace GameLogBook.Services;
 
-public class IgdbClientProvider(IOptions<IgdbSettings> options)
+public class IGDBClientProvider(IOptions<IgdbSettings> options)
 {
     private readonly IgdbSettings settings = options.Value;
     private IGDBClient? client;

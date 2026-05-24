@@ -29,10 +29,10 @@ public partial class AddPlaythroughPopup : ComponentBase
     private string SaveButtonText => InitialPlaythrough is null ? "Add Playthrough" : "Save Changes";
 
     private IEnumerable<Game> SelectedGames =>
-        LibraryGames.Where(game => selectedGameIds.Contains(game.Id));
+        LibraryGames.Where(game => selectedGameIds.Contains(game.ID));
 
     private IEnumerable<Game> AvailableGamesToAdd =>
-        LibraryGames.Where(game => !selectedGameIds.Contains(game.Id));
+        LibraryGames.Where(game => !selectedGameIds.Contains(game.ID));
 
     protected override void OnParametersSet()
     {

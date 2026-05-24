@@ -1,4 +1,3 @@
-@using GameLogBook.Models.Games
 @using GameLogBook.Models.Companies
 @using GameLogBook.Components.Elements.AddPopup
 
@@ -53,7 +52,7 @@
                 </div>
             }
 
-            @if (selectedDeveloperCompanyIds.Count > 0)
+            @if (selectedDeveloperCompanyIDs.Count > 0)
             {
                 <div class="manufacturer-chip-list">
                     @foreach (Company company in SelectedDeveloperCompanies)
@@ -99,7 +98,7 @@
                 </div>
             }
 
-            @if (selectedPublisherCompanyIds.Count > 0)
+            @if (selectedPublisherCompanyIDs.Count > 0)
             {
                 <div class="manufacturer-chip-list">
                     @foreach (Company company in SelectedPublisherCompanies)
@@ -131,7 +130,7 @@
             <span>IGDB ID</span>
             <input class="game-detail-input"
                    type="number"
-                   @bind="igdbId"
+                   @bind="igdb"
                    @bind:event="oninput"
                    placeholder="id"/>
         </label>

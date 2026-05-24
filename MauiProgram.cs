@@ -3,6 +3,7 @@ using GameLogBook.Data;
 using GameLogBook.Models.Configuration;
 using GameLogBook.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -32,13 +33,15 @@ public static class MauiProgram
 
         builder.Services.Configure<IgdbSettings>(builder.Configuration.GetSection("Igdb"));
         builder.Services.AddSingleton<HttpClient>();
-        builder.Services.AddSingleton<IgdbClientProvider>();
+        builder.Services.AddSingleton<IGDBClientProvider>();
         builder.Services.AddSingleton<LocalImageService>();
 
         string databasePath = DatabasePathResolver.GetRuntimeDatabasePath();
 
         builder.Services.AddDbContext<GameLogBookDbContext>(options =>
-            options.UseSqlite($"Data Source={databasePath}"));
+            options.UseSqlite($"Data Source={databasePath}")
+                   .ConfigureWarnings(warnings =>
+                       warnings.Ignore(RelationalEventId.PendingModelChangesWarning)));
 
         MauiApp app = builder.Build();
 

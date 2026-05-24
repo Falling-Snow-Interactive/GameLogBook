@@ -1,4 +1,5 @@
 using GameLogBook.Models.Games;
+using GameLogBook.Models.Games.Company;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameLogBook.Components.Pages;
@@ -28,8 +29,7 @@ public partial class Games : CollectionPageBase<Game>
 
     private async Task AddGame(Game game)
     {
-        game.DeveloperCompanyIds = NormalizeCompanyIds(game.DeveloperCompanyIds);
-        game.PublisherCompanyIds = NormalizeCompanyIds(game.PublisherCompanyIds);
+        game.GameCompanies = NormalizeCompanyIds(game.GameCompanies);
 
         await AddItemAsync(game);
         await LoadItemsAsync();
@@ -44,7 +44,7 @@ public partial class Games : CollectionPageBase<Game>
         }
 
         Game? existingGame = await BuildQuery()
-                                  .FirstOrDefaultAsync(game => game.Id == selectedGame.Id);
+                                 .FirstOrDefaultAsync(game => game.ID == selectedGame.ID);
 
         if (existingGame is null)
         {
@@ -62,8 +62,7 @@ public partial class Games : CollectionPageBase<Game>
                                    {
                                        ImagePath = updatedGame.Cover.ImagePath.Trim()
                                    };
-        existingGame.DeveloperCompanyIds = NormalizeCompanyIds(updatedGame.DeveloperCompanyIds);
-        existingGame.PublisherCompanyIds = NormalizeCompanyIds(updatedGame.PublisherCompanyIds);
+        existingGame.GameCompanies = NormalizeCompanyIds(updatedGame.GameCompanies);
 
         await UpdateItemAsync();
         CloseEditPopup();
@@ -81,7 +80,7 @@ public partial class Games : CollectionPageBase<Game>
                                    .ToListAsync();
     }
 
-    private void OpenEditPopup(Game game)
+    private void OnClickGame(Game game)
     {
         selectedGame = CloneGame(game);
     }
@@ -93,30 +92,25 @@ public partial class Games : CollectionPageBase<Game>
 
     private static Game CloneGame(Game game)
     {
-        return new Game
-               {
-                   Id = game.Id,
-                   IgdbId = game.IgdbId,
-                   Name = game.Name,
-                   Summary = game.Summary,
-                   ReleaseDate = game.ReleaseDate,
-                   Cover = game.Cover is null
-                               ? null
-                               : new GameLogBook.Models.Games.Cover
-                                 {
-                                     ImagePath = game.Cover.ImagePath
-                                 },
-                   DeveloperCompanyIds = game.DeveloperCompanyIds.ToArray(),
-                   PublisherCompanyIds = game.PublisherCompanyIds.ToArray()
-               };
+        return new Game(game);
     }
 
-    private static int[] NormalizeCompanyIds(IEnumerable<int> companyIds)
+    private static List<GameCompany> NormalizeCompanyIds(IEnumerable<GameCompany> companies)
     {
-        return companyIds
-               .Where(companyId => companyId > 0)
+        return companies
+               .Where(company => company.CompanyID > 0)
                .Distinct()
                .Order()
-               .ToArray();
+               .ToList();
+    }
+
+    private void HandleGameViewClose()
+    {
+        selectedGame = null;
+    }
+
+    private void HandleGameViewEdit()
+    {
+        
     }
 }

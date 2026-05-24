@@ -1,8 +1,8 @@
 @page "/Games"
 @using GameLogBook.Components.Elements.AddGame
 @using GameLogBook.Components.Elements.GameEntry
-@using GameLogBook.Models.Companies
 @using GameLogBook.Models.Games
+@using GameLogBook.Components.Elements.GameElements
 @inherits CollectionPageBase<Game>
 
 <PageTitle>Games</PageTitle>
@@ -21,7 +21,7 @@
                 <GameEntry Game="game"
                            Companies="@companies"
                            ShowButtons="true"
-                           OnClick="OpenEditPopup"
+                           OnClick="OnClickGame"
                            OnRemove="RemoveGame" />
             </li>
         }
@@ -37,8 +37,7 @@
 
 @if (selectedGame is not null)
 {
-    <AddGamePopup OnClose="CloseEditPopup"
-                  OnGameSelected="UpdateGame"
-                  Companies="@companies"
-                  InitialGame="@selectedGame" />
+    <GameView Game="@selectedGame" 
+              OnEdit="@HandleGameViewEdit"
+              OnClose="@HandleGameViewClose" />
 }
