@@ -13,8 +13,10 @@
 .popup,
 .platform-popup,
 .company-popup {
-    width: min(100%, var(--popup-width, 46rem));
-    max-height: min(var(--popup-max-height, 52rem), calc(100vh - 3rem));
+    inline-size: fit-content;
+    min-inline-size: min(100%, var(--popup-min-width, 22rem));
+    max-inline-size: min(var(--popup-max-width, 46rem), calc(100vw - 3rem));
+    max-block-size: min(var(--popup-max-height, 52rem), calc(100vh - 3rem));
     display: flex;
     flex-direction: column;
     min-height: 0;
@@ -28,11 +30,12 @@
 
 .platform-popup,
 .company-popup {
-    --popup-width: 36rem;
+    --popup-max-width: 36rem;
     --popup-max-height: 44rem;
 }
 
 .popup-header {
+    flex: 0 0 auto;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -61,7 +64,7 @@
 }
 
 .popup-content {
-    flex: 1;
+    flex: 0 1 auto;
     min-height: 0;
     overflow-y: auto;
     scrollbar-gutter: stable;
@@ -116,7 +119,9 @@
     .popup,
     .platform-popup,
     .company-popup {
-        max-height: calc(100vh - 1.5rem);
+        min-inline-size: 0;
+        max-inline-size: calc(100vw - 1.5rem);
+        max-block-size: calc(100vh - 1.5rem);
     }
 
     .popup-header {

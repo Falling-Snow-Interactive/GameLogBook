@@ -16,8 +16,6 @@
 }
 
 .popup-form {
-    max-height: calc(44rem - 6rem);
-    overflow-y: auto;
     padding: 1.25rem;
 }
 
