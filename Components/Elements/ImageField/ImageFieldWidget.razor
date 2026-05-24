@@ -1,0 +1,68 @@
+<div class="@RootClass" @attributes="AttributesWithoutClass">
+    <span>@Label</span>
+
+    <div class="image-field-widget">
+        <div class="image-field-preview" aria-live="polite">
+            @if (!string.IsNullOrWhiteSpace(previewSource))
+            {
+                <img src="@previewSource"
+                     alt="@PreviewAltText" />
+            }
+            else
+            {
+                <span>No image set</span>
+            }
+        </div>
+
+        <div class="image-field-controls">
+            <div class="image-field-url-row">
+                <input id="@UrlInputId"
+                       class="@InputClass"
+                       value="@urlInput"
+                       @oninput="HandleUrlChanged"
+                       placeholder="@UrlPlaceholder" />
+                <button class="image-field-action-button"
+                        type="button"
+                        disabled="@isBusy"
+                        @onclick="DownloadUrlImage">
+                    @(isBusy ? "Working..." : "Download")
+                </button>
+            </div>
+
+            <label class="image-field-action-button image-field-upload-button">
+                <InputFile class="image-field-upload-input"
+                           OnChange="UploadImage"
+                           accept="@Accept" />
+                <span>Upload</span>
+            </label>
+
+            <button class="image-field-reset-button"
+                    type="button"
+                    disabled="@isBusy"
+                    @onclick="ResetImage">
+                Reset
+            </button>
+            
+            @* <div class="image-field-action-row"> *@
+            @*     <label class="image-field-action-button image-field-upload-button"> *@
+            @*         <InputFile class="image-field-upload-input" *@
+            @*                    OnChange="UploadImage" *@
+            @*                    accept="@Accept" /> *@
+            @*         <span>Upload</span> *@
+            @*     </label> *@
+            @* *@
+            @*     <button class="image-field-reset-button" *@
+            @*             type="button" *@
+            @*             disabled="@isBusy" *@
+            @*             @onclick="ResetImage"> *@
+            @*         Reset *@
+            @*     </button> *@
+            @* </div> *@
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(errorMessage))
+    {
+        <p class="form-hint">@errorMessage</p>
+    }
+</div>

@@ -51,6 +51,13 @@ public class LocalImageService
         return relativePath;
     }
 
+    public Task<string> SaveUploadedTempImageAsync(
+        IBrowserFile file,
+        CancellationToken cancellationToken = default)
+    {
+        return SaveUploadedImageAsync(file, "temp", cancellationToken);
+    }
+
     public async Task<string> DownloadImageAsync(
         string imageUrl,
         string category,
@@ -87,6 +94,60 @@ public class LocalImageService
         await CopyToFileWithLimitAsync(inputStream, outputStream, cancellationToken);
 
         return relativePath;
+    }
+
+    public Task<string> DownloadTempImageAsync(
+        string imageUrl,
+        CancellationToken cancellationToken = default)
+    {
+        return DownloadImageAsync(imageUrl, "temp", cancellationToken);
+    }
+
+    public Task<string> MoveTempImageAsync(
+        string tempImagePath,
+        string category,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(tempImagePath) || !IsTempImagePath(tempImagePath))
+        {
+            throw new InvalidOperationException("No temporary image is ready to save.");
+        }
+
+        string sourcePath = GetAbsolutePath(tempImagePath);
+        if (!File.Exists(sourcePath))
+        {
+            throw new InvalidOperationException("The temporary image could not be found.");
+        }
+
+        string extension = Path.GetExtension(sourcePath);
+        if (string.IsNullOrWhiteSpace(extension) || !AllowedExtensions.Contains(extension))
+        {
+            extension = ".img";
+        }
+
+        string relativePath = CreateRelativePath(category, extension);
+        string destinationPath = GetAbsolutePath(relativePath);
+
+        Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
+        File.Move(sourcePath, destinationPath);
+
+        return Task.FromResult(relativePath);
+    }
+
+    public Task DeleteTempImageAsync(string? tempImagePath)
+    {
+        if (string.IsNullOrWhiteSpace(tempImagePath) || !IsTempImagePath(tempImagePath))
+        {
+            return Task.CompletedTask;
+        }
+
+        string absolutePath = GetAbsolutePath(tempImagePath);
+        if (File.Exists(absolutePath))
+        {
+            File.Delete(absolutePath);
+        }
+
+        return Task.CompletedTask;
     }
 
     public async Task<string?> GetImageSourceAsync(string? imagePath, CancellationToken cancellationToken = default)
@@ -163,6 +224,13 @@ public class LocalImageService
                                                          StringSplitOptions.RemoveEmptyEntries));
 
         return Path.Combine("images", safeCategory, $"{Guid.NewGuid():N}{extension}");
+    }
+
+    private static bool IsTempImagePath(string imagePath)
+    {
+        string normalizedPath = imagePath.Replace('\\', '/');
+
+        return normalizedPath.StartsWith("images/temp/", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string GetAbsolutePath(string relativePath)
