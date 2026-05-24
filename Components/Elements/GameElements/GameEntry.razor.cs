@@ -2,7 +2,7 @@ using GameLogBook.Models.Companies;
 using GameLogBook.Models.Games;
 using Microsoft.AspNetCore.Components;
 
-namespace GameLogBook.Components.Elements.GameElements.GameEntry;
+namespace GameLogBook.Components.Elements.GameElements;
 
 public partial class GameEntry
 {

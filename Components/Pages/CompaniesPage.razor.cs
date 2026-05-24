@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GameLogBook.Components.Pages;
 
-public partial class Companies : CollectionPageBase<Company>
+public partial class CompaniesPage : CollectionPageBase<Company>
 {
     private List<Game> games = [];
     private Dictionary<int, List<string>> gameNamesByCompanyId = [];

@@ -1,5 +1,5 @@
 using GameLogBook.Components.Elements.AddGame;
-using GameLogBook.Components.Elements.GameElements.GameView;
+using GameLogBook.Components.Elements.GameElements;
 using GameLogBook.Models.Games;
 using GameLogBook.Models.Games.Company;
 using GameLogBook.Services;
@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GameLogBook.Components.Pages;
 
-public partial class Games : CollectionPageBase<Game>
+public partial class GamesPage : CollectionPageBase<Game>
 {
     private List<Company> companies = [];
 

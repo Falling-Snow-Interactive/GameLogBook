@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GameLogBook.Components.Pages;
 
-public partial class Playthroughs : CollectionPageBase<Playthrough>
+public partial class PlaythroughsPage : CollectionPageBase<Playthrough>
 {
     public IReadOnlyList<Game> Games { get; set; } = [];
 

@@ -64,7 +64,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Update="Components\Pages\Games.razor.cs">
+        <Compile Update="Components\Pages\GamesPage.razor.cs">
             <DependentUpon>Games.razor</DependentUpon>
         </Compile>
     </ItemGroup>
@@ -78,8 +78,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <AdditionalFiles Include="Components\Elements\GameElements\GameEntry\GameEntry.razor" />
-      <AdditionalFiles Include="Components\Elements\GameElements\GameEntry\GameEntry.razor.css" />
+      <AdditionalFiles Include="Components\Elements\GameElements\GameEntry.razor.css" />
     </ItemGroup>
 
 </Project>

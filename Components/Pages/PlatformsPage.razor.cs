@@ -8,7 +8,7 @@ using PlatformModel = GameLogBook.Models.Platforms.Platform;
 
 namespace GameLogBook.Components.Pages;
 
-public partial class Platforms : CollectionPageBase<PlatformModel>
+public partial class PlatformsPage : CollectionPageBase<PlatformModel>
 {
     private List<Game> games = [];
     private List<Company> companies = [];
