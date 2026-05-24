@@ -103,7 +103,7 @@ public partial class GamesPage : CollectionPageBase<Game>
         existingGame.Summary = string.IsNullOrWhiteSpace(updatedGame.Summary) ? null : updatedGame.Summary.Trim();
         existingGame.Cover = string.IsNullOrWhiteSpace(updatedGame.Cover?.ImagePath)
                                  ? null
-                                 : new GameLogBook.Models.Games.Cover
+                                 : new Cover
                                    {
                                        ImagePath = updatedGame.Cover.ImagePath.Trim()
                                    };
@@ -127,11 +127,11 @@ public partial class GamesPage : CollectionPageBase<Game>
     protected override async Task OpenAddPopup()
     {
         Game? game = await PopupService.ShowAsync<AddGamePopup, Game>(
-            new Dictionary<string, object?>
-            {
-                [nameof(AddGamePopup.Companies)] = companies,
-                [nameof(AddGamePopup.OnCompanyAdded)] = new Func<Company, Task<Company?>>(AddCompanyFromSearch)
-            });
+                                                                      new Dictionary<string, object?>
+                                                                      {
+                                                                          [nameof(AddGamePopup.Companies)] = companies,
+                                                                          [nameof(AddGamePopup.OnCompanyAdded)] = new Func<Company, Task<Company?>>(AddCompanyFromSearch)
+                                                                      });
 
         if (game is not null)
         {
@@ -143,10 +143,10 @@ public partial class GamesPage : CollectionPageBase<Game>
     {
         Game selectedGame = new(game);
         bool? shouldEdit = await PopupService.ShowAsync<GameView, bool>(
-            new Dictionary<string, object?>
-            {
-                [nameof(GameView.Game)] = selectedGame
-            });
+                                                                        new Dictionary<string, object?>
+                                                                        {
+                                                                            [nameof(GameView.Game)] = selectedGame
+                                                                        });
 
         if (shouldEdit == true)
         {
@@ -159,10 +159,10 @@ public partial class GamesPage : CollectionPageBase<Game>
         return companies
                .Where(company => company.CompanyID > 0)
                .GroupBy(company => new
-                                    {
-                                        company.CompanyID,
-                                        company.Role,
-                                    })
+                                   {
+                                       company.CompanyID,
+                                       company.Role,
+                                   })
                .Select(group => group.First())
                .OrderBy(company => company.Role)
                .ThenBy(company => company.CompanyID)
@@ -171,13 +171,12 @@ public partial class GamesPage : CollectionPageBase<Game>
 
     private async Task OpenEditPopup(Game game)
     {
-        Game? updatedGame = await PopupService.ShowAsync<AddGamePopup, Game>(
-            new Dictionary<string, object?>
-            {
-                [nameof(AddGamePopup.InitialGame)] = game,
-                [nameof(AddGamePopup.Companies)] = companies,
-                [nameof(AddGamePopup.OnCompanyAdded)] = new Func<Company, Task<Company?>>(AddCompanyFromSearch)
-            });
+        Game? updatedGame = await PopupService.ShowAsync<AddGamePopup, Game>(new Dictionary<string, object?>
+                                                                             {
+                                                                                 [nameof(AddGamePopup.InitialGame)] = game,
+                                                                                 [nameof(AddGamePopup.Companies)] = companies,
+                                                                                 [nameof(AddGamePopup.OnCompanyAdded)] = new Func<Company, Task<Company?>>(AddCompanyFromSearch)
+                                                                             });
 
         if (updatedGame is not null)
         {
