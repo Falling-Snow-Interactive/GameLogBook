@@ -2,6 +2,7 @@
 @using GameLogBook.Models.Games
 @using GameLogBook.Components.Elements.AddPopup
 @using GameLogBook.Components.Elements.GameElements
+@using GameLogBook.Components.Elements.CompanyElements
 
 <AddPopupShell Title="@PopupTitle"
                SearchFor="@IgdbSearchFor.Games"
@@ -39,30 +40,33 @@
 
         <div class="form-field">
             <span>Developer</span>
-            <input class="game-detail-input"
-                   @bind="developerSearchText"
-                   @bind:event="oninput"
-                   placeholder="Search shared companies" />
+            <DeveloperSearch Companies="Companies" 
+                             Placeholder="Search shared companies"/>
+            
+            @* <input class="game-detail-input" *@
+            @*        @bind="developerSearchText" *@
+            @*        @bind:event="oninput" *@
+            @*        placeholder="Search shared companies" /> *@
 
-            @if (DeveloperMatches.Count > 0)
-            {
-                <div class="company-search-results">
-                    @foreach (Company company in DeveloperMatches)
-                    {
-                        <button class="igdb-search-result"
-                                type="button"
-                                @onclick="() => SelectDeveloper(company)">
-                            <span class="igdb-search-result-icon bi bi-building"
-                                  aria-hidden="true"></span>
-
-                            <span class="igdb-search-result-copy">
-                                <strong>@company.Name</strong>
-                                <small>@GetCompanyBadge(company)</small>
-                            </span>
-                        </button>
-                    }
-                </div>
-            }
+            @* @if (DeveloperMatches.Count > 0) *@
+            @* { *@
+            @*     <div class="company-search-results"> *@
+            @*         @foreach (Company company in DeveloperMatches) *@
+            @*         { *@
+            @*             <button class="igdb-search-result" *@
+            @*                     type="button" *@
+            @*                     @onclick="() => SelectDeveloper(company)"> *@
+            @*                 <span class="igdb-search-result-icon bi bi-building" *@
+            @*                       aria-hidden="true"></span> *@
+            @* *@
+            @*                 <span class="igdb-search-result-copy"> *@
+            @*                     <strong>@company.Name</strong> *@
+            @*                     <small>@GetCompanyBadge(company)</small> *@
+            @*                 </span> *@
+            @*             </button> *@
+            @*         } *@
+            @*     </div> *@
+            @* } *@
 
             @if (selectedDeveloperCompanyIDs.Count > 0)
             {
