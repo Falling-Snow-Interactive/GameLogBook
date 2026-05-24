@@ -13,9 +13,6 @@ public partial class GameEntry
     public IReadOnlyList<Company> Companies { get; set; } = [];
 
     [Parameter]
-    public bool ShowButtons { get; set; }
-
-    [Parameter]
     public EventCallback<Game> OnClick { get; set; }
     
     [Parameter]

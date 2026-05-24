@@ -44,35 +44,34 @@
             {
                 <label class="game-developer">@string.Join(", ", PublisherNames)</label>
             }
-
-            @if (!string.IsNullOrWhiteSpace(Game.Summary))
-            { 
-                <p class="game-summary">@Game.Summary</p>
-            }
         </div>
     </div>
-    
-    @if (ShowButtons)
-    {
-        <div class="game-buttons">
-            <button class="game-button-playthroughs"
-                    type="button"
-                    @onclick="HandlePlaythroughs"
-                    @onclick:stopPropagation="true">
-                Playthroughs
-            </button>
-            <button class="game-button-logs"
-                    type="button"
-                    @onclick="HandleLogs"
-                    @onclick:stopPropagation="true">
-                Logs
-            </button>
-            <button class="game-button-remove"
-                    type="button"
-                    @onclick="HandleRemove"
-                    @onclick:stopPropagation="true">
-                Remove
-            </button>
-        </div>
+
+    @if (!string.IsNullOrWhiteSpace(Game.Summary))
+    { 
+        <p class="game-summary">@Game.Summary</p>
     }
+
+    <div class="game-buttons">
+        <button class="game-button-playthroughs"
+                type="button"
+                @onclick="HandlePlaythroughs"
+                @onclick:stopPropagation="true">
+            Playthroughs
+        </button>
+        
+        <button class="game-button-logs"
+                type="button"
+                @onclick="HandleLogs"
+                @onclick:stopPropagation="true">
+            Logs
+        </button>
+        
+        <button class="game-button-remove"
+                type="button"
+                @onclick="HandleRemove"
+                @onclick:stopPropagation="true">
+            Remove
+        </button>
+    </div>
 </div>
