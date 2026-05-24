@@ -12,6 +12,27 @@
     </button>
 </div>
 
+@if (selectedCompanyIDs.Count > 0)
+{
+<div class="manufacturer-chip-list">
+    @if (SelectedCompanies != null)
+    { 
+        @foreach (Company company in SelectedCompanies)
+        {
+            <span class="manufacturer-chip">
+                @company.Name
+                <button type="button"
+                        title="Remove @company.Name"
+                        aria-label="Remove @company.Name"
+                        @onclick="() => RemoveCompany(company.ID)">
+                    X
+                </button>
+            </span>
+        }
+    }
+</div>
+}
+
 @if (CompanyMatches?.Count > 0)
 {
     <div class="company-search-results">
@@ -28,27 +49,6 @@
                     <small>@GetCompanyBadge(company)</small>
                 </span>
             </button>
-        }
-    </div>
-}
-
-@if (selectedCompanyIDs.Count > 0)
-{
-    <div class="manufacturer-chip-list">
-        @if (SelectedCompanies != null)
-        {
-            @foreach (Company company in SelectedCompanies)
-            {
-                <span class="manufacturer-chip">
-                    @company.Name
-                    <button type="button"
-                            title="Remove @company.Name"
-                            aria-label="Remove @company.Name"
-                            @onclick="() => RemoveCompany(company.ID)">
-                        X
-                    </button>
-                </span>
-            }
         }
     </div>
 }
