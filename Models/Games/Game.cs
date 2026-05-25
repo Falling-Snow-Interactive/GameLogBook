@@ -1,9 +1,10 @@
 using GameLogBook.Models.Games.Company;
 using GameLogBook.Models.Games.Platform;
+using GameLogBook.Models.Libraries.Entries;
 
 namespace GameLogBook.Models.Games;
 
-public class Game
+public class Game : ILibraryEntry
 {
     // Constants
     public const int MaxRating = 5;

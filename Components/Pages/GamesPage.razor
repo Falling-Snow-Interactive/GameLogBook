@@ -1,6 +1,6 @@
 @page "/games"
 @using GameLogBook.Models.Games
-@using GameLogBook.Components.Elements.GameElements
+@using GameLogBook.Components.Elements.LibraryEntries
 
 @inherits CollectionPageBase<Game>
 
@@ -17,10 +17,9 @@
         @foreach (Game game in Items)
         {
             <li>
-                <GameEntry Game="game"
-                           Companies="@companies"
-                           OnClick="OnClickGame"
-                           OnRemove="RemoveGame" />
+                <LibraryEntry Entry="game"
+                              OnClick="() => OpenEditPopup(game)"
+                              OnRemove="() => RemoveGame(game)"/>
             </li>
         }
     </ul>
