@@ -9,4 +9,7 @@ public partial class CompaniesWidget : ComponentBase
     
     [Parameter]
     public IReadOnlyList<string?> PublisherNames { get; set; }
+
+    [Parameter]
+    public string LabelClass { get; set; } = string.Empty;
 }

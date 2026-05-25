@@ -78,7 +78,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <AdditionalFiles Include="Components\Elements\GameElements\GameEntry.razor.css" />
+        <Content Include="Components\**\*.razor.css"
+                 Pack="false"
+                 CopyToPublishDirectory="Never" />
     </ItemGroup>
 
 </Project>

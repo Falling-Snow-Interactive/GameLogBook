@@ -1,12 +1,13 @@
 @using GameLogBook.Components.Elements.CompanyElements
-<div class="collection-card"
+
+<div class="game-entry-card"
      role="button"
      tabindex="0"
      @onclick="HandleClick">
     
     <div class="game-entry-hero">
         <LocalImage ImagePath="@Game.Hero?.ImagePath"
-                    ImageClass="game-hero"
+                    ImageClass="game-entry-hero-image"
                     AltText="@($"{Game.Name} hero")"
                     MaxWidth="480"
                     MaxHeight="155"/>
@@ -17,50 +18,51 @@
         <div class="game-entry-header">
             <div class="game-entry-cover">
                 <LocalImage ImagePath="@Game.Cover?.ImagePath"
-                            ImageClass="game-cover"
+                            ImageClass="game-entry-cover-image"
                             AltText="@($"{Game.Name} cover")"
                             MaxWidth="160"
                             MaxHeight="240"/>
             </div>
             <div class="game-entry-logo">
                 <LocalImage ImagePath="@Game.Logo?.ImagePath"
-                            ImageClass="game-logo"
-                            AltText="@($"{Game.Name} logo")"
-                            MaxWidth="160"
-                            MaxHeight="240"/>
+                            ImageClass="game-entry-logo-image"
+                            AltText="@($"{Game.Name} logo")" />
+                            @* MaxWidth="160" *@
+                            @* MaxHeight="240"/> *@
             </div>
         </div>
 
         <div class="game-entry-content">
-            <div class="game-information">
-                <label class="game-title">@Game.Name</label>
-                <DateOnlyWidget Date="Game.ReleaseDate" Class="game-release-date"/>
+            <div class="game-entry-information">
+                <label class="game-entry-title">@Game.Name</label>
+                <DateOnlyWidget Date="Game.ReleaseDate" Class="game-entry-release-date"/>
                 <CompaniesWidget DeveloperNames="DeveloperNames"
-                                 PublisherNames="PublisherNames" />
+                                 PublisherNames="PublisherNames"
+                                 LabelClass="game-entry-company" />
             </div>
             
             @if (!string.IsNullOrWhiteSpace(Game.Summary))
             {
-                <p class="game-summary">@Game.Summary</p>
+                <p class="game-entry-summary">@Game.Summary</p>
             }
         </div>
 
-        <div class="game-buttons">
-            <button class="game-button-playthroughs"
+        <div class="game-entry-buttons">
+            <button class="game-entry-button-playthroughs"
                     type="button"
                     @onclick="HandlePlaythroughs"
                     @onclick:stopPropagation="true">
                 Playthroughs
             </button>
 
-            <button class="game-button-logs"
+            <button class="game-entry-button-logs"
                     type="button"
                     @onclick="HandleLogs"
                     @onclick:stopPropagation="true">
                 Logs
             </button>
 
-            <button class="game-button-remove"
+            <button class="game-entry-button-remove"
                     type="button"
                     @onclick="HandleRemove"
                     @onclick:stopPropagation="true">
