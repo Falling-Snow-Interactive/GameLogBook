@@ -19,9 +19,9 @@ public class Game
     public DateOnly? ReleaseDate { get; set; }
     
     // Images
-    public Image? Cover { get; set; }
-    public Image? Hero { get; set; }
-    public Image? Logo { get; set; }
+    public ImageRef? Cover { get; set; }
+    public ImageRef? Hero { get; set; }
+    public ImageRef? Logo { get; set; }
     
     // User Set Information
     public int Rating { get; set; }

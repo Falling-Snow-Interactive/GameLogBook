@@ -1,12 +1,12 @@
 using System.Diagnostics.CodeAnalysis;
 using GameLogBook.Components.Elements.GameElements;
+using GameLogBook.Models;
 using GameLogBook.Models.Games;
 using GameLogBook.Models.Games.Company;
 using GameLogBook.Services;
 using Company = GameLogBook.Models.Companies.Company;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
-using Image = GameLogBook.Models.Games.Image;
 
 namespace GameLogBook.Components.Pages;
 
@@ -105,19 +105,19 @@ public partial class GamesPage : CollectionPageBase<Game>
         existingGame.Summary = string.IsNullOrWhiteSpace(updatedGame.Summary) ? null : updatedGame.Summary.Trim();
         existingGame.Cover = string.IsNullOrWhiteSpace(updatedGame.Cover?.ImagePath)
                                  ? null
-                                 : new Image
+                                 : new ImageRef
                                    {
                                        ImagePath = updatedGame.Cover.ImagePath.Trim()
                                    };
         existingGame.Hero = string.IsNullOrWhiteSpace(updatedGame.Hero?.ImagePath)
                                 ? null
-                                : new Image
+                                : new ImageRef
                                   {
                                       ImagePath = updatedGame.Hero.ImagePath.Trim()
                                   };
         existingGame.Logo = string.IsNullOrWhiteSpace(updatedGame.Logo?.ImagePath)
                                 ? null
-                                : new Image
+                                : new ImageRef
                                   {
                                       ImagePath = updatedGame.Logo.ImagePath.Trim()
                                   };

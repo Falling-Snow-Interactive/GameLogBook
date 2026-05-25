@@ -1,3 +1,4 @@
+using GameLogBook.Models;
 using GameLogBook.Services;
 using GameLogBook.Models.Games;
 using IGDB;
@@ -11,7 +12,6 @@ using IgdbInvolvedCompany = IGDB.Models.InvolvedCompany;
 using IgdbPlatform = IGDB.Models.Platform;
 using IgdbPlatformVersion = IGDB.Models.PlatformVersion;
 using IgdbPlatformVersionCompany = IGDB.Models.PlatformVersionCompany;
-using Image = GameLogBook.Models.Games.Image;
 using LocalCompany = GameLogBook.Models.Companies.Company;
 using LocalGame = GameLogBook.Models.Games.Game;
 using LocalPlatform = GameLogBook.Models.Platforms.Platform;
@@ -549,14 +549,14 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                                                                StringComparison.OrdinalIgnoreCase));
     }
 
-    private static Image? ToLocalCover(IgdbCover? igdbCover)
+    private static ImageRef? ToLocalCover(IgdbCover? igdbCover)
     {
         if (igdbCover?.Url is null)
         {
             return null;
         }
 
-        return new Image
+        return new ImageRef
                {
                    PendingImageUrl = ToBigCoverUrl(igdbCover.Url)
                };

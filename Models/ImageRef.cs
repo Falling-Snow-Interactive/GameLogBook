@@ -1,6 +1,6 @@
-namespace GameLogBook.Models.Games;
+namespace GameLogBook.Models;
 
-public class Image
+public class ImageRef
 {
     public string? ImagePath { get; set; }
 

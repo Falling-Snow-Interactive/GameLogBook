@@ -1,3 +1,4 @@
+
 namespace GameLogBook.Models.Platforms;
 
 public class Platform
@@ -13,6 +14,9 @@ public class Platform
     public string? Summary { get; set; }
     
     // Images
+    public ImageRef? Cover { get; set; }
+    public ImageRef? Hero { get; set; }
+    public ImageRef? Logo { get; set; }
     
     // IGDB
     public long? IgdbId { get; set; }

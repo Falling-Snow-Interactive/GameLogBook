@@ -83,4 +83,8 @@
                  CopyToPublishDirectory="Never" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Components\Elements\PlatformElements\" />
+    </ItemGroup>
+
 </Project>

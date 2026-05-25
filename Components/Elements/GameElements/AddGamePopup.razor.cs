@@ -1,10 +1,10 @@
 using GameLogBook.Components.Elements.ImageField;
+using GameLogBook.Models;
 using GameLogBook.Models.Games;
 using GameLogBook.Services;
 using Microsoft.AspNetCore.Components;
 using Company = GameLogBook.Models.Companies.Company;
 using Game = GameLogBook.Models.Games.Game;
-using Image = GameLogBook.Models.Games.Image;
 
 namespace GameLogBook.Components.Elements.GameElements;
 
@@ -148,21 +148,21 @@ public partial class AddGamePopup
                         #region Images
                         Cover = string.IsNullOrWhiteSpace(coverPath)
                                     ? null
-                                    : new Image
+                                    : new ImageRef
                                       {
                                           ImagePath = coverPath
                                       },
                         
                         Hero = string.IsNullOrWhiteSpace(heroPath) 
                                    ? null 
-                                   : new Image
+                                   : new ImageRef
                                      {
                                          ImagePath = heroPath,
                                      },
                         
                         Logo = string.IsNullOrWhiteSpace(logoPath) 
                                    ? null 
-                                   : new Image
+                                   : new ImageRef
                                      {
                                          ImagePath = logoPath,
                                      },
