@@ -78,9 +78,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="Components\**\*.razor.css"
-                 Pack="false"
-                 CopyToPublishDirectory="Never" />
+        <Content Include="Components\**\*.razor.css" Pack="false" CopyToPublishDirectory="Never" />
     </ItemGroup>
 
 </Project>

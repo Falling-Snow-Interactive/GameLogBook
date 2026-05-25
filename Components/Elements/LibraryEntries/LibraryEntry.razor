@@ -12,7 +12,7 @@
     @*      *@
     @* </div> *@
 
-    <div class="library-entry-body">
+    <div class="library-entry-content">
         <div class="library-entry-header">
             <div class="library-entry-cover">
                 <LocalImage ImagePath="@Entry.Cover?.ImagePath"
@@ -31,7 +31,7 @@
             </div>
         </div>
 
-        <div class="library-entry-content">
+        <div class="library-entry-body">
         @*     <div class="library-entry-information"> *@
         @*         <label class="library-entry-title">@Platform.Name</label> *@
         @*         <DateOnlyWidget Date="Platform.ReleaseDate" Class="library-entry-release-date"/> *@
@@ -46,27 +46,13 @@
         @*     } *@
         </div>
 
-        @* <div class="library-entry-buttons"> *@
-        @*     <button class="library-entry-button-playthroughs" *@
-        @*             type="button" *@
-        @*             $1$ @onclick="HandlePlaythroughs" #1# *@
-        @*             @onclick:stopPropagation="true"> *@
-        @*         Playthroughs *@
-        @*     </button> *@
-        @* *@
-        @*     <button class="library-entry-button-logs" *@
-        @*             type="button" *@
-        @*             $1$ @onclick="HandleLogs" #1# *@
-        @*             @onclick:stopPropagation="true"> *@
-        @*         Logs *@
-        @*     </button> *@
-        @* *@
-        @*     <button class="library-entry-button-remove" *@
-        @*             type="button" *@
-        @*             @onclick="HandleRemove" *@
-        @*             @onclick:stopPropagation="true"> *@
-        @*         Remove *@
-        @*     </button> *@
-        @* </div> *@
+        <div class="library-entry-buttons">
+            <button class="button-dot button-red"
+                    type="button"
+                    @onclick="HandleRemove"
+                    @onclick:stopPropagation="true">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
     </div>
 </div>

@@ -216,3 +216,90 @@
         width: 100%;
     }
 }
+
+/* ----- Buttons ----- */
+
+/* ----- Size ----- */
+.button-pill {
+    flex: 1;
+
+    min-width: 0;
+    
+    border-radius: var(--radius-pill);
+
+    /*font-size: 0.8rem;*/
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+            background var(--transition-fast),
+            box-shadow var(--transition-fast),
+            transform var(--transition-fast);
+}
+
+.button-dot {
+    display: inline-flex;
+    
+    min-width: 0;
+    min-height: 0;
+    
+    max-width: 100%;
+    max-height: 100%;
+    
+    aspect-ratio: 1;
+
+    border-radius: var(--radius-pill);
+    font-weight: var(--font-weight-bold);
+
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    transition:
+            background var(--transition-fast),
+            box-shadow var(--transition-fast),
+            transform var(--transition-fast);
+}
+
+/* ----- Colors ----- */
+.button-red {
+    color: var(--color-danger-ink);
+    background: var(--color-danger-soft);
+}
+
+.button-red:hover {
+    color: var(--color-danger-ink);
+    background: var(--color-danger-soft);
+}
+
+.button-blue {
+    color: var(--color-info-ink);
+    background: var(--color-info-soft);
+}
+
+.button-blue:hover {
+    color: var(--color-info-ink);
+    background: var(--color-info-soft);
+}
+
+.button-purple {
+    color: var(--color-primary-ink);
+    background: var(--color-primary-soft);
+}
+
+.button-purple:hover {
+    color: var(--color-primary-ink);
+    background: var(--color-primary-soft);
+}
+
+.button-green {
+    color: green;
+    background: greenyellow;
+}
+
+.button-green {
+    color: green;
+    background: greenyellow;
+}

@@ -45,14 +45,18 @@
 
 .library-entry-cover {
     aspect-ratio: 2/3;
+    flex-shrink: 1;
+}
+
+.library-entry-logo {
+    flex: 1;
     
-    flex-shrink: 0;
+    min-width: 10rem;
 }
 
 .library-entry-cover,
 .library-entry-logo {
     display: flex;
-    flex: 1;
 
     align-items: center;
     justify-content: center;
@@ -62,16 +66,13 @@
 
     min-width: 0;
     min-height: 0;
-
-    overflow: hidden;
-    box-sizing: border-box;
     
     box-shadow: var(--shadow-md);
 
     border: var(--debug-border-size-md) dashed #ab1de3;
 }
 
-.library-entry-body {
+.library-entry-content {
     position: relative;
     
     display: flex;
@@ -81,35 +82,23 @@
     min-height: 0;
 
     margin: 1rem;
+    gap: 0.25rem;
     
     z-index: 1;
 
-    /*border: var(--debug-border-size-md) dotted #e31d1d;*/
+    border: var(--debug-border-size-sm) dashed #1de327;
 }
 
 .library-entry-header {
     display: flex;
-
-    grid-template-columns: 1fr 2fr;
-    /*grid-template-rows: minmax(0, 1fr);*/
-
+    
     width: 100%;
     height: 12rem;
-
-    /*overflow: hidden;*/
-    /*box-sizing: border-box;*/
-
-    /*padding: 1rem;*/
-    /*gap: 1rem;*/
-
-    /*background: transparent;*/
-
+    
     filter: drop-shadow(var(--drop-shadow-sm));
-
-    /*border: var(--debug-border-size-md) solid #68d527;*/
 }
 
-.library-entry-content {
+.library-entry-body {
     width: 100%;
     min-height: 10rem;
     
@@ -124,10 +113,10 @@
     
     cursor: pointer;
 
-    /*border: var(--debug-border-size-md) solid #153cdd;*/
+    border: var(--debug-border-size-sm) dashed #1d37e3;
 }
 
-.library-entry-content:focus-visible {
+.library-entry-body:focus-visible {
     outline: 3px solid rgba(103, 80, 164, 0.22);
     outline-offset: 2px;
 }
@@ -209,11 +198,47 @@
 .library-entry-buttons {
     display: flex;
     flex-shrink: 0;
+    
     width: 100%;
+    height: 3rem;
+    
     gap: 0.5rem;
-    margin-top: auto;
-    padding: 0.5rem;
+    /*margin-top: auto;*/
+    /*padding: 0.5rem;*/
+    
     align-items: stretch;
+
+    border: var(--debug-border-size-sm) dashed #00ffb6;
+}
+
+.library-entry-button-circle {
+    flex: 0;
+    
+    min-width: 0;
+    aspect-ratio: 1;
+    
+    border-radius: var(--radius-pill);
+    
+    font-size: 0.8rem;
+    font-weight: 600;
+    
+    align-content: stretch;
+    align-items: stretch;
+    text-align: stretch;
+    align-self: stretch;
+    
+    cursor: pointer;
+    
+    transition:
+            background var(--transition-fast),
+            box-shadow var(--transition-fast),
+            transform var(--transition-fast);
+}
+
+.remove {
+    color: var(--color-danger-soft);
+    background: var(--color-danger-border);
+    border: var(--border-thickness-sm) solid var(--color-danger-border)
 }
 
 .library-entry-button-playthroughs,

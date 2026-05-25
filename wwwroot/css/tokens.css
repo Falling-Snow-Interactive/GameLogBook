@@ -1,37 +1,80 @@
 :root {
     --font-family-base: "Helvetica Neue", Helvetica, Arial, sans-serif;
 
+    /*----- Colors -----*/
     --color-page: #f6f7fb;
-    --color-surface: #ffffff;
-    --color-surface-hover: #fbf9ff;
-    --color-surface-muted: #fbfcfd;
-    --color-surface-subtle: #f1f3f5;
-    --color-text: #212529;
-    --color-text-muted: #6c757d;
-    --color-text-soft: #495057;
-    --color-border: #e5e7eb;
-    --color-border-hover: #6750A459;
-    --color-border-strong: #d7dbe0;
 
-    --color-primary: #6750a4;
-    --color-primary-hover: #5b4696;
-    --color-primary-soft: #ede7f6;
-    --color-primary-soft-hover: #e3d7f4;
-    --color-primary-ink: #4f378b;
+        /*----- Surface -----*/
+        --color-surface: #ffffff;
+        --color-surface-hover: #fbf9ff;
+        --color-surface-muted: #fbfcfd;
+        --color-surface-subtle: #f1f3f5;
+    
+        /*----- Text -----*/
+        --color-text: #212529;
+        --color-text-muted: #6c757d;
+        --color-text-soft: #495057;
+    
+        /*----- Border -----*/
+        --color-border: #e5e7eb;
+        --color-border-hover: rgba(103, 80, 164, 0.35);
+        --color-border-strong: #d7dbe0;
+    
+        /*----- Brand -----*/
+        --color-brand: #6750a4;
+        --color-brand-hover: #5b4696;
+        --color-brand-soft: #ede7f6;
+        --color-brand-soft-hover: #e3d7f4;
+        --color-brand-ink: #4f378b;
+    
+        /*----- Accent -----*/
+        --color-accent: #2bb3c0;
+        --color-accent-hover: #239ca8;
+        --color-accent-soft: #dff7fa;
+        --color-accent-soft-hover: #c8eef3;
+        --color-accent-ink: #0f6f78;
+    
+        /*----- Feedback -----*/
+        --color-success: #43a47d;
+        --color-success-hover: #388e6c;
+        --color-success-soft: #e4f4ec;
+        --color-success-soft-hover: #d1ebdd;
+        --color-success-ink: #1f6b4d;
+    
+        /*----- Warning -----*/
+        --color-warning: #d6a84f;
+        --color-warning-hover: #be933f;
+        --color-warning-soft: #fff4df;
+        --color-warning-soft-hover: #f7e8c2;
+        --color-warning-ink: #8a6116;
+    
+        /*----- Info -----*/
+        --color-info: #0b57d0;
+        --color-info-soft: #e3f2fd;
+        --color-info-ink: #0b57d0;
+    
+        /*----- Danger -----*/
+        --color-danger: #b3261e;
+        --color-danger-soft: #fce8e6;
+        --color-danger-surface: #fef3f2;
+        --color-danger-border: #f3b8b3;
+        --color-danger-ink: #b3261e;
+    
+        /*----- Compatibility Aliases -----*/
+        --color-primary: var(--color-brand);
+        --color-primary-hover: var(--color-brand-hover);
+        --color-primary-soft: var(--color-brand-soft);
+        --color-primary-soft-hover: var(--color-brand-soft-hover);
+        --color-primary-ink: var(--color-brand-ink);
 
-    --color-info-soft: #e3f2fd;
-    --color-info-ink: #0b57d0;
-    --color-danger-soft: #fce8e6;
-    --color-danger-surface: #fef3f2;
-    --color-danger-border: #f3b8b3;
-    --color-danger-ink: #b3261e;
-
+    /*----- Radius -----*/
     --radius-sm: 0.4rem;
     --radius-md: 0.5rem;
     --radius-lg: 0.5rem;
     --radius-dialog: 0.75rem;
     --radius-pill: 999px;
 
+    /*----- Space -----*/
     --space-1: 0.25rem;
     --space-2: 0.5rem;
     --space-3: 0.75rem;
@@ -40,35 +83,52 @@
     --space-6: 1.5rem;
     --space-8: 2rem;
 
+    /*----- Image Preview -----*/
     --image-field-preview-width: 6.5rem;
     --image-field-preview-height: 9.75rem;
     --image-field-preview-max-width: 6.5rem;
     --image-field-preview-max-height: 9.75rem;
     --image-field-wide-preview-max-height: 16rem;
 
+    /*----- Border -----*/    
+    --border-thickness-sm: 0.1rem;
+    --border-thickness-md: 0.2rem;
+    --border-thickness-lg: 0.3rem;
+    
+    --border-color: var(--color-border);
+
+    /*----- Shadows -----*/
     --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.08);
     --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.1);
     --shadow-lg: 0 18px 48px rgba(15, 23, 42, 0.18);
     --shadow-dialog: 0 28px 72px rgba(15, 23, 42, 0.28);
-    --shadow-primary: 0 6px 16px rgba(103, 80, 164, 0.22);
-    --shadow-primary-hover: 0 10px 24px rgba(103, 80, 164, 0.3);
+    --shadow-brand: 0 6px 16px rgba(103, 80, 164, 0.22);
+    --shadow-brand-hover: 0 10px 24px rgba(103, 80, 164, 0.3);
+    --shadow-primary: var(--shadow-brand);
+    --shadow-primary-hover: var(--shadow-brand-hover);
     
     --drop-shadow-tranparency: 0.50;
     --drop-shadow-color: rgba(0, 0, 0, var(--drop-shadow-tranparency));
     
     --drop-shadow-sm: 0 4px 8px var(--drop-shadow-color);
     --drop-shadow-md: 2px 6px 8px var(--drop-shadow-color);
+    --drop-shadow-lg: 4px 6px 10px var(--drop-shadow-color);
 
+    /*----- Group ? -----*/
     --transition-fast: 0.15s ease;
     --focus-ring: 0 0 0 0.22rem rgba(103, 80, 164, 0.15);
     --sidebar-gradient: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
-    
-    --card-border: var(--debug-border-size-md) solid var(--color-border);
-    
+
+    /*----- Cards -----*/
+    --card-border: var(--debug-border-size-sm) solid var(--color-border);
     --cover-border: var(--debug-border-size-sm) solid var(--color-border);
+
+    /*----- Font -----*/
     
-    --hover-translate: -1rem -1rem;
-    
+    --font-weight-regular: 400;
+    --font-weight-bold: 600;
+
+    /*----- Debug -----*/
     --debug-border-size-sm: 0.1rem;
     --debug-border-size-md: 0.2rem;
     --debug-border-size-lg: 0.3rem;
