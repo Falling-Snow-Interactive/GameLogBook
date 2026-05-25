@@ -4,76 +4,55 @@
      @onclick="HandleClick">
     
     <div class="game-entry-hero">
-        @if (!string.IsNullOrWhiteSpace(Game.Hero?.ImagePath))
-        { 
-            <LocalImage ImagePath="@Game.Hero?.ImagePath"
-                        ImageClass="game-hero"
-                        AltText="@($"{Game.Name} hero")"
-                        MaxWidth="480"
-                        MaxHeight="155">
-                <Placeholder>
-                    <div class="game-hero game-hero-placeholder">
-                        No Hero
-                    </div>
-                </Placeholder>
-            </LocalImage>
-        }
-        else
-        {
-            <div class="game-hero game-hero-placeholder">
-                No Hero
-            </div>
-        }
+        <LocalImage ImagePath="@Game.Hero?.ImagePath"
+                    ImageClass="game-hero"
+                    AltText="@($"{Game.Name} hero")"
+                    MaxWidth="480"
+                    MaxHeight="155"/>
+        
     </div>
 
     <div class="game-entry-body">
         <div class="game-entry-header">
-            @if (!string.IsNullOrWhiteSpace(Game.Cover?.ImagePath))
-            {
-                <LocalImage ImagePath="@Game.Cover.ImagePath"
-                            ImageClass="game-cover"
-                            AltText="@($"{Game.Name} cover")"
-                            MaxWidth="160"
-                            MaxHeight="240">
-                    <Placeholder>
-                        <div>
-                            No Cover
-                        </div>
-                    </Placeholder>
-                </LocalImage>
-            }
-            else
-            {
-                <div class="game-cover game-cover-placeholder">
-                    No Cover
-                </div>
-            }
-
-            <div class="game-information">
-                <label class="game-title">@Game.Name</label>
-                @if (!string.IsNullOrWhiteSpace(Game.ReleaseDate?.ToString()))
-                {
-                    <label class="game-release-date">@Game.ReleaseDate?.ToString()</label>
-                }
-
-                @if (DeveloperNames.Count > 0 && PublisherNames.Count > 0)
-                {
-                    <label class="game-developer">
-                        @string.Join(", ", DeveloperNames) - @string.Join(", ", PublisherNames)
-                    </label>
-                }
-                else if (DeveloperNames.Count > 0)
-                {
-                    <label class="game-developer">@string.Join(", ", DeveloperNames)</label>
-                }
-                else if (PublisherNames.Count > 0)
-                {
-                    <label class="game-developer">@string.Join(", ", PublisherNames)</label>
-                }
-            </div>
+            <LocalImage ImagePath="@Game.Cover?.ImagePath"
+                        ImageClass="game-cover"
+                        AltText="@($"{Game.Name} cover")"
+                        MaxWidth="160"
+                        MaxHeight="240"/>
+            
+            
         </div>
 
         <div class="game-entry-content">
+            <div class="game-information">
+                <label class="game-title">@Game.Name</label>
+                @if (!string.IsNullOrWhiteSpace(Game.ReleaseDate?.ToString()))
+                { 
+                    <label class="game-release-date">@Game.ReleaseDate?.ToString()</label>
+                }
+                
+                @switch (DeveloperNames.Count)
+                {
+                    case > 0 when PublisherNames.Count > 0:
+                        <label class="game-developer">
+                            @string.Join(", ", DeveloperNames) - @string.Join(", ", PublisherNames)
+                        </label>
+                        break;
+                    case > 0:
+                        <label class="game-developer">@string.Join(", ", DeveloperNames)</label>
+                        break;
+                    default:
+                    {
+                        if (PublisherNames.Count > 0)
+                        {
+                            <label class="game-developer">@string.Join(", ", PublisherNames)</label>
+                        }
+
+                        break;
+                    }
+                }
+            </div>
+            
             @if (!string.IsNullOrWhiteSpace(Game.Summary))
             {
                 <p class="game-summary">@Game.Summary</p>
