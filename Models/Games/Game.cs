@@ -1,5 +1,6 @@
 using GameLogBook.Models.Games.Company;
 using GameLogBook.Models.Games.Platform;
+using GameLogBook.Utilities;
 
 namespace GameLogBook.Models.Games;
 
@@ -29,6 +30,8 @@ public class Game
     // Relations
     public List<GameCompany> GameCompanies { get; set; }
     public List<GamePlatform> GamePlatforms { get; set; }
+    
+    #region Constructors
 
     public Game()
     {
@@ -67,6 +70,8 @@ public class Game
 
         Rating = copyFrom.Rating;
     }
+    
+    #endregion
     
     #region Company
 
@@ -179,4 +184,9 @@ public class Game
     }
     
     #endregion
+
+    public string ReleaseDateString()
+    {
+        return DateUtility.DateOnlyToCleanString(ReleaseDate);
+    }
 }

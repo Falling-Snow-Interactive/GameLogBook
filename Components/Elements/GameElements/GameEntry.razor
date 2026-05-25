@@ -26,10 +26,7 @@
         <div class="game-entry-content">
             <div class="game-information">
                 <label class="game-title">@Game.Name</label>
-                @if (!string.IsNullOrWhiteSpace(Game.ReleaseDate?.ToString()))
-                { 
-                    <label class="game-release-date">@Game.ReleaseDate?.ToString()</label>
-                }
+                <DateOnlyWidget Game="Game" Class="game-release-date"/>
                 
                 @switch (DeveloperNames.Count)
                 {
