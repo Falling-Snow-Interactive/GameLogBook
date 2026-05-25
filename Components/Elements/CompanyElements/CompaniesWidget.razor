@@ -1,0 +1,20 @@
+@switch (DeveloperNames.Count)
+{
+    case > 0 when PublisherNames.Count > 0:
+        <label class="game-developer">
+            @string.Join(", ", DeveloperNames) - @string.Join(", ", PublisherNames)
+        </label>
+        break;
+    case > 0:
+        <label class="game-developer">@string.Join(", ", DeveloperNames)</label>
+        break;
+    default:
+    {
+        if (PublisherNames.Count > 0)
+        {
+            <label class="game-developer">@string.Join(", ", PublisherNames)</label>
+        }
+
+        break;
+    }
+}

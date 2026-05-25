@@ -1,3 +1,4 @@
+@using GameLogBook.Components.Elements.CompanyElements
 <div class="collection-card"
      role="button"
      tabindex="0"
@@ -27,27 +28,8 @@
             <div class="game-information">
                 <label class="game-title">@Game.Name</label>
                 <DateOnlyWidget Date="Game.ReleaseDate" Class="game-release-date"/>
-                
-                @switch (DeveloperNames.Count)
-                {
-                    case > 0 when PublisherNames.Count > 0:
-                        <label class="game-developer">
-                            @string.Join(", ", DeveloperNames) - @string.Join(", ", PublisherNames)
-                        </label>
-                        break;
-                    case > 0:
-                        <label class="game-developer">@string.Join(", ", DeveloperNames)</label>
-                        break;
-                    default:
-                    {
-                        if (PublisherNames.Count > 0)
-                        {
-                            <label class="game-developer">@string.Join(", ", PublisherNames)</label>
-                        }
-
-                        break;
-                    }
-                }
+                <CompaniesWidget DeveloperNames="DeveloperNames"
+                                 PublisherNames="PublisherNames" />
             </div>
             
             @if (!string.IsNullOrWhiteSpace(Game.Summary))
