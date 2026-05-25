@@ -1,4 +1,5 @@
 .game-details-form,
+.platform-details-form,
 .playthrough-details-form,
 .popup-form {
     display: grid;
@@ -7,6 +8,7 @@
 }
 
 .game-details-form,
+.platform-details-form,
 .playthrough-details-form {
     margin: 1rem;
     padding: 1rem;
@@ -27,11 +29,13 @@
 .popup-form > .igdb-search,
 .popup-form > .popup-divider,
 .popup-form > .game-details-form,
+.popup-form > .platform-details-form,
 .popup-form > .playthrough-details-form {
     grid-column: 1 / -1;
 }
 
 .popup-form > .game-details-form,
+.popup-form > .platform-details-form,
 .popup-form > .playthrough-details-form {
     margin: 0;
 }
@@ -99,7 +103,7 @@
     height: var(--image-field-preview-height);
     max-width: var(--image-field-preview-max-width);
     max-height: var(--image-field-preview-max-height);
-    aspect-ratio: var(--image-field-preview-aspect-width, 2) / var(--image-field-preview-aspect-height, 3);
+    /*aspect-ratio: var(--image-field-preview-aspect-width, 2) / var(--image-field-preview-aspect-height, 3);*/
     display: flex;
     align-items: center;
     justify-content: center;
@@ -340,12 +344,14 @@
 
 @media (max-width: 700px) {
     .game-details-form,
+    .platform-details-form,
     .playthrough-details-form,
     .popup-form {
         grid-template-columns: 1fr;
     }
 
     .game-details-form,
+    .platform-details-form,
     .playthrough-details-form,
     .error-message,
     .search-results {

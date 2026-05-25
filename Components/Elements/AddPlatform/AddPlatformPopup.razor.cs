@@ -1,4 +1,6 @@
 using GameLogBook.Components.Elements.IGDBSearch;
+using GameLogBook.Components.Elements.ImageField;
+using GameLogBook.Models;
 using GameLogBook.Models.Companies;
 using GameLogBook.Models.Games;
 using GameLogBook.Services;
@@ -23,19 +25,31 @@ public partial class AddPlatformPopup : ComponentBase
     private PopupInstance? Popup { get; set; }
 
     private PlatformModel? previousInitialPlatform;
+    
     private string platformName = string.Empty;
     private string abbreviation = string.Empty;
-    private string platformImagePath = string.Empty;
-    private string platformImageUrl = string.Empty;
-    private string? platformPreviewSource;
-    private IBrowserFile? uploadedPlatformImage;
+    
     private bool isSaving;
     private DateOnly? releaseDate;
     private long? igdbId;
+    
     private HashSet<int> selectedGameIds = [];
     private HashSet<int> companyIds = [];
 
     private string? searchErrorMessage;
+    private string? imageErrorMessage;
+    
+    private ImageFieldWidget? coverImageField;
+    private ImageFieldWidget? heroImageField;
+    private ImageFieldWidget? logoImageField;
+    
+    private string coverImagePath = string.Empty;
+    private string heroImagePath = string.Empty;
+    private string logoImagePath = string.Empty;
+    
+    private string coverImageUrl = string.Empty;
+    private string heroImageUrl = string.Empty;
+    private string logoImageUrl = string.Empty;
 
     [Parameter]
     public EventCallback OnClose { get; set; }
@@ -74,22 +88,23 @@ public partial class AddPlatformPopup : ComponentBase
         await LoadPlatform(InitialPlatform);
     }
 
-    private async Task HandlePlatformSelected(IgdbSearchPlatformResult result)
+    private async Task HandleIGDBSearchPlatformSelected(IgdbSearchPlatformResult result)
     {
         PlatformModel platform = result.Platform;
         igdbId = platform.IgdbId;
         platformName = platform.Name;
         abbreviation = platform.Abbreviation;
-        platformImagePath = platform.ImagePath ?? string.Empty;
-        platformImageUrl = platform.PendingImageUrl ?? string.Empty;
-        uploadedPlatformImage = null;
-        platformPreviewSource = !string.IsNullOrWhiteSpace(platformImageUrl)
-                                    ? platformImageUrl
-                                    : await LocalImageService.GetImageSourceAsync(platformImagePath);
         releaseDate = platform.ReleaseDate;
         searchErrorMessage = null;
-        // selectedCompanyIds = GetMatchingLocalManufacturerIds(result.ManufacturerNames);
-        // selectedCompanyId = string.Empty;
+        
+        coverImagePath = result.Platform.Cover?.ImagePath ?? string.Empty;
+        coverImageUrl = result.Platform.Cover?.PendingImageUrl ?? string.Empty;
+        
+        heroImagePath = result.Platform.Hero?.ImagePath ?? string.Empty;
+        heroImageUrl = result.Platform.Hero?.PendingImageUrl ?? string.Empty;
+
+        logoImagePath = result.Platform.Logo?.ImagePath ?? string.Empty;
+        logoImageUrl = result.Platform.Logo?.PendingImageUrl ?? string.Empty;
 
         await PopulateSelectedGames(platform.IgdbId);
     }
@@ -100,25 +115,47 @@ public partial class AddPlatformPopup : ComponentBase
 
         isSaving = true;
         searchErrorMessage = null;
-
-        string? imagePath;
-        try
-        {
-            imagePath = await ResolvePlatformImagePath();
-        }
-        catch (Exception exception)
-        {
-            searchErrorMessage = exception.Message;
-            isSaving = false;
-            return;
-        }
+        imageErrorMessage = null;
 
         int[] manufacturerIds = companyIds
                                 .OrderBy(companyId => companyId)
                                 .ToArray();
-        int[] gameIds = selectedGameIds
-                        .OrderBy(gameId => gameId)
-                        .ToArray();
+        
+        string? coverPath;
+        try
+        {
+            coverPath = coverImageField is null ? ResolveExistingCoverImagePath() : await coverImageField.CommitAsync();
+        }
+        catch (Exception exception)
+        {
+            imageErrorMessage = exception.Message;
+            isSaving = false;
+            return;
+        }
+        
+        string? heroPath;
+        try
+        {
+            heroPath = heroImageField is null ? ResolveExistingHeroImagePath() : await heroImageField.CommitAsync();
+        }
+        catch (Exception exception)
+        {
+            imageErrorMessage = exception.Message;
+            isSaving = false;
+            return;
+        }
+        
+        string? logoPath;
+        try
+        {
+            logoPath = logoImageField is null ? ResolveExistingLogoImagePath() : await logoImageField.CommitAsync();
+        }
+        catch (Exception exception)
+        {
+            imageErrorMessage = exception.Message;
+            isSaving = false;
+            return;
+        }
 
         PlatformModel platform = new(name)
                                  {
@@ -129,7 +166,28 @@ public partial class AddPlatformPopup : ComponentBase
                                      ReleaseDate = releaseDate,
                                      ManufacturerIds = manufacturerIds,
 
-                                     ImagePath = imagePath,
+                                     #region Images
+                                     Cover = string.IsNullOrWhiteSpace(coverPath)
+                                                 ? null
+                                                 : new ImageRef
+                                                   {
+                                                       ImagePath = coverPath
+                                                   },
+                        
+                                     Hero = string.IsNullOrWhiteSpace(heroPath) 
+                                                ? null 
+                                                : new ImageRef
+                                                  {
+                                                      ImagePath = heroPath,
+                                                  },
+                        
+                                     Logo = string.IsNullOrWhiteSpace(logoPath) 
+                                                ? null 
+                                                : new ImageRef
+                                                  {
+                                                      ImagePath = logoPath,
+                                                  },
+                                     #endregion
                                  };
 
         if (Popup is not null)
@@ -161,7 +219,7 @@ public partial class AddPlatformPopup : ComponentBase
         return Task.CompletedTask;
     }
 
-    private void ToggleGameSelection(int gameId, ChangeEventArgs args)
+    private void TogglePlatformSelection(int gameId, ChangeEventArgs args)
     {
         if (args.Value is true)
         {
@@ -229,31 +287,32 @@ public partial class AddPlatformPopup : ComponentBase
         return exception.Message.Contains("id.twitch.tv/oauth2/token", StringComparison.OrdinalIgnoreCase);
     }
 
-    private async Task LoadPlatform(PlatformModel platform)
+    private Task LoadPlatform(PlatformModel platform)
     {
         igdbId = platform.IgdbId;
         platformName = platform.Name;
         abbreviation = platform.Abbreviation;
-        platformImagePath = platform.ImagePath ?? string.Empty;
-        platformImageUrl = platform.PendingImageUrl ?? string.Empty;
-        uploadedPlatformImage = null;
-        platformPreviewSource = !string.IsNullOrWhiteSpace(platformImageUrl)
-                                    ? platformImageUrl
-                                    : await LocalImageService.GetImageSourceAsync(platformImagePath);
+        
         releaseDate = platform.ReleaseDate;
-        // selectedGameIds = (platform.GameIds ?? []).ToHashSet();
         companyIds = (platform.ManufacturerIds ?? []).ToHashSet();
         searchErrorMessage = null;
+        
+        coverImagePath = platform.Cover?.ImagePath ?? string.Empty;
+        coverImageUrl = platform.Cover?.PendingImageUrl ?? string.Empty;
+        
+        heroImagePath = platform.Hero?.ImagePath ?? string.Empty;
+        heroImageUrl = platform.Hero?.PendingImageUrl ?? string.Empty;
+
+        logoImagePath = platform.Logo?.ImagePath ?? string.Empty;
+        logoImageUrl = platform.Logo?.PendingImageUrl ?? string.Empty;
+        
+        return Task.CompletedTask;
     }
 
     private void ResetForm()
     {
         platformName = string.Empty;
         abbreviation = string.Empty;
-        platformImagePath = string.Empty;
-        platformImageUrl = string.Empty;
-        platformPreviewSource = null;
-        uploadedPlatformImage = null;
         isSaving = false;
         releaseDate = null;
         igdbId = 0;
@@ -261,56 +320,19 @@ public partial class AddPlatformPopup : ComponentBase
         companyIds = [];
         searchErrorMessage = null;
     }
-
-    private async Task HandlePlatformImageUrlChanged(ChangeEventArgs args)
+    
+    private string? ResolveExistingCoverImagePath()
     {
-        platformImageUrl = args.Value?.ToString() ?? string.Empty;
-        uploadedPlatformImage = null;
-        searchErrorMessage = null;
-        platformPreviewSource = !string.IsNullOrWhiteSpace(platformImageUrl)
-                                    ? platformImageUrl
-                                    : await LocalImageService.GetImageSourceAsync(platformImagePath);
+        return string.IsNullOrWhiteSpace(coverImagePath) ? null : coverImagePath;
     }
-
-    private async Task HandlePlatformImageFileSelected(InputFileChangeEventArgs args)
+    
+    private string? ResolveExistingHeroImagePath()
     {
-        uploadedPlatformImage = args.File;
-        platformImageUrl = string.Empty;
-        searchErrorMessage = null;
-
-        try
-        {
-            platformPreviewSource = await LocalImageService.GetUploadPreviewSourceAsync(uploadedPlatformImage);
-        }
-        catch (Exception exception)
-        {
-            uploadedPlatformImage = null;
-            platformPreviewSource = await LocalImageService.GetImageSourceAsync(platformImagePath);
-            searchErrorMessage = exception.Message;
-        }
+        return string.IsNullOrWhiteSpace(heroImagePath) ? null : heroImagePath;
     }
-
-    private void RemovePlatformImage()
+    
+    private string? ResolveExistingLogoImagePath()
     {
-        platformImagePath = string.Empty;
-        platformImageUrl = string.Empty;
-        platformPreviewSource = null;
-        uploadedPlatformImage = null;
-        searchErrorMessage = null;
-    }
-
-    private async Task<string?> ResolvePlatformImagePath()
-    {
-        if (uploadedPlatformImage is not null)
-        {
-            return await LocalImageService.SaveUploadedImageAsync(uploadedPlatformImage, "platforms");
-        }
-
-        if (!string.IsNullOrWhiteSpace(platformImageUrl))
-        {
-            return await LocalImageService.DownloadImageAsync(platformImageUrl, "platforms");
-        }
-
-        return string.IsNullOrWhiteSpace(platformImagePath) ? null : platformImagePath;
+        return string.IsNullOrWhiteSpace(logoImagePath) ? null : logoImagePath;
     }
 }

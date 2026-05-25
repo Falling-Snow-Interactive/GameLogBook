@@ -1,6 +1,6 @@
 @page "/platforms"
-@using GameLogBook.Components.Elements.AddPlatform
 @using GameLogBook.Models.Platforms
+@using GameLogBook.Components.Elements.PlatformElements
 @inherits CollectionPageBase<Platform>
 
 <PageTitle>Platforms</PageTitle>
@@ -12,69 +12,13 @@
                      IsEmpty="@(Items.Count == 0)"
                      EmptyTitle="No platforms added yet"
                      EmptyDescription="Add a platform to start organizing where you play.">
-    <div class="collection-grid">
+    <ul class="collection-grid">
         @foreach (Platform platform in Items)
         {
-            <article class="collection-card platform-card"
-                     role="button"
-                     tabindex="0"
-                     @onclick="() => OpenEditPopup(platform)">
-                @if (!string.IsNullOrWhiteSpace(platform.ImagePath))
-                {
-                    <LocalImage ImagePath="@platform.ImagePath"
-                                ImageClass="platform-cover"
-                                AltText="@($"{platform.Name} cover")">
-                        <Placeholder>
-                            <div class="platform-cover platform-cover-placeholder">
-                                <span class="bi bi-controller" aria-hidden="true"></span>
-                            </div>
-                        </Placeholder>
-                    </LocalImage>
-                }
-                else
-                {
-                    <div class="platform-cover platform-cover-placeholder">
-                        <span class="bi bi-controller" aria-hidden="true"></span>
-                    </div>
-                }
-
-                <div class="platform-content">
-                    <div class="platform-title-row">
-                        <h4>@platform.Name</h4>
-                        <button class="collection-remove-button"
-                                type="button"
-                                title="Remove @platform.Name"
-                                @onclick:stopPropagation="true"
-                                @onclick="() => RemovePlatform(platform)">
-                            Remove
-                        </button>
-                    </div>
-
-                    <div class="platform-games">
-                        <span class="platform-games-label">Games worked on</span>
-
-                        @if (GetGameNames(platform).Count == 0)
-                        {
-                            <span class="platform-games-empty">No linked games yet</span>
-                        }
-                        else
-                        {
-                            <div class="game-chip-list">
-                                @foreach (string gameName in GetGameNames(platform))
-                                {
-                                    <span class="game-chip">@gameName</span>
-                                }
-                            </div>
-                        }
-                    </div>
-                </div>
-
-                <div class="platform-meta">
-                    <span class="platform-badge neutral-badge">
-                        @(platform.ReleaseDate?.ToString("yyyy-MM-dd") ?? "Unknown release date")
-                    </span>
-                </div>
-            </article>
+            <li>
+                <PlatformEntryWidget Platform="platform" 
+                                     OnClick="() => OpenEditPopup(platform)"/>
+            </li>
         }
-    </div>
+    </ul>
 </CollectionPageShell>

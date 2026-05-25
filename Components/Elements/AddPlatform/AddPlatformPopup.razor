@@ -1,4 +1,3 @@
-@using GameLogBook.Models.Companies
 @using GameLogBook.Models.Games
 @using GameLogBook.Components.Elements.AddPopup
 
@@ -6,102 +5,105 @@
                Description="Keep track of where each game lives."
                SearchFor="@IgdbSearchFor.Platforms"
                SearchPlaceholder="Search for a platform"
-               PopupClass="popup platform-popup"
-               FormClass="platform-form"
                OnClose="HandleClose"
-               OnPlatformSelected="HandlePlatformSelected">
-    @if (!string.IsNullOrWhiteSpace(searchErrorMessage))
-    {
-        <p class="platform-form-error form-field-full">@searchErrorMessage</p>
-    }
+               OnPlatformSelected="HandleIGDBSearchPlatformSelected">
+    <div class="platform-details-form">
+        @if (!string.IsNullOrWhiteSpace(searchErrorMessage))
+        {
+            <p class="platform-form-error form-field-full">@searchErrorMessage</p>
+        }
 
-    <label class="form-field form-field-full">
-        <span>Name</span>
-        <input class="platform-input"
-               @bind="platformName"
-               @bind:event="oninput"
-               placeholder="Platform name" />
-    </label>
+        <label class="form-field form-field-full">
+            <span>Name</span>
+            <input class="platform-input"
+                   @bind="platformName"
+                   @bind:event="oninput"
+                   placeholder="Platform name"/>
+        </label>
 
-    <label class="form-field">
-        <span>Abbreviation</span>
-        <input class="platform-input"
-               @bind="abbreviation"
-               @bind:event="oninput"
-               placeholder="Abbreviation" />
-    </label>
+        <label class="form-field">
+            <span>Abbreviation</span>
+            <input class="platform-input"
+                   @bind="abbreviation"
+                   @bind:event="oninput"
+                   placeholder="Abbreviation"/>
+        </label>
 
-    <label class="form-field">
-        <span>Release Date</span>
-        <input class="platform-input"
-               type="date"
-               @bind="releaseDate"
-               @bind:event="oninput" />
-    </label>
+        <label class="form-field">
+            <span>Release Date</span>
+            <input class="platform-input"
+                   type="date"
+                   @bind="releaseDate"
+                   @bind:event="oninput"/>
+        </label>
 
-    <label class="form-field form-field-full">
-        <span>Cover image URL</span>
-        <input class="platform-input"
-               value="@platformImageUrl"
-               @oninput="HandlePlatformImageUrlChanged"
-               placeholder="Download image from URL" />
-    </label>
+        <ImageFieldWidget @ref="coverImageField"
+                          class="form-field-full"
+                          Label="Cover"
+                          FieldName="cover"
+                          Category="platforms"
+                          AspectRatioWidth="2"
+                          AspectRatioHeight="3"
+                          ImagePath="@coverImagePath"
+                          PendingImageUrl="@coverImageUrl"
+                          AltText="@($"{platformName} cover preview")"/>
 
-    <label class="form-field form-field-full">
-        <span>Or upload cover image</span>
-        <InputFile class="platform-input"
-                   OnChange="HandlePlatformImageFileSelected"
-                   accept="image/png,image/jpeg,image/gif,image/webp" />
-    </label>
+        <ImageFieldWidget @ref="heroImageField"
+                          class="form-field-full"
+                          Label="Hero"
+                          FieldName="hero"
+                          Category="platforms"
+                          AspectRatioWidth="96"
+                          AspectRatioHeight="31"
+                          ImagePath="@heroImagePath"
+                          PendingImageUrl="@heroImageUrl"
+                          AltText="@($"{platformName} hero preview")"/>
 
-    @if (!string.IsNullOrWhiteSpace(platformPreviewSource))
-    {
-        <div class="form-field form-field-full image-preview-field">
-            <span>Cover preview</span>
-            <img class="image-preview"
-                 src="@platformPreviewSource"
-                 alt="@platformName cover preview" />
-            <button class="collection-remove-button"
+        <ImageFieldWidget @ref="logoImageField"
+                          class="form-field-full"
+                          Label="Logo"
+                          FieldName="logo"
+                          Category="platforms"
+                          AspectRatioWidth="2"
+                          AspectRatioHeight="1"
+                          ImagePath="@logoImagePath"
+                          PendingImageUrl="@logoImageUrl"
+                          AltText="@($"{platformName} cover preview")"/>
+
+        <CompanyPicker Companies="Companies"
+                       SelectedCompanyIds="companyIds"
+                       SelectedCompanyIdsChanged="HandleCompanyIdsChanged"/>
+
+        <div class="game-picker form-field-full">
+            <span>Games</span>
+
+            @if (Games.Count == 0)
+            {
+                <p>No games are available to link yet.</p>
+            }
+            else
+            {
+                <div class="game-picker-list">
+                    @foreach (Game game in Games)
+                    {
+                        <label class="game-picker-item">
+                            <input type="checkbox"
+                                   checked="@selectedGameIds.Contains(game.ID)"
+                                   @onchange="args => TogglePlatformSelection(game.ID, args)"/>
+                            <span>@game.Name</span>
+                        </label>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="form-actions form-field-full">
+            <button class="save-button"
                     type="button"
-                    @onclick="RemovePlatformImage">
-                Remove image
+                    disabled="@(isSaving || string.IsNullOrWhiteSpace(platformName))"
+                    @onclick="HandleSavePlatform">
+                @(isSaving ? "Saving image..." : SaveButtonText)
             </button>
         </div>
-    }
-
-    <CompanyPicker Companies="Companies"
-                   SelectedCompanyIds="companyIds"
-                   SelectedCompanyIdsChanged="HandleCompanyIdsChanged" />
-
-    <div class="game-picker form-field-full">
-        <span>Games</span>
-
-        @if (Games.Count == 0)
-        {
-            <p>No games are available to link yet.</p>
-        }
-        else
-        {
-            <div class="game-picker-list">
-                @foreach (Game game in Games)
-                {
-                    <label class="game-picker-item">
-                        <input type="checkbox"
-                               checked="@selectedGameIds.Contains(game.ID)"
-                               @onchange="args => ToggleGameSelection(game.ID, args)" />
-                        <span>@game.Name</span>
-                    </label>
-                }
-            </div>
-        }
-    </div>
-
-    <div class="form-actions form-field-full">
-        <button class="save-button"
-                type="button"
-                disabled="@(isSaving || string.IsNullOrWhiteSpace(platformName))"
-                @onclick="HandleSavePlatform">
-            @(isSaving ? "Saving image..." : SaveButtonText)
-        </button>
     </div>
 </AddPopupShell>

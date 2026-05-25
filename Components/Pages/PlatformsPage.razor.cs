@@ -84,12 +84,11 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
 
     protected override async Task OpenAddPopup()
     {
-        PlatformModel? platform = await PopupService.ShowAsync<AddPlatformPopup, PlatformModel>(
-            new Dictionary<string, object?>
-            {
-                [nameof(AddPlatformPopup.Games)] = games,
-                [nameof(AddPlatformPopup.Companies)] = companies
-            });
+        PlatformModel? platform = await PopupService.ShowAsync<AddPlatformPopup, PlatformModel>(new Dictionary<string, object?>
+                                                                                                {
+                                                                                                    [nameof(AddPlatformPopup.Games)] = games,
+                                                                                                    [nameof(AddPlatformPopup.Companies)] = companies
+                                                                                                });
 
         if (platform is not null)
         {

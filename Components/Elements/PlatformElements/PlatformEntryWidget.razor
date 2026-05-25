@@ -1,0 +1,71 @@
+<div class="platform-entry-card"
+     role="button"
+     tabindex="0"
+     @onclick="HandleClick">
+    
+    @* <div class="platform-entry-hero"> *@
+    @*     <LocalImage ImagePath="@Platform.Hero?.ImagePath" *@
+    @*                 ImageClass="platform-entry-hero-image" *@
+    @*                 AltText="@($"{Platform.Name} hero")" *@
+    @*                 MaxWidth="480" *@
+    @*                 MaxHeight="155"/> *@
+    @*      *@
+    @* </div> *@
+
+    <div class="platform-entry-body">
+        <div class="platform-entry-header">
+            @* <div class="platform-entry-cover"> *@
+            @*     <LocalImage ImagePath="@Platform.Cover?.ImagePath" *@
+            @*                 ImageClass="platform-entry-cover-image" *@
+            @*                 AltText="@($"{Platform.Name} cover")" *@
+            @*                 MaxWidth="160" *@
+            @*                 MaxHeight="240"/> *@
+            @* </div> *@
+            @* <div class="platform-entry-logo"> *@
+            @*     <LocalImage ImagePath="@Platform.Logo?.ImagePath" *@
+            @*                 ImageClass="platform-entry-logo-image" *@
+            @*                 AltText="@($"{Platform.Name} logo")" /> *@
+            @*                 $1$ MaxWidth="160" #1# *@
+            @*                 $1$ MaxHeight="240"/> #1# *@
+            @* </div> *@
+        </div>
+
+        @* <div class="platform-entry-content"> *@
+        @*     <div class="platform-entry-information"> *@
+        @*         <label class="platform-entry-title">@Platform.Name</label> *@
+        @*         <DateOnlyWidget Date="Platform.ReleaseDate" Class="platform-entry-release-date"/> *@
+        @*         $1$ <CompaniesWidget DeveloperNames="DeveloperNames" #1# *@
+        @*         $1$                  PublisherNames="PublisherNames" #1# *@
+        @*         $1$                  LabelClass="platform-entry-company" /> #1# *@
+        @*     </div> *@
+        @*      *@
+        @*     @if (!string.IsNullOrWhiteSpace(Platform.Summary)) *@
+        @*     { *@
+        @*         <p class="platform-entry-summary">@Platform.Summary</p> *@
+        @*     } *@
+        @* </div> *@
+
+        @* <div class="platform-entry-buttons"> *@
+        @*     <button class="platform-entry-button-playthroughs" *@
+        @*             type="button" *@
+        @*             $1$ @onclick="HandlePlaythroughs" #1# *@
+        @*             @onclick:stopPropagation="true"> *@
+        @*         Playthroughs *@
+        @*     </button> *@
+        @* *@
+        @*     <button class="platform-entry-button-logs" *@
+        @*             type="button" *@
+        @*             $1$ @onclick="HandleLogs" #1# *@
+        @*             @onclick:stopPropagation="true"> *@
+        @*         Logs *@
+        @*     </button> *@
+        @* *@
+        @*     <button class="platform-entry-button-remove" *@
+        @*             type="button" *@
+        @*             @onclick="HandleRemove" *@
+        @*             @onclick:stopPropagation="true"> *@
+        @*         Remove *@
+        @*     </button> *@
+        @* </div> *@
+    </div>
+</div>
