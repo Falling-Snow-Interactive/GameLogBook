@@ -1,4 +1,5 @@
 using GameLogBook.Components.Elements.AddPlatform;
+using GameLogBook.Models;
 using GameLogBook.Models.Companies;
 using GameLogBook.Models.Games;
 using GameLogBook.Services;
@@ -40,15 +41,6 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
                                    .ToListAsync();
     }
 
-    // private static string GetLinkedGameSummary(PlatformModel platform)
-    // {
-    //     var games = gameNames
-    //     int linkedGameCount = platform.GameIds?.Length ?? 0;
-    //     return linkedGameCount == 0
-    //                ? "No linked games"
-    //                : $"{linkedGameCount} linked game{(linkedGameCount == 1 ? string.Empty : "s")}";
-    // }
-
     private async Task AddPlatform(PlatformModel platform)
     {
         await AddItemAsync(platform);
@@ -63,17 +55,37 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
         {
             return;
         }
-
-        existingPlatform.IgdbId = updatedPlatform.IgdbId;
+        
         existingPlatform.Name = updatedPlatform.Name.Trim();
-        existingPlatform.Abbreviation = updatedPlatform.Abbreviation.Trim();
-        existingPlatform.ImagePath = string.IsNullOrWhiteSpace(updatedPlatform.ImagePath)
-                                         ? null
-                                         : updatedPlatform.ImagePath.Trim();
+        existingPlatform.Abbreviation = updatedPlatform.Abbreviation?.Trim();
         existingPlatform.ReleaseDate = updatedPlatform.ReleaseDate;
+        existingPlatform.Summary = string.IsNullOrWhiteSpace(updatedPlatform.Summary) ? null : updatedPlatform.Summary.Trim();
+        
+        existingPlatform.Cover = string.IsNullOrWhiteSpace(updatedPlatform.Cover?.ImagePath)
+                                     ? null
+                                     : new ImageRef
+                                       {
+                                           ImagePath = updatedPlatform.Cover.ImagePath.Trim()
+                                       };
+        existingPlatform.Hero = string.IsNullOrWhiteSpace(updatedPlatform.Hero?.ImagePath)
+                                    ? null
+                                    : new ImageRef
+                                      {
+                                          ImagePath = updatedPlatform.Hero.ImagePath.Trim()
+                                      };
+        existingPlatform.Logo = string.IsNullOrWhiteSpace(updatedPlatform.Logo?.ImagePath)
+                                    ? null
+                                    : new ImageRef
+                                      {
+                                          ImagePath = updatedPlatform.Logo.ImagePath.Trim()
+                                      };
+        
+        // TODO - Turn into relation DB refs
         existingPlatform.ManufacturerIds = updatedPlatform.ManufacturerIds ?? [];
-        // existingPlatform.GameIds = updatedPlatform.GameIds ?? [];
-
+        
+        // IGDB
+        existingPlatform.IgdbId = updatedPlatform.IgdbId;
+        
         await UpdateItemAsync();
     }
 
@@ -98,13 +110,15 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
 
     private async Task OpenEditPopup(PlatformModel platform)
     {
-        PlatformModel? updatedPlatform = await PopupService.ShowAsync<AddPlatformPopup, PlatformModel>(
-            new Dictionary<string, object?>
-            {
-                [nameof(AddPlatformPopup.InitialPlatform)] = new PlatformModel(platform),
-                [nameof(AddPlatformPopup.Games)] = games,
-                [nameof(AddPlatformPopup.Companies)] = companies
-            });
+        PlatformModel? updatedPlatform = 
+            await PopupService
+                .ShowAsync<AddPlatformPopup, PlatformModel>(new Dictionary<string, object?>
+                                                            {
+                                                                [nameof(AddPlatformPopup.InitialPlatform)] 
+                                                                    = new PlatformModel(platform),
+                                                                [nameof(AddPlatformPopup.Games)] = games,
+                                                                [nameof(AddPlatformPopup.Companies)] = companies
+                                                            });
 
         if (updatedPlatform is not null)
         {

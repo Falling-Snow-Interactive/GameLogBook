@@ -325,20 +325,20 @@ public partial class IGDBSearch : ComponentBase, IDisposable
         List<IgdbSearchPlatformResult> newResults = platformProjections
                                                     .Select(projection =>
                                                             {
-                                                                IEnumerable<IgdbPlatformVersion> detailedPlatformVersions =
-                                                                    GetDetailedPlatformVersions(projection, platformVersionsById);
-
+                                                                IEnumerable<IgdbPlatformVersion> detailedPlatformVersions = GetDetailedPlatformVersions(projection, platformVersionsById);
+                                                                IEnumerable<IgdbPlatformVersion> platformVersions = detailedPlatformVersions as IgdbPlatformVersion[] ?? detailedPlatformVersions.ToArray();
+                                                                
                                                                 long[] manufacturerCompanyIds = projection.ManufacturerCompanyIds
-                                                                                                          .Concat(GetManufacturerCompanyIds(detailedPlatformVersions))
+                                                                                                          .Concat(GetManufacturerCompanyIds(platformVersions))
                                                                                                           .Distinct()
                                                                                                           .ToArray();
                                                                 long[] manufacturerPlatformVersionCompanyIds = projection.ManufacturerPlatformVersionCompanyIds
-                                                                                                                         .Concat(GetManufacturerPlatformVersionCompanyIds(detailedPlatformVersions))
+                                                                                                                         .Concat(GetManufacturerPlatformVersionCompanyIds(platformVersions))
                                                                                                                          .Distinct()
                                                                                                                          .ToArray();
 
                                                                 string[] manufacturerNames = projection.ManufacturerNames
-                                                                                                       .Concat(GetManufacturerCompanyNames(detailedPlatformVersions))
+                                                                                                       .Concat(GetManufacturerCompanyNames(platformVersions))
                                                                                                        .Concat(manufacturerCompanyIds
                                                                                                                .Where(manufacturerNamesById.ContainsKey)
                                                                                                                .Select(manufacturerCompanyId => manufacturerNamesById[manufacturerCompanyId]))
@@ -577,15 +577,18 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     {
         List<IgdbPlatformVersion> versions = igdbPlatform.Versions?.Values?.ToList() ?? [];
 
+        string? pendingUrl = ToAbsoluteUrl(igdbPlatform.PlatformLogo?.Value?.Url);
         LocalPlatform platform = new(igdbPlatform.Name)
                                  {
-                                     IgdbId = igdbPlatform.Id,
-
                                      Abbreviation = igdbPlatform.Abbreviation,
                                      ReleaseDate = GetReleaseDate(versions),
                                      
-                                     PendingImageUrl = ToAbsoluteUrl(igdbPlatform.PlatformLogo?.Value?.Url),
+                                     Cover = new ImageRef(),
+                                     
+                                     IgdbId = igdbPlatform.Id,
+                                     
                                  };
+        platform.Cover.PendingImageUrl = pendingUrl;
         return new PlatformSearchProjection(platform,
                                             GetManufacturerCompanyIds(versions),
                                             GetManufacturerCompanyNames(versions),

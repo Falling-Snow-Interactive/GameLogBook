@@ -3,12 +3,14 @@
 
     --color-page: #f6f7fb;
     --color-surface: #ffffff;
+    --color-surface-hover: #fbf9ff;
     --color-surface-muted: #fbfcfd;
     --color-surface-subtle: #f1f3f5;
     --color-text: #212529;
     --color-text-muted: #6c757d;
     --color-text-soft: #495057;
     --color-border: #e5e7eb;
+    --color-border-hover: #6750A459;
     --color-border-strong: #d7dbe0;
 
     --color-primary: #6750a4;
@@ -60,4 +62,14 @@
     --transition-fast: 0.15s ease;
     --focus-ring: 0 0 0 0.22rem rgba(103, 80, 164, 0.15);
     --sidebar-gradient: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+    
+    --card-border: var(--debug-border-size-md) solid var(--color-border);
+    
+    --cover-border: var(--debug-border-size-sm) solid var(--color-border);
+    
+    --hover-translate: -1rem -1rem;
+    
+    --debug-border-size-sm: 0.1rem;
+    --debug-border-size-md: 0.2rem;
+    --debug-border-size-lg: 0.3rem;
 }

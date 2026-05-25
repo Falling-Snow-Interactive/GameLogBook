@@ -14,22 +14,19 @@ public static class MauiProgram
     public static MauiApp CreateMauiApp()
     {
         MauiAppBuilder builder = MauiApp.CreateBuilder();
-
-        builder
-            .UseMauiApp<App>();
-
+        builder.UseMauiApp<App>();
         builder.Services.AddMauiBlazorWebView();
-
-#if DEBUG
+        
+        #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
         builder.Logging.AddDebug();
-#endif
+        #endif
 
         AddEmbeddedJsonConfiguration(builder.Configuration, "GameLogBook.appsettings.json");
-
-#if DEBUG
+        
+        #if DEBUG
         AddEmbeddedJsonConfiguration(builder.Configuration, "GameLogBook.appsettings.Development.json");
-#endif
+        #endif
 
         builder.Services.Configure<IgdbSettings>(builder.Configuration.GetSection("Igdb"));
         builder.Services.AddSingleton<HttpClient>();
@@ -39,10 +36,9 @@ public static class MauiProgram
 
         string databasePath = DatabasePathResolver.GetRuntimeDatabasePath();
 
-        builder.Services.AddDbContext<GameLogBookDbContext>(options =>
-            options.UseSqlite($"Data Source={databasePath}")
-                   .ConfigureWarnings(warnings =>
-                       warnings.Ignore(RelationalEventId.PendingModelChangesWarning)));
+        builder.Services.AddDbContext<GameLogBookDbContext>(options => options.UseSqlite($"Data Source={databasePath}")
+                                                                              .ConfigureWarnings(warnings =>
+                                                                                                     warnings.Ignore(RelationalEventId.PendingModelChangesWarning)));
 
         MauiApp app = builder.Build();
 
@@ -55,8 +51,7 @@ public static class MauiProgram
 
     private static void AddEmbeddedJsonConfiguration(IConfigurationBuilder configuration, string resourceName)
     {
-        Stream? stream = Assembly.GetExecutingAssembly()
-                                 .GetManifestResourceStream(resourceName);
+        Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName);
 
         if (stream is null)
         {

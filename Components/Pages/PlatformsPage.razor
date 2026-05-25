@@ -1,6 +1,8 @@
 @page "/platforms"
+
 @using GameLogBook.Models.Platforms
-@using GameLogBook.Components.Elements.PlatformElements
+@using GameLogBook.Components.Elements.LibraryEntries
+
 @inherits CollectionPageBase<Platform>
 
 <PageTitle>Platforms</PageTitle>
@@ -16,8 +18,9 @@
         @foreach (Platform platform in Items)
         {
             <li>
-                <PlatformEntryWidget Platform="platform" 
-                                     OnClick="() => OpenEditPopup(platform)"/>
+                <LibraryEntry Entry="platform"
+                              OnClick="() => OpenEditPopup(platform)"
+                              OnRemove="() => RemovePlatform(platform)"/>
             </li>
         }
     </ul>
