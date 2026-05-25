@@ -111,6 +111,9 @@ public partial class AddPlatformPopup : ComponentBase
 
         logoImagePath = result.Platform.Logo?.ImagePath ?? string.Empty;
         logoImageUrl = result.Platform.Logo?.PendingImageUrl ?? string.Empty;
+        
+        iconImagePath = result.Platform.Icon?.ImagePath ?? string.Empty;
+        iconImageUrl = result.Platform.Icon?.PendingImageUrl ?? string.Empty;
 
         await PopulateSelectedGames(platform.IgdbId);
     }
@@ -118,7 +121,7 @@ public partial class AddPlatformPopup : ComponentBase
     private async Task HandleSavePlatform()
     {
         var name = platformName.Trim();
-        var summary = this.summary.Trim();
+        string? platformSummary = string.IsNullOrWhiteSpace(summary) ? null : summary.Trim();
 
         isSaving = true;
         searchErrorMessage = null;
@@ -183,7 +186,7 @@ public partial class AddPlatformPopup : ComponentBase
                                      IgdbId = igdbId,
                                      Abbreviation = abbreviation,
                                      ReleaseDate = releaseDate,
-                                     Summary = summary,
+                                     Summary = platformSummary,
                                      
                                      ManufacturerIds = manufacturerIds,
 
@@ -353,6 +356,20 @@ public partial class AddPlatformPopup : ComponentBase
         selectedGameIds = [];
         companyIds = [];
         searchErrorMessage = null;
+        
+        coverImagePath = string.Empty;
+        coverImageUrl = string.Empty;
+        
+        heroImagePath = string.Empty;
+        heroImageUrl = string.Empty;
+
+        logoImagePath = string.Empty;
+        logoImageUrl = string.Empty;
+
+        iconImagePath = string.Empty;
+        iconImageUrl = string.Empty;
+        
+        imageErrorMessage = null;
     }
     
     private string? ResolveExistingCoverImagePath()

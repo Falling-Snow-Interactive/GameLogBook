@@ -42,6 +42,7 @@ public class Platform(string name) : ILibraryEntry
         Cover = other.Cover;
         Hero = other.Hero;
         Logo = other.Logo;
+        Icon = other.Icon;
         
         IgdbId = other.IgdbId;
     }

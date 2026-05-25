@@ -79,6 +79,12 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
                                       {
                                           ImagePath = updatedPlatform.Logo.ImagePath.Trim()
                                       };
+        existingPlatform.Icon = string.IsNullOrWhiteSpace(updatedPlatform.Icon?.ImagePath)
+                                    ? null
+                                    : new ImageRef
+                                      {
+                                          ImagePath = updatedPlatform.Icon.ImagePath.Trim()
+                                      };
         
         // TODO - Turn into relation DB refs
         existingPlatform.ManufacturerIds = updatedPlatform.ManufacturerIds ?? [];

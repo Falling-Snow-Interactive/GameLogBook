@@ -256,6 +256,8 @@
     width: auto;
     
     aspect-ratio: 1;
+
+    filter: drop-shadow(var(--drop-shadow-sm));
     
     object-fit: contain;
 

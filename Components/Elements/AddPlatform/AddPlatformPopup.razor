@@ -70,6 +70,22 @@
                           PendingImageUrl="@logoImageUrl"
                           AltText="@($"{platformName} cover preview")"/>
 
+        <ImageFieldWidget @ref="iconImageField"
+                          class="form-field-full"
+                          Label="Icon"
+                          FieldName="icon"
+                          Category="platforms"
+                          AspectRatioWidth="1"
+                          AspectRatioHeight="1"
+                          ImagePath="@iconImagePath"
+                          PendingImageUrl="@iconImageUrl"
+                          AltText="@($"{platformName} icon preview")"/>
+
+        @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
+        {
+            <p class="form-hint form-field-full">@imageErrorMessage</p>
+        }
+
         <CompanyPicker Companies="Companies"
                        SelectedCompanyIds="companyIds"
                        SelectedCompanyIdsChanged="HandleCompanyIdsChanged"/>
