@@ -104,6 +104,17 @@
                           ImagePath="@logoImagePath"
                           PendingImageUrl="@logoImageUrl"
                           AltText="@($"{gameName} logo preview")" />
+        
+        <ImageFieldWidget @ref="iconImageField"
+                          class="form-field-full"
+                          Label="Icon"
+                          FieldName="icon"
+                          Category="games"
+                          AspectRatioWidth="1"
+                          AspectRatioHeight="1"
+                          ImagePath="@iconImagePath"
+                          PendingImageUrl="@iconImageUrl"
+                          AltText="@($"{gameName} icon preview")" />
 
         @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
         {

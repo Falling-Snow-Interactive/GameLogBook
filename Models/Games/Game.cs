@@ -23,6 +23,7 @@ public class Game : ILibraryEntry
     public ImageRef? Cover { get; set; }
     public ImageRef? Hero { get; set; }
     public ImageRef? Logo { get; set; }
+    public ImageRef? Icon { get; set; }
     
     // User Set Information
     public int Rating { get; set; }
@@ -43,9 +44,11 @@ public class Game : ILibraryEntry
         Name = string.Empty;
         Summary = string.Empty;
         ReleaseDate = DateOnly.MinValue;
+        
         Cover = null;
         Hero = null;
         Logo = null;
+        Icon = null;
 
         GameCompanies = [];
         GamePlatforms = [];
@@ -61,9 +64,11 @@ public class Game : ILibraryEntry
         Name = copyFrom.Name;
         Summary = copyFrom.Summary;
         ReleaseDate = copyFrom.ReleaseDate;
+        
         Cover = copyFrom.Cover;
         Hero = copyFrom.Hero;
         Logo = copyFrom.Logo;
+        Icon = copyFrom.Icon;
         
         GameCompanies = copyFrom.GameCompanies;
         GamePlatforms = copyFrom.GamePlatforms;

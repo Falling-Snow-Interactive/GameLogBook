@@ -21,6 +21,7 @@ public class Platform(string name) : ILibraryEntry
     public ImageRef? Cover { get; set; }
     public ImageRef? Hero { get; set; }
     public ImageRef? Logo { get; set; }
+    public ImageRef? Icon { get; set; }
     
     // Relation DBs
     

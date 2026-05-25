@@ -49,17 +49,25 @@
         <div class="library-entry-footer">
             <div class="library-entry-buttons">
 
-                <button class="button-dot button-colors-info fill"
+                <button class="button-dot button-colors-info library-entry-button"
                         type="button" >
                     <i class="bi bi-pencil-square"></i>
                 </button>
-
-                <button class="button-dot button-colors-danger fill"
+                
+                <button class="button-dot button-colors-danger library-entry-button"
                         type="button"
                         @onclick="HandleRemove"
                         @onclick:stopPropagation="true">
                     <i class="bi bi-trash"></i>
                 </button>
+            </div>
+            
+            <div class="library-entry-icon">
+                <LocalImage ImagePath="@Entry.Icon?.ImagePath"
+                            ImageClass="library-entry-icon-image"
+                            AltText="@($"{Entry.Name} icon")"
+                            MaxWidth="50"
+                            MaxHeight="50"/>
             </div>
         </div>
     </div>

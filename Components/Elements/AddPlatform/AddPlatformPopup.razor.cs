@@ -43,14 +43,17 @@ public partial class AddPlatformPopup : ComponentBase
     private ImageFieldWidget? coverImageField;
     private ImageFieldWidget? heroImageField;
     private ImageFieldWidget? logoImageField;
+    private ImageFieldWidget? iconImageField;
     
     private string coverImagePath = string.Empty;
     private string heroImagePath = string.Empty;
     private string logoImagePath = string.Empty;
+    private string iconImagePath = string.Empty;
     
     private string coverImageUrl = string.Empty;
     private string heroImageUrl = string.Empty;
     private string logoImageUrl = string.Empty;
+    private string iconImageUrl = string.Empty;
 
     [Parameter]
     public EventCallback OnClose { get; set; }
@@ -160,6 +163,18 @@ public partial class AddPlatformPopup : ComponentBase
             isSaving = false;
             return;
         }
+        
+        string? iconPath;
+        try
+        {
+            iconPath = iconImageField is null ? ResolveExistingIconImagePath() : await iconImageField.CommitAsync();
+        }
+        catch (Exception exception)
+        {
+            imageErrorMessage = exception.Message;
+            isSaving = false;
+            return;
+        }
 
         PlatformModel platform = new(name)
                                  {
@@ -192,6 +207,13 @@ public partial class AddPlatformPopup : ComponentBase
                                                 : new ImageRef
                                                   {
                                                       ImagePath = logoPath,
+                                                  },
+                                     
+                                     Icon = string.IsNullOrWhiteSpace(iconPath) 
+                                                ? null 
+                                                : new ImageRef
+                                                  {
+                                                      ImagePath = iconPath,
                                                   },
                                      #endregion
                                  };
@@ -312,6 +334,9 @@ public partial class AddPlatformPopup : ComponentBase
 
         logoImagePath = platform.Logo?.ImagePath ?? string.Empty;
         logoImageUrl = platform.Logo?.PendingImageUrl ?? string.Empty;
+
+        iconImagePath = platform.Icon?.ImagePath ?? string.Empty;
+        iconImageUrl = platform.Icon?.PendingImageUrl ?? string.Empty;
         
         return Task.CompletedTask;
     }
@@ -343,5 +368,10 @@ public partial class AddPlatformPopup : ComponentBase
     private string? ResolveExistingLogoImagePath()
     {
         return string.IsNullOrWhiteSpace(logoImagePath) ? null : logoImagePath;
+    }
+    
+    private string? ResolveExistingIconImagePath()
+    {
+        return string.IsNullOrWhiteSpace(iconImagePath) ? null : iconImagePath;
     }
 }

@@ -243,7 +243,9 @@
 .button-dot {
     display: grid;
     
-    flex: 1;
+    flex-grow: 1;
+    flex-shrink: 1;
+    
     aspect-ratio: 1;
     
     border: none;
@@ -315,4 +317,8 @@
 .fill {
     height: 100%;
     width: 100%;
+}
+
+.contain {
+    object-fit: contain;
 }

@@ -12,9 +12,6 @@ public partial class AddGamePopup
 {
     private Game? previousInitialGame;
     private IReadOnlyList<Company>? previousCompanies;
-    private ImageFieldWidget? coverImageField;
-    private ImageFieldWidget? heroImageField;
-    private ImageFieldWidget? logoImageField;
 
     [CascadingParameter]
     private PopupInstance? Popup { get; set; }
@@ -37,6 +34,7 @@ public partial class AddGamePopup
     private List<Company> availableCompanies = [];
     private List<int> selectedDeveloperCompanyIDs = [];
     private List<int> selectedPublisherCompanyIDs = [];
+    
     private string developerSearchText = string.Empty;
     private string publisherSearchText = string.Empty;
 
@@ -44,13 +42,20 @@ public partial class AddGamePopup
     private long? igdb;
     private DateOnly? releaseDate;
     
+    private ImageFieldWidget? coverImageField;
+    private ImageFieldWidget? heroImageField;
+    private ImageFieldWidget? logoImageField;
+    private ImageFieldWidget? iconImageField;
+    
     private string coverImagePath = string.Empty;
     private string heroImagePath = string.Empty;
     private string logoImagePath = string.Empty;
+    private string iconImagePath = string.Empty;
     
     private string coverImageUrl = string.Empty;
     private string heroImageUrl = string.Empty;
     private string logoImageUrl = string.Empty;
+    private string iconImageUrl = string.Empty;
     
     private string? imageErrorMessage;
     private bool isSaving;
@@ -133,6 +138,18 @@ public partial class AddGamePopup
             return;
         }
         
+        string? iconPath;
+        try
+        {
+            iconPath = iconImageField is null ? ResolveExistingIconImagePath() : await iconImageField.CommitAsync();
+        }
+        catch (Exception exception)
+        {
+            imageErrorMessage = exception.Message;
+            isSaving = false;
+            return;
+        }
+        
         Game game = new()
                     {
                         ID = InitialGame?.ID ?? 0,
@@ -165,6 +182,13 @@ public partial class AddGamePopup
                                    : new ImageRef
                                      {
                                          ImagePath = logoPath,
+                                     },
+                        
+                        Icon = string.IsNullOrWhiteSpace(iconPath) 
+                                   ? null 
+                                   : new ImageRef
+                                     {
+                                         ImagePath = iconPath,
                                      },
                         #endregion
                     };
@@ -214,6 +238,9 @@ public partial class AddGamePopup
         logoImagePath = game.Logo?.ImagePath ?? string.Empty;
         logoImageUrl = game.Logo?.PendingImageUrl ?? string.Empty;
         
+        iconImagePath = game.Icon?.ImagePath ?? string.Empty;
+        iconImageUrl = game.Icon?.PendingImageUrl ?? string.Empty;
+        
         imageErrorMessage = null;
         
         summary = game.Summary ?? string.Empty;
@@ -239,6 +266,9 @@ public partial class AddGamePopup
 
         logoImagePath = string.Empty;
         logoImageUrl = string.Empty;
+
+        iconImagePath = string.Empty;
+        iconImageUrl = string.Empty;
         
         imageErrorMessage = null;
         isSaving = false;
@@ -259,6 +289,11 @@ public partial class AddGamePopup
     private string? ResolveExistingLogoImagePath()
     {
         return string.IsNullOrWhiteSpace(logoImagePath) ? null : logoImagePath;
+    }
+    
+    private string? ResolveExistingIconImagePath()
+    {
+        return string.IsNullOrWhiteSpace(iconImagePath) ? null : iconImagePath;
     }
 
     private List<int> ResolveLocalCompanyIds(IEnumerable<int> companyIds)

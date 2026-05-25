@@ -12,4 +12,5 @@ public interface ILibraryEntry
     public ImageRef? Cover { get; }
     public ImageRef? Hero { get; }
     public ImageRef? Logo { get; }
+    public ImageRef? Icon { get; }
 }

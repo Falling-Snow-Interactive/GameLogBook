@@ -214,16 +214,25 @@
     
     /*gap: 1rem;*/
     
+    /* Debug */
     /*border: var(--debug-border-size-sm) dashed #00ffb6;*/
 }
 
 .library-entry-buttons {
     display: flex;
-    flex: 0;
+    flex-grow: 1;
+    flex-shrink: 1;
     
     gap: 0.5rem;
 
+    /* Debug */
     /*border: var(--debug-border-size-sm) dashed #ffea00;*/
+}
+
+.library-entry-button {
+    height: 100%;
+    flex-grow: 0;
+    flex-shrink: 0;
 }
 
 .library-entry-button-remove {
@@ -233,10 +242,23 @@
     width: auto;
     
     aspect-ratio: 1;
-    
+
+    /* Debug */
     /*border: var(--debug-border-size-sm) dashed #ff0000;*/
 }
 
 .library-entry-fill-height {
     height: 100%;
+}
+
+.library-entry-icon {
+    height: 100%;
+    width: auto;
+    
+    aspect-ratio: 1;
+    
+    object-fit: contain;
+
+    /* Debug */
+    /*border: var(--debug-border-size-sm) dashed #ff0000;*/
 }
