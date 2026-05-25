@@ -249,8 +249,12 @@ public class LocalImageService
                 sourceImage = PlatformImage.FromStream(sourceStream, GetImageFormat(Path.GetExtension(absolutePath)));
                 thumbnailImage = sourceImage.Downsize(maxWidth, maxHeight, true);
 
+                string thumbnailExtension = GetThumbnailExtension(Path.GetExtension(absolutePath));
+                GraphicsImageFormat thumbnailFormat = GetImageFormat(thumbnailExtension);
+                float quality = thumbnailFormat == GraphicsImageFormat.Jpeg ? 0.72f : 1f;
+
                 await using FileStream thumbnailStream = File.Create(thumbnailPath);
-                await thumbnailImage.SaveAsync(thumbnailStream, GraphicsImageFormat.Jpeg, 0.72f);
+                await thumbnailImage.SaveAsync(thumbnailStream, thumbnailFormat, quality);
             }
             finally
             {
@@ -320,11 +324,22 @@ public class LocalImageService
                                                                               ? character
                                                                               : '_'));
 
+        string thumbnailExtension = GetThumbnailExtension(Path.GetExtension(normalizedPath));
+
         return Path.Combine(FileSystem.AppDataDirectory,
                             "images",
                             "thumbnails",
                             $"{maxWidth}x{maxHeight}",
-                            $"{safeName}.jpg");
+                            $"{safeName}{thumbnailExtension}");
+    }
+
+    private static string GetThumbnailExtension(string sourceExtension)
+    {
+        return sourceExtension.ToLowerInvariant() switch
+               {
+                   ".png" or ".gif" or ".webp" => ".png",
+                   _ => ".jpg"
+               };
     }
 
     private static string GetExtension(string pathOrName, string contentType)

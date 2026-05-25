@@ -94,6 +94,17 @@
                           PendingImageUrl="@heroImageUrl"
                           AltText="@($"{gameName} hero preview")" />
 
+        <ImageFieldWidget @ref="logoImageField"
+                          class="form-field-full"
+                          Label="Logo"
+                          FieldName="logo"
+                          Category="games"
+                          AspectRatioWidth="2"
+                          AspectRatioHeight="1"
+                          ImagePath="@logoImagePath"
+                          PendingImageUrl="@logoImageUrl"
+                          AltText="@($"{gameName} logo preview")" />
+
         @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
         {
             <p class="form-hint form-field-full">@imageErrorMessage</p>

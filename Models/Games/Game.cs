@@ -12,8 +12,8 @@ public class Game
     public int ID { get; set; }
     public long? IgdbId { get; set; }
     
+    // Game Information
     public GameType GameType { get; set; }
-
     public string Name { get; set; }
     public string? Summary { get; set; }
     public DateOnly? ReleaseDate { get; set; }
@@ -21,11 +21,14 @@ public class Game
     // Images
     public Image? Cover { get; set; }
     public Image? Hero { get; set; }
+    public Image? Logo { get; set; }
+    
+    // User Set Information
+    public int Rating { get; set; }
 
+    // Relations
     public List<GameCompany> GameCompanies { get; set; }
     public List<GamePlatform> GamePlatforms { get; set; }
-    
-    public int Rating { get; set; }
 
     public Game()
     {
@@ -39,6 +42,7 @@ public class Game
         ReleaseDate = DateOnly.MinValue;
         Cover = null;
         Hero = null;
+        Logo = null;
 
         GameCompanies = [];
         GamePlatforms = [];
@@ -56,6 +60,7 @@ public class Game
         ReleaseDate = copyFrom.ReleaseDate;
         Cover = copyFrom.Cover;
         Hero = copyFrom.Hero;
+        Logo = copyFrom.Logo;
         
         GameCompanies = copyFrom.GameCompanies;
         GamePlatforms = copyFrom.GamePlatforms;

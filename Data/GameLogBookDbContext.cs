@@ -26,6 +26,7 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
 
         modelBuilder.Entity<Game>().OwnsOne(game => game.Cover);
         modelBuilder.Entity<Game>().OwnsOne(game => game.Hero);
+        modelBuilder.Entity<Game>().OwnsOne(game => game.Logo);
 
         SetupRelationalDbs(modelBuilder);
     }

@@ -14,6 +14,7 @@ public partial class AddGamePopup
     private IReadOnlyList<Company>? previousCompanies;
     private ImageFieldWidget? coverImageField;
     private ImageFieldWidget? heroImageField;
+    private ImageFieldWidget? logoImageField;
 
     [CascadingParameter]
     private PopupInstance? Popup { get; set; }
@@ -42,10 +43,15 @@ public partial class AddGamePopup
     private string gameName = string.Empty;
     private long? igdb;
     private DateOnly? releaseDate;
+    
     private string coverImagePath = string.Empty;
     private string heroImagePath = string.Empty;
+    private string logoImagePath = string.Empty;
+    
     private string coverImageUrl = string.Empty;
     private string heroImageUrl = string.Empty;
+    private string logoImageUrl = string.Empty;
+    
     private string? imageErrorMessage;
     private bool isSaving;
     private string summary = string.Empty;
@@ -115,6 +121,18 @@ public partial class AddGamePopup
             return;
         }
         
+        string? logoPath;
+        try
+        {
+            logoPath = logoImageField is null ? ResolveExistingLogoImagePath() : await logoImageField.CommitAsync();
+        }
+        catch (Exception exception)
+        {
+            imageErrorMessage = exception.Message;
+            isSaving = false;
+            return;
+        }
+        
         Game game = new()
                     {
                         ID = InitialGame?.ID ?? 0,
@@ -127,6 +145,7 @@ public partial class AddGamePopup
                         
                         Summary = string.IsNullOrWhiteSpace(summary) ? null : summary.Trim(),
                         
+                        #region Images
                         Cover = string.IsNullOrWhiteSpace(coverPath)
                                     ? null
                                     : new Image
@@ -140,6 +159,14 @@ public partial class AddGamePopup
                                      {
                                          ImagePath = heroPath,
                                      },
+                        
+                        Logo = string.IsNullOrWhiteSpace(logoPath) 
+                                   ? null 
+                                   : new Image
+                                     {
+                                         ImagePath = logoPath,
+                                     },
+                        #endregion
                     };
         
         game.AddCompaniesByID(GameCompanyRole.Developer, selectedDeveloperCompanyIDs);
@@ -177,12 +204,20 @@ public partial class AddGamePopup
         developerSearchText = string.Empty;
         publisherSearchText = string.Empty;
         releaseDate = game.ReleaseDate;
+        
         coverImagePath = game.Cover?.ImagePath ?? string.Empty;
         coverImageUrl = game.Cover?.PendingImageUrl ?? string.Empty;
+        
         heroImagePath = game.Hero?.ImagePath ?? string.Empty;
         heroImageUrl = game.Hero?.PendingImageUrl ?? string.Empty;
+
+        logoImagePath = game.Logo?.ImagePath ?? string.Empty;
+        logoImageUrl = game.Logo?.PendingImageUrl ?? string.Empty;
+        
         imageErrorMessage = null;
+        
         summary = game.Summary ?? string.Empty;
+        
         gameType = game.GameType;
     }
 
@@ -195,10 +230,16 @@ public partial class AddGamePopup
         gameName = string.Empty;
         igdb = 0;
         releaseDate = null;
+        
         coverImagePath = string.Empty;
         coverImageUrl = string.Empty;
+        
         heroImagePath = string.Empty;
         heroImageUrl = string.Empty;
+
+        logoImagePath = string.Empty;
+        logoImageUrl = string.Empty;
+        
         imageErrorMessage = null;
         isSaving = false;
         summary = string.Empty;
@@ -213,6 +254,11 @@ public partial class AddGamePopup
     private string? ResolveExistingHeroImagePath()
     {
         return string.IsNullOrWhiteSpace(heroImagePath) ? null : heroImagePath;
+    }
+    
+    private string? ResolveExistingLogoImagePath()
+    {
+        return string.IsNullOrWhiteSpace(logoImagePath) ? null : logoImagePath;
     }
 
     private List<int> ResolveLocalCompanyIds(IEnumerable<int> companyIds)
