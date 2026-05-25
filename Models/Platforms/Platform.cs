@@ -27,17 +27,6 @@ public class Platform
     {
         Name = name;
     }
-    
-    // public Platform(long? igdbId, string name, string abbreviation, string? imagePath, DateOnly? releaseDate, 
-    //                 int[] manufacturerIds)
-    // {
-    //     IgdbId = igdbId;
-    //     Abbreviation = abbreviation;
-    //     ImagePath = imagePath;
-    //     ReleaseDate = releaseDate;
-    //     ManufacturerIds = manufacturerIds;
-    //     Name = name;
-    // }
 
     public Platform(Platform other)
     {
