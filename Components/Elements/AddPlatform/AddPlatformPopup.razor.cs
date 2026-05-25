@@ -6,6 +6,7 @@ using IGDB;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using IgdbGame = IGDB.Models.Game;
+using Platform = IGDB.Models.Platform;
 using PlatformModel = GameLogBook.Models.Platforms.Platform;
 
 namespace GameLogBook.Components.Elements.AddPlatform;
@@ -119,9 +120,16 @@ public partial class AddPlatformPopup : ComponentBase
                         .OrderBy(gameId => gameId)
                         .ToArray();
 
-        PlatformModel platform = new(igdbId, name, abbreviation, imagePath, releaseDate, manufacturerIds)
+        PlatformModel platform = new(name)
                                  {
-                                     ID = InitialPlatform?.ID ?? 0
+                                     ID = InitialPlatform?.ID ?? 0,
+
+                                     IgdbId = igdbId,
+                                     Abbreviation = abbreviation,
+                                     ReleaseDate = releaseDate,
+                                     ManufacturerIds = manufacturerIds,
+
+                                     ImagePath = imagePath,
                                  };
 
         if (Popup is not null)

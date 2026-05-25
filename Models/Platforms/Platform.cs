@@ -2,32 +2,41 @@ namespace GameLogBook.Models.Platforms;
 
 public class Platform
 {
+    // Database
     public int ID { get; set; }
 
-    public long? IgdbId { get; set; }
-
+    // Information
     public string Name { get; set; }
     public string Abbreviation { get; set; }
-
+    public DateOnly? ReleaseDate { get; set; }
+    public int[]? ManufacturerIds { get; set; }
+    
+    // Images
+    
+    // IGDB
+    public long? IgdbId { get; set; }
+    
+    // Obsolete
     public string? ImagePath { get; set; }
 
     [System.ComponentModel.DataAnnotations.Schema.NotMapped]
     public string? PendingImageUrl { get; set; }
 
-    public DateOnly? ReleaseDate { get; set; }
-    
-    public int[]? ManufacturerIds { get; set; }
-    
-    public Platform(long? igdbId, string name, string abbreviation, string? imagePath, DateOnly? releaseDate, 
-                    int[] manufacturerIds)
+    public Platform(string name)
     {
-        IgdbId = igdbId;
-        Abbreviation = abbreviation;
-        ImagePath = imagePath;
-        ReleaseDate = releaseDate;
-        ManufacturerIds = manufacturerIds;
         Name = name;
     }
+    
+    // public Platform(long? igdbId, string name, string abbreviation, string? imagePath, DateOnly? releaseDate, 
+    //                 int[] manufacturerIds)
+    // {
+    //     IgdbId = igdbId;
+    //     Abbreviation = abbreviation;
+    //     ImagePath = imagePath;
+    //     ReleaseDate = releaseDate;
+    //     ManufacturerIds = manufacturerIds;
+    //     Name = name;
+    // }
 
     public Platform(Platform other)
     {

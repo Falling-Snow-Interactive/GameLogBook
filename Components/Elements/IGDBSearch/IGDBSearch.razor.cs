@@ -577,15 +577,16 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     {
         List<IgdbPlatformVersion> versions = igdbPlatform.Versions?.Values?.ToList() ?? [];
 
-        return new PlatformSearchProjection(new LocalPlatform(igdbPlatform.Id,
-                                                              igdbPlatform.Name ?? string.Empty,
-                                                              igdbPlatform.Abbreviation ?? string.Empty,
-                                                              null,
-                                                              GetReleaseDate(versions),
-                                                              [])
-                                            {
-                                                PendingImageUrl = ToAbsoluteUrl(igdbPlatform.PlatformLogo?.Value?.Url)
-                                            },
+        LocalPlatform platform = new(igdbPlatform.Name)
+                                 {
+                                     IgdbId = igdbPlatform.Id,
+
+                                     Abbreviation = igdbPlatform.Abbreviation,
+                                     ReleaseDate = GetReleaseDate(versions),
+                                     
+                                     PendingImageUrl = ToAbsoluteUrl(igdbPlatform.PlatformLogo?.Value?.Url),
+                                 };
+        return new PlatformSearchProjection(platform,
                                             GetManufacturerCompanyIds(versions),
                                             GetManufacturerCompanyNames(versions),
                                             GetManufacturerPlatformVersionCompanyIds(versions),
