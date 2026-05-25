@@ -15,13 +15,20 @@
 
     <div class="game-entry-body">
         <div class="game-entry-header">
-            <LocalImage ImagePath="@Game.Cover?.ImagePath"
-                        ImageClass="game-cover"
-                        AltText="@($"{Game.Name} cover")"
-                        MaxWidth="160"
-                        MaxHeight="240"/>
-            
-            
+            <div class="game-entry-cover">
+                <LocalImage ImagePath="@Game.Cover?.ImagePath"
+                            ImageClass="game-cover"
+                            AltText="@($"{Game.Name} cover")"
+                            MaxWidth="160"
+                            MaxHeight="240"/>
+            </div>
+            <div class="game-entry-logo">
+                <LocalImage ImagePath="@Game.Logo?.ImagePath"
+                            ImageClass="game-logo"
+                            AltText="@($"{Game.Name} logo")"
+                            MaxWidth="160"
+                            MaxHeight="240"/>
+            </div>
         </div>
 
         <div class="game-entry-content">

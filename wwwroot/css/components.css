@@ -100,6 +100,36 @@ main {
     z-index: 0;
 }
 
+.game-entry-cover {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+
+    border: 5px solid black;
+}
+
+.game-entry-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+
+    border: 5px solid black;
+}
+
 .game-entry-body {
     position: relative;
     display: flex;
@@ -110,14 +140,22 @@ main {
 }
 
 .game-entry-header {
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    /*flex-direction: row;*/
+
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: minmax(0, 1fr);
 
     width: 100%;
     height: 10rem;
+    overflow: hidden;
+    box-sizing: border-box;
 
     padding: 1rem;
     gap: 1rem;
+    
+    border: 5px solid black;
+    background: transparent;
 }
 
 .game-entry-content {
@@ -138,31 +176,53 @@ main {
     outline-offset: 2px;
 }
 
-.game-cover {
-    /*height: 8rem;*/
+.game-hero {
+    width: 100%;
     height: 100%;
-    aspect-ratio: 3 / 4;
-    
+
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    
+
     background: var(--color-surface-subtle);
-    box-shadow: var(--shadow-md);
-    
+
     object-fit: cover;
 }
 
-.game-hero {
+.game-cover {
+    display: block;
+    box-sizing: border-box;
+    
     width: 100%;
-    /*aspect-ratio: 96 / 32;*/
     height: 100%;
+    min-width: 0;
+    min-height: 0;
 
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
 
-    background: var(--color-surface-subtle);
+    /*background: var(--color-surface-subtle);*/
+    background: transparent;
+    box-shadow: var(--shadow-md);
 
-    object-fit: cover;
+    object-fit: contain;
+}
+
+.game-logo {
+    display: block;
+    height: 100%;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    box-sizing: border-box;
+    
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+
+    /*background: var(--color-surface-subtle);*/
+    background: transparent;
+    box-shadow: var(--shadow-md);
+
+    object-fit: contain;
 }
 
 .game-information {
