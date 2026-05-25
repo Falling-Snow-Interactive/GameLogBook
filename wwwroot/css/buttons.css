@@ -222,84 +222,97 @@
 /* ----- Size ----- */
 .button-pill {
     flex: 1;
-
     min-width: 0;
-    
     border-radius: var(--radius-pill);
-
-    /*font-size: 0.8rem;*/
-    font-weight: 600;
-
     cursor: pointer;
+
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
 
     transition:
             background var(--transition-fast),
             box-shadow var(--transition-fast),
             transform var(--transition-fast);
+}
+
+.button-pill:hover {
+    box-shadow: var(--shadow-sm);
+    transform: scale(var(--transform-scale-sm));
 }
 
 .button-dot {
-    display: inline-flex;
+    display: grid;
     
-    min-width: 0;
-    min-height: 0;
-    
-    max-width: 100%;
-    max-height: 100%;
-    
+    flex: 1;
     aspect-ratio: 1;
-
+    
+    border: none;
     border-radius: var(--radius-pill);
-    font-weight: var(--font-weight-bold);
 
     align-items: center;
     justify-content: center;
+    text-align: center;
+    
+    padding: 0;
+    margin: 0;
+}
 
-    cursor: pointer;
+.button-dot i {
+    display: block;
+    width: 100%;
+    height: auto;
+    
+    /*line-height: auto;*/
+}
 
-    transition:
-            background var(--transition-fast),
-            box-shadow var(--transition-fast),
-            transform var(--transition-fast);
+.button-dot:hover {
+    box-shadow: var(--shadow-sm);
+    transform: scale(var(--transform-scale-sm));
 }
 
 /* ----- Colors ----- */
-.button-red {
-    color: var(--color-danger-ink);
+.button-colors-danger {
+    color: var(--color-danger);
     background: var(--color-danger-soft);
+    border-color: var(--color-danger-border);
 }
 
-.button-red:hover {
-    color: var(--color-danger-ink);
-    background: var(--color-danger-soft);
+.button-colors-danger:hover {
 }
 
-.button-blue {
-    color: var(--color-info-ink);
+.button-colors-info {
+    color: var(--color-info);
     background: var(--color-info-soft);
 }
 
-.button-blue:hover {
-    color: var(--color-info-ink);
-    background: var(--color-info-soft);
+.button-colors-info:hover {
 }
 
-.button-purple {
-    color: var(--color-primary-ink);
+.button-color-primary {
+    color: var(--color-primary);
     background: var(--color-primary-soft);
 }
 
-.button-purple:hover {
-    color: var(--color-primary-ink);
-    background: var(--color-primary-soft);
+.button-color-primary:hover {
 }
 
-.button-green {
-    color: green;
-    background: greenyellow;
+.button-warning {
+    color: var(--color-warning);
+    background: var(--color-warning-soft);
 }
 
-.button-green {
-    color: green;
-    background: greenyellow;
+.button-warning:hover {
+}
+
+.button-accent {
+    color: var(--color-accent);
+    background: var(--color-accent-soft);
+}
+
+.button-accent:hover {
+}
+
+.fill {
+    height: 100%;
+    width: 100%;
 }

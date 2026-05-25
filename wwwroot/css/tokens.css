@@ -51,6 +51,8 @@
         /*----- Info -----*/
         --color-info: #0b57d0;
         --color-info-soft: #e3f2fd;
+        --color-info-surface: #fef3f2;
+        --color-info-border: #b3c5d0;
         --color-info-ink: #0b57d0;
     
         /*----- Danger -----*/
@@ -127,6 +129,9 @@
     
     --font-weight-regular: 400;
     --font-weight-bold: 600;
+
+    /*----- Transform -----*/
+    --transform-scale-sm: 1.2;
 
     /*----- Debug -----*/
     --debug-border-size-sm: 0.1rem;
