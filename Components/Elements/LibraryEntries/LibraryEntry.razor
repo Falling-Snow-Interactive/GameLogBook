@@ -39,11 +39,11 @@
                 @*                  PublisherNames="PublisherNames" *@
                 @*                  LabelClass="library-entry-company" /> *@
             </div>
-        @*      *@
-        @*     @if (!string.IsNullOrWhiteSpace(Platform.Summary)) *@
-        @*     { *@
-        @*         <p class="library-entry-summary">@Platform.Summary</p> *@
-        @*     } *@
+        
+            @if (!string.IsNullOrWhiteSpace(Entry.Summary))
+            {
+                <p class="library-entry-summary">@Entry.Summary</p>
+            }
         </div>
 
         <div class="library-entry-footer">
@@ -52,16 +52,6 @@
                 <button class="button-dot button-colors-info fill"
                         type="button" >
                     <i class="bi bi-pencil-square"></i>
-                </button>
-
-                <button class="button-dot button-color-primary fill"
-                        type="button" >
-                    Test
-                </button>
-
-                <button class="button-dot button-warning fill"
-                        type="button" >
-                    Test
                 </button>
 
                 <button class="button-dot button-colors-danger fill"
