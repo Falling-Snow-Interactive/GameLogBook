@@ -74,28 +74,13 @@
                        SelectedCompanyIds="companyIds"
                        SelectedCompanyIdsChanged="HandleCompanyIdsChanged"/>
 
-        <div class="game-picker form-field-full">
-            <span>Games</span>
-
-            @if (Games.Count == 0)
-            {
-                <p>No games are available to link yet.</p>
-            }
-            else
-            {
-                <div class="game-picker-list">
-                    @foreach (Game game in Games)
-                    {
-                        <label class="game-picker-item">
-                            <input type="checkbox"
-                                   checked="@selectedGameIds.Contains(game.ID)"
-                                   @onchange="args => TogglePlatformSelection(game.ID, args)"/>
-                            <span>@game.Name</span>
-                        </label>
-                    }
-                </div>
-            }
-        </div>
+        <label class="form-field form-field-full">
+            <span>Summary</span>
+            <textarea class="game-detail-textarea"
+                      @bind="summary"
+                      @bind:event="oninput"
+                      placeholder="Summary"></textarea>
+        </label>
 
         <div class="form-actions form-field-full">
             <button class="save-button"

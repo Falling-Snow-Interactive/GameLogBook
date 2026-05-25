@@ -27,7 +27,8 @@ public partial class AddPlatformPopup : ComponentBase
     private PlatformModel? previousInitialPlatform;
     
     private string platformName = string.Empty;
-    private string abbreviation = string.Empty;
+    private string? abbreviation = string.Empty;
+    private string? summary = string.Empty;
     
     private bool isSaving;
     private DateOnly? releaseDate;
@@ -95,6 +96,8 @@ public partial class AddPlatformPopup : ComponentBase
         platformName = platform.Name;
         abbreviation = platform.Abbreviation;
         releaseDate = platform.ReleaseDate;
+        summary = platform.Summary;
+        
         searchErrorMessage = null;
         
         coverImagePath = result.Platform.Cover?.ImagePath ?? string.Empty;
@@ -112,6 +115,7 @@ public partial class AddPlatformPopup : ComponentBase
     private async Task HandleSavePlatform()
     {
         var name = platformName.Trim();
+        var summary = this.summary.Trim();
 
         isSaving = true;
         searchErrorMessage = null;
@@ -164,6 +168,8 @@ public partial class AddPlatformPopup : ComponentBase
                                      IgdbId = igdbId,
                                      Abbreviation = abbreviation,
                                      ReleaseDate = releaseDate,
+                                     Summary = summary,
+                                     
                                      ManufacturerIds = manufacturerIds,
 
                                      #region Images
@@ -292,6 +298,7 @@ public partial class AddPlatformPopup : ComponentBase
         igdbId = platform.IgdbId;
         platformName = platform.Name;
         abbreviation = platform.Abbreviation;
+        summary = platform.Summary;
         
         releaseDate = platform.ReleaseDate;
         companyIds = (platform.ManufacturerIds ?? []).ToHashSet();
@@ -313,6 +320,8 @@ public partial class AddPlatformPopup : ComponentBase
     {
         platformName = string.Empty;
         abbreviation = string.Empty;
+        summary = string.Empty;
+        
         isSaving = false;
         releaseDate = null;
         igdbId = 0;
