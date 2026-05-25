@@ -1,4 +1,4 @@
-@if (!string.IsNullOrWhiteSpace(Game.ReleaseDate?.ToString()))
+@if (Date != null)
 { 
-    <label class="@Class">@Game.ReleaseDateString()</label>
+    <label class="@Class">@GetCleanDate()</label>
 }
