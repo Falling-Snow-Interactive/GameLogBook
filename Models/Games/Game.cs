@@ -1,6 +1,5 @@
 using GameLogBook.Models.Games.Company;
 using GameLogBook.Models.Games.Platform;
-using GameLogBook.Utilities;
 
 namespace GameLogBook.Models.Games;
 
@@ -184,9 +183,4 @@ public class Game
     }
     
     #endregion
-
-    public string ReleaseDateString()
-    {
-        return DateUtility.DateOnlyToCleanString(ReleaseDate);
-    }
 }

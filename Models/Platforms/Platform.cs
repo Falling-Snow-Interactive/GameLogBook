@@ -10,6 +10,7 @@ public class Platform
     public string Abbreviation { get; set; }
     public DateOnly? ReleaseDate { get; set; }
     public int[]? ManufacturerIds { get; set; }
+    public string? Summary { get; set; }
     
     // Images
     

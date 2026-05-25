@@ -1,4 +1,3 @@
-using GameLogBook.Utilities;
 using Microsoft.AspNetCore.Components;
 
 namespace GameLogBook.Components.Elements;
@@ -13,6 +12,6 @@ public partial class DateOnlyWidget : ComponentBase
 
     public string GetCleanDate()
     {
-        return DateUtility.DateOnlyToCleanString(Date);
+        return Date == null ? string.Empty : Date.Value.ToString("MMMM d, yyyy");
     }
 }
