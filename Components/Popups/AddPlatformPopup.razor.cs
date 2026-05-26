@@ -80,7 +80,7 @@ public partial class AddPlatformPopup : ComponentBase
     private long? igdb;
     
     // Searches
-    private string developerSearchText = string.Empty;
+    private string companySearchText = string.Empty;
 
     // Errors
     private string? searchErrorMessage;
@@ -332,7 +332,7 @@ public partial class AddPlatformPopup : ComponentBase
         igdb = platform.IGDB;
         
         // Search
-        developerSearchText = string.Empty;
+        companySearchText = string.Empty;
         searchErrorMessage = null;
         
         return Task.CompletedTask;

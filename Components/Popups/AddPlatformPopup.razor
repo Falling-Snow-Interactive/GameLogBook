@@ -1,10 +1,3 @@
-@using VGL.Components.Elements.CompanyElements
-@using VGL.Components.Elements.IGDBSearch
-@using VGL.Components.Elements.ImageField
-@using VGL.Components.Popups
-@using VGL.Models.Companies
-@using VGL.Models.Games
-
 <AddPopupShell Title="@PopupTitle"
                Description="Keep track of where each game lives."
                SearchFor="@IgdbSearchFor.Platforms"
@@ -51,7 +44,7 @@
             <div class="form-field form-field-md">
                 <CompanySearch Companies="companyCache"
                                @bind-SelectedCompanyIds="companyIDs"
-                               @bind-SearchText="developerSearchText"
+                               @bind-SearchText="companySearchText"
                                OnCompanyAdded="HandleCompanyAdded"
                                Placeholder="Search companies..." />
             </div>
