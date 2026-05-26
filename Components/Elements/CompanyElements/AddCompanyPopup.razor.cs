@@ -3,7 +3,7 @@ using GameLogBook.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 
-namespace GameLogBook.Components.Elements.AddCompany;
+namespace GameLogBook.Components.Elements.CompanyElements;
 
 public partial class AddCompanyPopup
 {

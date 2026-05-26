@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace GameLogBook.Components.Elements.AddPlatform;
+namespace GameLogBook.Components.Elements.PlatformElements;
 
 public partial class AddPlatformButton : ComponentBase
 {

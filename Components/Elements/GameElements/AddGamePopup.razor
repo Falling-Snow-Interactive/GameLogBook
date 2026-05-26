@@ -5,7 +5,7 @@
 <AddPopupShell Title="@PopupTitle"
                SearchFor="@IgdbSearchFor.Games"
                SearchPlaceholder="Search for a game"
-               OnClose="HandleClose"
+               OnClose="HandleCloseButtonClick"
                OnGameSelected="HandleGameSelected"
                LocalCompanies="@Companies">
     <div class="game-details-form">
@@ -72,48 +72,49 @@
                    placeholder="id"/>
         </label>
 
-        <ImageFieldWidget @ref="coverImageField"
+        <ImageFieldWidget @ref="coverField"
                           class="form-field-full"
                           Label="Cover"
                           FieldName="cover"
                           Category="games"
                           AspectRatioWidth="2"
                           AspectRatioHeight="3"
-                          ImagePath="@coverImagePath"
-                          PendingImageUrl="@coverImageUrl"
+                          
+                          ImagePath="@cover?.Path"
+                          PendingImageUrl="@cover?.PendingUrl"
                           AltText="@($"{name} cover preview")" />
 
-        <ImageFieldWidget @ref="heroImageField"
+        <ImageFieldWidget @ref="heroField"
                           class="form-field-full"
                           Label="Hero"
                           FieldName="hero"
                           Category="games"
                           AspectRatioWidth="96"
                           AspectRatioHeight="31"
-                          ImagePath="@heroImagePath"
-                          PendingImageUrl="@heroImageUrl"
+                          ImagePath="@hero?.Path"
+                          PendingImageUrl="@hero?.PendingUrl"
                           AltText="@($"{name} hero preview")" />
 
-        <ImageFieldWidget @ref="logoImageField"
+        <ImageFieldWidget @ref="logoField"
                           class="form-field-full"
                           Label="Logo"
                           FieldName="logo"
                           Category="games"
                           AspectRatioWidth="2"
                           AspectRatioHeight="1"
-                          ImagePath="@logoImagePath"
-                          PendingImageUrl="@logoImageUrl"
+                          ImagePath="@logo?.Path"
+                          PendingImageUrl="@logo?.PendingUrl"
                           AltText="@($"{name} logo preview")" />
         
-        <ImageFieldWidget @ref="iconImageField"
+        <ImageFieldWidget @ref="iconField"
                           class="form-field-full"
                           Label="Icon"
                           FieldName="icon"
                           Category="games"
                           AspectRatioWidth="1"
                           AspectRatioHeight="1"
-                          ImagePath="@iconImagePath"
-                          PendingImageUrl="@iconImageUrl"
+                          ImagePath="@icon?.Path"
+                          PendingImageUrl="@icon?.PendingUrl"
                           AltText="@($"{name} icon preview")" />
 
         @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
@@ -132,7 +133,7 @@
         <div class="form-actions form-field-full">
             <button class="save-button"
                     type="button"
-                    @onclick="HandleSaveGame"
+                    @onclick="HandleSaveButtonClick"
                     disabled="@(isSaving || string.IsNullOrWhiteSpace(name))">
                 @(isSaving ? "Saving image..." : SaveButtonText)
             </button>

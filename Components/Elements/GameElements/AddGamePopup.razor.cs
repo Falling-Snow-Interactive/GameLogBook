@@ -10,26 +10,32 @@ namespace GameLogBook.Components.Elements.GameElements;
 
 public partial class AddGamePopup
 {
-    private Game? previousInitialGame;
-    private IReadOnlyList<Company>? previousCompanies;
-
+    // ----- Parameters -----
+    
     [CascadingParameter]
     private PopupInstance? Popup { get; set; }
-
+    
     [Parameter]
-    public EventCallback OnClose { get; set; }
-
-    [Parameter]
-    public EventCallback<Game> OnGameSelected { get; set; }
-
+    public Game? InitialGame { get; set; }
+    
     [Parameter]
     public IReadOnlyList<Company> Companies { get; set; } = [];
-
+    
+    [Parameter]
+    public EventCallback<Game> OnGameSelected { get; set; }
+    
     [Parameter]
     public Func<Company, Task<Company?>>? OnCompanyAdded { get; set; }
 
     [Parameter]
-    public Game? InitialGame { get; set; }
+    public EventCallback OnClose { get; set; }
+    
+    
+    // ----- Runtime -----
+    
+    // Previous
+    private Game? previousInitialGame;
+    private IReadOnlyList<Company>? previousCompanies;
 
     private List<Company> availableCompanies = [];
     private List<int> selectedDeveloperIDs = [];
@@ -39,39 +45,32 @@ public partial class AddGamePopup
     private string publisherSearchText = string.Empty;
 
     private string name = string.Empty;
-    private long? igdb;
+    private GameType type;
     private DateOnly? releaseDate;
+    private string summary = string.Empty;
     
-    private ImageFieldWidget? coverImageField;
-    private ImageFieldWidget? heroImageField;
-    private ImageFieldWidget? logoImageField;
-    private ImageFieldWidget? iconImageField;
+    private ImageFieldWidget? coverField;
+    private ImageFieldWidget? heroField;
+    private ImageFieldWidget? logoField;
+    private ImageFieldWidget? iconField;
 
     private ImageRef? cover;
     private ImageRef? hero;
     private ImageRef? logo;
     private ImageRef? icon;
     
-    private string coverImagePath = string.Empty;
-    private string heroImagePath = string.Empty;
-    private string logoImagePath = string.Empty;
-    private string iconImagePath = string.Empty;
-    
-    private string coverImageUrl = string.Empty;
-    private string heroImageUrl = string.Empty;
-    private string logoImageUrl = string.Empty;
-    private string iconImageUrl = string.Empty;
+    private long? igdb;
     
     private string? imageErrorMessage;
     private bool isSaving;
-    private string summary = string.Empty;
-    private GameType type;
 
     private string PopupTitle => InitialGame is null ? "Add Game" : "Edit Game";
 
     private string SaveButtonText => InitialGame is null ? "Add to Library" : "Save Changes";
 
-    protected override async Task OnParametersSetAsync()
+    #region Overrides
+    
+    protected override Task OnParametersSetAsync()
     {
         if (!ReferenceEquals(previousCompanies, Companies))
         {
@@ -83,137 +82,40 @@ public partial class AddGamePopup
 
         if (ReferenceEquals(previousInitialGame, InitialGame))
         {
-            return;
+            return Task.CompletedTask;
         }
 
         previousInitialGame = InitialGame;
 
         if (InitialGame is null)
         {
-            ResetForm();
-            return;
+            Reset();
+            return Task.CompletedTask;
         }
 
-        await LoadGame(InitialGame);
+        Load(InitialGame);
+        return Task.CompletedTask;
     }
-
-    private async Task HandleGameSelected(Game game)
+    
+    #endregion
+    
+    #region Game Selected
+    
+    private void HandleGameSelected(Game game)
     {
-        await LoadGame(game);
+        Load(game);
     }
+    
+    #endregion
 
-    private async Task HandleSaveGame()
+    #region Input Handlers
+    
+    private async Task HandleSaveButtonClick()
     {
-        isSaving = true;
-        imageErrorMessage = null;
-
-        string? coverPath;
-        try
-        {
-            coverPath = coverImageField is null ? ResolveExistingCoverImagePath() : await coverImageField.CommitAsync();
-        }
-        catch (Exception exception)
-        {
-            imageErrorMessage = exception.Message;
-            isSaving = false;
-            return;
-        }
-
-        string? heroPath;
-        try
-        {
-            heroPath = heroImageField is null ? ResolveExistingHeroImagePath() : await heroImageField.CommitAsync();
-        }
-        catch (Exception exception)
-        {
-            imageErrorMessage = exception.Message;
-            isSaving = false;
-            return;
-        }
-        
-        string? logoPath;
-        try
-        {
-            logoPath = logoImageField is null ? ResolveExistingLogoImagePath() : await logoImageField.CommitAsync();
-        }
-        catch (Exception exception)
-        {
-            imageErrorMessage = exception.Message;
-            isSaving = false;
-            return;
-        }
-        
-        string? iconPath;
-        try
-        {
-            iconPath = iconImageField is null ? ResolveExistingIconImagePath() : await iconImageField.CommitAsync();
-        }
-        catch (Exception exception)
-        {
-            imageErrorMessage = exception.Message;
-            isSaving = false;
-            return;
-        }
-        
-        Game game = new()
-                    {
-                        ID = InitialGame?.ID ?? 0,
-                        
-                        IGDB = igdb,
-                        
-                        Name = name.Trim(),
-                        GameType = type,
-                        ReleaseDate = releaseDate,
-                        
-                        Summary = string.IsNullOrWhiteSpace(summary) ? null : summary.Trim(),
-                        
-                        #region Images
-                        Cover = string.IsNullOrWhiteSpace(coverPath)
-                                    ? null
-                                    : new ImageRef
-                                      {
-                                          Path = coverPath
-                                      },
-                        
-                        Hero = string.IsNullOrWhiteSpace(heroPath) 
-                                   ? null 
-                                   : new ImageRef
-                                     {
-                                         Path = heroPath,
-                                     },
-                        
-                        Logo = string.IsNullOrWhiteSpace(logoPath) 
-                                   ? null 
-                                   : new ImageRef
-                                     {
-                                         Path = logoPath,
-                                     },
-                        
-                        Icon = string.IsNullOrWhiteSpace(iconPath) 
-                                   ? null 
-                                   : new ImageRef
-                                     {
-                                         Path = iconPath,
-                                     },
-                        #endregion
-                    };
-        
-        game.AddCompaniesByID(GameCompanyRole.Developer, selectedDeveloperIDs);
-        game.AddCompaniesByID(GameCompanyRole.Publisher, selectedPublisherIDs);
-
-        if (Popup is not null)
-        {
-            await Popup.CloseAsync(game);
-        }
-        else
-        {
-            await OnGameSelected.InvokeAsync(game);
-        }
-
-        isSaving = false;
+        await Save();
     }
 
-    private async Task HandleClose()
+    private async Task HandleCloseButtonClick()
     {
         if (Popup is not null)
         {
@@ -223,8 +125,66 @@ public partial class AddGamePopup
 
         await OnClose.InvokeAsync();
     }
+    
+    #endregion
+    
+    #region Form Controls
 
-    private async Task LoadGame(Game game)
+    private async Task Save()
+    {
+        isSaving = true;
+        imageErrorMessage = null;
+        
+        try
+        {
+            ImageRef? coverRef = await coverField?.CommitAsync()!;
+            ImageRef? heroRef = await heroField?.CommitAsync()!;
+            ImageRef? logoRef = await logoField?.CommitAsync()!;
+            ImageRef? iconRef = await iconField?.CommitAsync()!;
+            
+            Game game = new(name.Trim())
+                        {
+                            // Database
+                            ID = InitialGame?.ID ?? -1,
+                        
+                            // Information
+                            Name = name.Trim(),
+                            GameType = type,
+                            ReleaseDate = releaseDate,
+                            Summary = string.IsNullOrWhiteSpace(summary) ? null : summary.Trim(),
+                        
+                            // Images
+                            Cover = coverRef,
+                            Hero = heroRef,
+                            Logo = logoRef,
+                            Icon = iconRef,
+                            
+                            // IGDB
+                            IGDB = igdb,
+                        };
+            
+            game.AddCompaniesByID(GameCompanyRole.Developer, selectedDeveloperIDs);
+            game.AddCompaniesByID(GameCompanyRole.Publisher, selectedPublisherIDs);
+            
+            if (Popup is not null)
+            {
+                await Popup.CloseAsync(game);
+            }
+            else
+            {
+                await OnGameSelected.InvokeAsync(game);
+            }
+
+            isSaving = false;
+        }
+        catch (Exception exception)
+        {
+            imageErrorMessage = exception.Message;
+            isSaving = false;
+        }
+    }
+
+    private void Load(Game game)
     {
         // Information
         name = game.Name;
@@ -233,26 +193,34 @@ public partial class AddGamePopup
         releaseDate = game.ReleaseDate;
         
         // Companies
-        selectedDeveloperIDs = ResolveLocalCompanyIDs(game.GetDeveloperIDs());
-        selectedPublisherIDs = ResolveLocalCompanyIDs(game.GetPublisherIDs());
+        selectedDeveloperIDs = game.GetDeveloperIDs().Order().Distinct().ToList();
+        selectedPublisherIDs = game.GetPublisherIDs().Order().Distinct().ToList();
 
         // Images
         cover = game.Cover;
         hero = game.Hero;
         logo = game.Logo;
         icon = game.Icon;
-        
-        coverImagePath = game.Cover?.Path ?? string.Empty;
-        coverImageUrl = game.Cover?.PendingUrl ?? string.Empty;
-        
-        heroImagePath = game.Hero?.Path ?? string.Empty;
-        heroImageUrl = game.Hero?.PendingUrl ?? string.Empty;
 
-        logoImagePath = game.Logo?.Path ?? string.Empty;
-        logoImageUrl = game.Logo?.PendingUrl ?? string.Empty;
+        if (coverField?.ImageRef?.Path != null)
+        {
+            coverField.ImageRef.Path = cover?.Path;
+        }
         
-        iconImagePath = game.Icon?.Path ?? string.Empty;
-        iconImageUrl = game.Icon?.PendingUrl ?? string.Empty;  
+        if (heroField?.ImageRef?.Path != null)
+        {
+            heroField.ImageRef.Path = hero?.Path;
+        }
+        
+        if (logoField?.ImageRef?.Path != null)
+        {
+            logoField.ImageRef.Path = logo?.Path;
+        }
+        
+        if (iconField?.ImageRef?.Path != null)
+        {
+            iconField.ImageRef.Path = icon?.Path;
+        }
         
         // IGDB
         igdb = game.IGDB;
@@ -264,64 +232,42 @@ public partial class AddGamePopup
         // Errors
         imageErrorMessage = null;
     }
-
-    private void ResetForm()
+    
+    private void Reset()
     {
-        selectedDeveloperIDs = [];
-        selectedPublisherIDs = [];
-        developerSearchText = string.Empty;
-        publisherSearchText = string.Empty;
-        name = string.Empty;
-        igdb = 0;
-        releaseDate = null;
-        
-        coverImagePath = string.Empty;
-        coverImageUrl = string.Empty;
-        
-        heroImagePath = string.Empty;
-        heroImageUrl = string.Empty;
-
-        logoImagePath = string.Empty;
-        logoImageUrl = string.Empty;
-
-        iconImagePath = string.Empty;
-        iconImageUrl = string.Empty;
-        
-        imageErrorMessage = null;
         isSaving = false;
+
+        // Information
+        name = string.Empty;     
         summary = string.Empty;
         type = GameType.None;
-    }
-
-    private string? ResolveExistingCoverImagePath()
-    {
-        return string.IsNullOrWhiteSpace(coverImagePath) ? null : coverImagePath;
+        releaseDate = null;
+        
+        // Developers
+        selectedDeveloperIDs = [];
+        selectedPublisherIDs = [];     
+        
+        // Search
+        developerSearchText = string.Empty;
+        publisherSearchText = string.Empty;
+        
+        // APIs
+        igdb = 0;
+        
+        // Images
+        cover = null;
+        hero = null;
+        logo = null;
+        icon = null;
+        
+        // Errors
+        imageErrorMessage = null;
     }
     
-    private string? ResolveExistingHeroImagePath()
-    {
-        return string.IsNullOrWhiteSpace(heroImagePath) ? null : heroImagePath;
-    }
-    
-    private string? ResolveExistingLogoImagePath()
-    {
-        return string.IsNullOrWhiteSpace(logoImagePath) ? null : logoImagePath;
-    }
-    
-    private string? ResolveExistingIconImagePath()
-    {
-        return string.IsNullOrWhiteSpace(iconImagePath) ? null : iconImagePath;
-    }
+    #endregion
 
-    private List<int> ResolveLocalCompanyIDs(IEnumerable<int> companyIds)
-    {
-        return companyIds
-               .Where(companyId => availableCompanies.Any(company => company.ID == companyId))
-               .Distinct()
-               .Order()
-               .ToList();
-    }
-
+    #region Company Added
+    
     private async Task<Company?> HandleCompanyAdded(Company company)
     {
         if (OnCompanyAdded is null)
@@ -329,15 +275,15 @@ public partial class AddGamePopup
             return null;
         }
 
-        Company? savedCompany = await OnCompanyAdded.Invoke(company);
+        Company? saved = await OnCompanyAdded.Invoke(company);
 
-        if (savedCompany is not null)
+        if (saved is not null)
         {
-            AddOrUpdateAvailableCompany(savedCompany);
+            AddOrUpdateAvailableCompany(saved);
             await InvokeAsync(StateHasChanged);
         }
 
-        return savedCompany;
+        return saved;
     }
 
     private void AddOrUpdateAvailableCompany(Company company)
@@ -357,4 +303,6 @@ public partial class AddGamePopup
                              .OrderBy(existingCompany => existingCompany.Name, StringComparer.OrdinalIgnoreCase)
                              .ToList();
     }
+    
+    #endregion
 }

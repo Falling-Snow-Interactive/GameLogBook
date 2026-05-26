@@ -1,4 +1,4 @@
-using GameLogBook.Components.Elements.AddCompany;
+using GameLogBook.Components.Elements.CompanyElements;
 using GameLogBook.Models.Companies;
 using GameLogBook.Models.Games;
 using GameLogBook.Services;

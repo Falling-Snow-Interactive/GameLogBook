@@ -6,8 +6,8 @@ namespace GameLogBook.Components.Elements.GameElements;
 
 public partial class GameView : ComponentBase
 {
-    [Parameter]
-    public Game Game { get; set; } = new();
+    [Parameter, EditorRequired]
+    public Game Game { get; set; }
 
     [Parameter]
     public EventCallback<Game> OnEdit { get; set; }

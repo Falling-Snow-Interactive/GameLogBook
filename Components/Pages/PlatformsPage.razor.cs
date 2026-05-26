@@ -1,4 +1,4 @@
-using GameLogBook.Components.Elements.AddPlatform;
+using GameLogBook.Components.Elements.PlatformElements;
 using GameLogBook.Models;
 using GameLogBook.Models.Companies;
 using GameLogBook.Models.Games;
@@ -57,7 +57,7 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
         }
         
         existingPlatform.Name = updatedPlatform.Name.Trim();
-        existingPlatform.Abbreviation = updatedPlatform.Abbreviation?.Trim();
+        existingPlatform.ShortName = updatedPlatform.ShortName?.Trim();
         existingPlatform.ReleaseDate = updatedPlatform.ReleaseDate;
         existingPlatform.Summary = string.IsNullOrWhiteSpace(updatedPlatform.Summary) ? null : updatedPlatform.Summary.Trim();
         
@@ -90,7 +90,7 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
         existingPlatform.ManufacturerIds = updatedPlatform.ManufacturerIds ?? [];
         
         // IGDB
-        existingPlatform.IgdbId = updatedPlatform.IgdbId;
+        existingPlatform.IGDB = updatedPlatform.IGDB;
         
         await UpdateItemAsync();
     }

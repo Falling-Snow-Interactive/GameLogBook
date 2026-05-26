@@ -35,7 +35,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     private CancellationTokenSource? searchCancellationTokenSource;
 
     private List<LocalGame> gameResults = [];
-    private List<IgdbSearchPlatformResult> platformResults = [];
+    private List<IGDBSearchPlatformResult> platformResults = [];
     private List<LocalCompany> companyResults = [];
     private List<LocalCompany> companyResultCandidates = [];
 
@@ -67,7 +67,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     public EventCallback<LocalGame> OnGameSelected { get; set; }
 
     [Parameter]
-    public EventCallback<IgdbSearchPlatformResult> OnPlatformSelected { get; set; }
+    public EventCallback<IGDBSearchPlatformResult> OnPlatformSelected { get; set; }
 
     [Parameter]
     public EventCallback<LocalCompany> OnCompanySelected { get; set; }
@@ -322,7 +322,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
             return 0;
         }
 
-        List<IgdbSearchPlatformResult> newResults = platformProjections
+        List<IGDBSearchPlatformResult> newResults = platformProjections
                                                     .Select(projection =>
                                                             {
                                                                 IEnumerable<IgdbPlatformVersion> detailedPlatformVersions = GetDetailedPlatformVersions(projection, platformVersionsById);
@@ -356,7 +356,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                                                                     manufacturerNames = [knownManufacturer];
                                                                 }
 
-                                                                return new IgdbSearchPlatformResult(projection.Platform, manufacturerNames);
+                                                                return new IGDBSearchPlatformResult(projection.Platform, manufacturerNames);
                                                             })
                                                     .OrderByNameRelevance(trimmedSearchInput,
                                                                           result => result.Platform.Name)
@@ -430,7 +430,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
         await OnGameSelected.InvokeAsync(game);
     }
 
-    private async Task SelectPlatform(IgdbSearchPlatformResult result)
+    private async Task SelectPlatform(IGDBSearchPlatformResult result)
     {
         SetSelectedSearchInput(result.Platform.Name);
         await OnPlatformSelected.InvokeAsync(result);
@@ -496,13 +496,13 @@ public partial class IGDBSearch : ComponentBase, IDisposable
             }
         }
 
-        LocalGame localGame = new()
+        LocalGame localGame = new(igdbGame.Name)
                               {
-                                  IGDB = igdbGame.Id ?? 0,
-                                  Name = igdbGame.Name ?? string.Empty,
                                   Summary = igdbGame.Summary,
                                   ReleaseDate = ToDateOnly(igdbGame.FirstReleaseDate?.ToUnixTimeSeconds()),
                                   Cover = ToLocalCover(igdbGame.Cover?.Value),
+                                  
+                                  IGDB = igdbGame.Id ?? 0,
                               };
         localGame.AddCompaniesByID(GameCompanyRole.Developer, developerCompanyIDs.Order().ToList());
         localGame.AddCompaniesByID(GameCompanyRole.Publisher, publisherCompanyIDs.Order().ToList());
@@ -580,12 +580,12 @@ public partial class IGDBSearch : ComponentBase, IDisposable
         string? pendingUrl = ToAbsoluteUrl(igdbPlatform.PlatformLogo?.Value?.Url);
         LocalPlatform platform = new(igdbPlatform.Name)
                                  {
-                                     Abbreviation = igdbPlatform.Abbreviation,
+                                     ShortName = igdbPlatform.Abbreviation,
                                      ReleaseDate = GetReleaseDate(versions),
                                      
                                      Cover = new ImageRef(),
                                      
-                                     IgdbId = igdbPlatform.Id,
+                                     IGDB = igdbPlatform.Id,
                                      
                                  };
         platform.Cover.PendingUrl = pendingUrl;
@@ -877,7 +877,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                    : $"{companySummary} · {releaseSummary}";
     }
 
-    private static string GetPlatformSummary(IgdbSearchPlatformResult result)
+    private static string GetPlatformSummary(IGDBSearchPlatformResult result)
     {
         string manufacturerSummary = result.ManufacturerNames.Length == 0
                                          ? "Unknown manufacturer"
@@ -987,7 +987,7 @@ public enum IgdbSearchFor
     Companies
 }
 
-public sealed record IgdbSearchPlatformResult(LocalPlatform Platform, string[] ManufacturerNames);
+public sealed record IGDBSearchPlatformResult(LocalPlatform Platform, string[] ManufacturerNames);
 
 internal static class IgdbSearchResultOrderingExtensions
 {

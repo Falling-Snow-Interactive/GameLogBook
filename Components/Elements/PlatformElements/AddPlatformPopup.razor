@@ -5,8 +5,8 @@
                Description="Keep track of where each game lives."
                SearchFor="@IgdbSearchFor.Platforms"
                SearchPlaceholder="Search for a platform"
-               OnClose="HandleClose"
-               OnPlatformSelected="HandleIGDBSearchPlatformSelected">
+               OnClose="CloseButton_Clicked"
+               OnPlatformSelected="IGDBSearch_PlatformSelected">
     
     <div class="details-form">
         @if (!string.IsNullOrWhiteSpace(searchErrorMessage))
@@ -50,9 +50,6 @@
                                @bind-SearchText="developerSearchText"
                                OnCompanyAdded="HandleCompanyAdded"
                                Placeholder="Search companies..." />
-                @* <CompanyPicker Companies="Companies" *@
-                @*                SelectedCompanyIds="companyIds" *@
-                @*                SelectedCompanyIdsChanged="HandleCompanyIdsChanged"/> *@
             </div>
         </div>
 
@@ -71,54 +68,26 @@
         
         <div class="form-row">
             @* ----- Cover ----- *@
-            <ImageFieldWidget @ref="coverImageField"
-                              class="form-field form-field-md"
-                              Label="Cover"
-                              FieldName="cover"
-                              Category="platforms"
-                              AspectRatioWidth="2"
-                              AspectRatioHeight="3"
-                              ImagePath="@coverPath"
-                              PendingImageUrl="@coverUrl"
-                              AltText="@($"{name} cover preview")"/>
+            <ImageFieldWidget @ref="coverField" class="form-field form-field-md"
+                              Label="Cover" FieldName="cover" Category="platforms"
+                              ImageRef="cover" AspectRatio="1" AltText="@($"{name} cover preview")"/>
 
             @* ----- Icon ----- *@
-            <ImageFieldWidget @ref="iconImageField"
-                              class="form-field form-field-md"
-                              Label="Icon"
-                              FieldName="icon"
-                              Category="platforms"
-                              AspectRatioWidth="1"
-                              AspectRatioHeight="1"
-                              ImagePath="@iconImagePath"
-                              PendingImageUrl="@iconImageUrl"
-                              AltText="@($"{name} icon preview")"/>
+            <ImageFieldWidget @ref="iconField" class="form-field form-field-md"
+                              Label="Icon" FieldName="icon" Category="platforms"
+                              ImageRef="icon" AspectRatio="1" AltText="@($"{name} icon preview")"/>
         </div>
         
         <div class="form-row">
             @* ----- Logo ----- *@
-            <ImageFieldWidget @ref="logoImageField"
-                              class="form-field form-field-md"
-                              Label="Logo"
-                              FieldName="logo"
-                              Category="platforms"
-                              AspectRatioWidth="2"
-                              AspectRatioHeight="1"
-                              ImagePath="@logoPath"
-                              PendingImageUrl="@logoUrl"
-                              AltText="@($"{name} cover preview")"/>
+            <ImageFieldWidget @ref="logoField" class="form-field form-field-md"
+                              Label="Logo" FieldName="logo" Category="platforms"
+                              ImageRef="logo" AspectRatio="1" AltText="@($"{name} cover preview")"/>
 
             @* ----- Hero ----- *@
-            <ImageFieldWidget @ref="heroImageField"
-                              class="form-field form-field-md"
-                              Label="Hero"
-                              FieldName="hero"
-                              Category="platforms"
-                              AspectRatioWidth="96"
-                              AspectRatioHeight="31"
-                              ImagePath="@heroPath"
-                              PendingImageUrl="@heroUrl"
-                              AltText="@($"{name} hero preview")"/>
+            <ImageFieldWidget @ref="heroField" class="form-field form-field-md"
+                              Label="Hero" FieldName="hero" Category="platforms"
+                              ImageRef="hero" AspectRatio="1" AltText="@($"{name} hero preview")"/>
         </div>
 
         @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
@@ -132,7 +101,7 @@
             <button class="save-button"
                     type="button"
                     disabled="@(isSaving || string.IsNullOrWhiteSpace(name))"
-                    @onclick="HandleSavePlatform">
+                    @onclick="SaveButton_Clicked">
                 @(isSaving ? "Saving image..." : SaveButtonText)
             </button>
         </div>

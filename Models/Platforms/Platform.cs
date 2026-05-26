@@ -6,16 +6,13 @@ namespace GameLogBook.Models.Platforms;
 public class Platform(string name) : ILibraryEntry
 {
     // Database
-    public int ID { get; set; }
+    public int ID { get; init; }
 
     // Information
     public string Name { get; set; } = name;
-    public string? Abbreviation { get; set; }
+    public string? ShortName { get; set; }
     public DateOnly? ReleaseDate { get; set; }
     public string? Summary { get; set; }
-    
-    // TODO - Change this to a relational DB
-    public int[]? ManufacturerIds { get; set; }
     
     // Images
     public ImageRef? Cover { get; set; }
@@ -24,19 +21,23 @@ public class Platform(string name) : ILibraryEntry
     public ImageRef? Icon { get; set; }
     
     // Relation DBs
+    // TODO - Change this to a relational DB
+    public int[]? ManufacturerIds { get; set; }
     
-    // IGDB
-    public long? IgdbId { get; set; }
+    // APIs
+    public long? IGDB { get; set; }
     
-    // ILibraryEntry
+    // Interface Redirects
     public DateOnly? Date => ReleaseDate;
 
+    #region Constructors
+    
     public Platform(Platform other) : this(other.Name)
     {
         ID = other.ID;
 
         Name = other.Name;
-        Abbreviation = other.Abbreviation;
+        ShortName = other.ShortName;
         ReleaseDate = other.ReleaseDate;
         Summary = other.Summary;
         
@@ -47,6 +48,8 @@ public class Platform(string name) : ILibraryEntry
         Logo = other.Logo;
         Icon = other.Icon;
         
-        IgdbId = other.IgdbId;
+        IGDB = other.IGDB;
     }
+    
+    #endregion
 }

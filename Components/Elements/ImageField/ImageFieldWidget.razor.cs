@@ -1,3 +1,4 @@
+using GameLogBook.Models;
 using GameLogBook.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -9,26 +10,42 @@ public partial class ImageFieldWidget : IAsyncDisposable
 {
     private const string DefaultAccept = "image/png,image/jpeg,image/gif,image/webp";
 
-    private string? previousImagePath;
-    private string? previousPendingImageUrl;
-    private string existingImagePath = string.Empty;
-    private string urlInput = string.Empty;
+    // Keeping track of variables
+    private ImageRef? previousImageRef;
+    private ImageRef? existingImageRef = null;
+    
+    // Input
+    private string? urlInput = null;
+    
+    // Image
     private string? tempImagePath;
     private string? previewSource;
+    
+    // Error
     private string? errorMessage;
+    
+    // Controls
     private bool isBusy;
+    
+    // Reset
     private bool resetRequested;
+    
+    // Preview
     private bool isPreviewObserverConnected;
+    
+    // Elements
     private ElementReference widgetElement;
     private ElementReference controlsElement;
 
+    // Inject
     [Inject]
     private LocalImageService LocalImageService { get; set; } = null!;
 
     [Inject]
-    private IJSRuntime JSRuntime { get; set; } = null!;
+    private IJSRuntime JsRuntime { get; set; } = null!;
 
-    [Parameter]
+    // Parameters
+    [Parameter, EditorRequired]
     public string Label { get; set; } = "Image";
 
     [Parameter]
@@ -38,10 +55,7 @@ public partial class ImageFieldWidget : IAsyncDisposable
     public string Category { get; set; } = "images";
 
     [Parameter]
-    public string? ImagePath { get; set; }
-
-    [Parameter]
-    public string? PendingImageUrl { get; set; }
+    public ImageRef? ImageRef { get; set; }
 
     [Parameter]
     public string? AltText { get; set; }
@@ -54,12 +68,9 @@ public partial class ImageFieldWidget : IAsyncDisposable
 
     [Parameter]
     public string Accept { get; set; } = DefaultAccept;
-
-    [Parameter]
-    public double AspectRatioWidth { get; set; } = 2;
-
-    [Parameter]
-    public double AspectRatioHeight { get; set; } = 3;
+    
+    [Parameter, EditorRequired]
+    public double AspectRatio { get; set; }
 
     [Parameter(CaptureUnmatchedValues = true)]
     public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
@@ -81,17 +92,13 @@ public partial class ImageFieldWidget : IAsyncDisposable
 
     private string UrlInputId => $"{FieldName}-image-url";
 
-    private double SafeAspectRatioWidth => AspectRatioWidth > 0 ? AspectRatioWidth : 2;
+    private bool IsWide => AspectRatio > 1;
 
-    private double SafeAspectRatioHeight => AspectRatioHeight > 0 ? AspectRatioHeight : 3;
-
-    private bool IsWideAspectRatio => SafeAspectRatioWidth > SafeAspectRatioHeight;
-
-    private string WidgetClass => IsWideAspectRatio
-                                      ? "image-field-widget image-field-widget-wide"
+    private string WidgetClass => IsWide ? "image-field-widget image-field-widget-wide" 
                                       : "image-field-widget image-field-widget-tall";
 
-    private string WidgetStyle => $"--image-field-preview-aspect-width: {SafeAspectRatioWidth}; --image-field-preview-aspect-height: {SafeAspectRatioHeight};";
+    private string WidgetStyle => $"--image-field-preview-aspect-width: {ToFractionalAspectRatio(AspectRatio).Width}; " +
+                                  $"--image-field-preview-aspect-height: {ToFractionalAspectRatio(AspectRatio).Width};";
 
     private string PreviewAltText => string.IsNullOrWhiteSpace(AltText)
                                          ? $"{Label} preview"
@@ -99,21 +106,26 @@ public partial class ImageFieldWidget : IAsyncDisposable
 
     protected override async Task OnParametersSetAsync()
     {
-        if (previousImagePath == ImagePath && previousPendingImageUrl == PendingImageUrl)
+        if (previousImageRef == ImageRef)
         {
             return;
         }
 
-        previousImagePath = ImagePath;
-        previousPendingImageUrl = PendingImageUrl;
+        previousImageRef = ImageRef;
 
         await DeleteCurrentTempImage();
-
-        existingImagePath = ImagePath ?? string.Empty;
-        urlInput = PendingImageUrl ?? string.Empty;
+        
         resetRequested = false;
+
+        // Image
+        existingImageRef = ImageRef;
+        urlInput = ImageRef?.PendingUrl;
+        
+        // Error
         errorMessage = null;
-        previewSource = await LocalImageService.GetImageSourceAsync(existingImagePath);
+        
+        // Preview
+        previewSource = await LocalImageService.GetImageSourceAsync(existingImageRef?.Path);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -123,28 +135,56 @@ public partial class ImageFieldWidget : IAsyncDisposable
             return;
         }
 
-        await JSRuntime.InvokeVoidAsync("gameLogBookImageField.observe", widgetElement, controlsElement);
+        await JsRuntime.InvokeVoidAsync("gameLogBookImageField.observe", widgetElement, controlsElement);
         isPreviewObserverConnected = true;
     }
 
-    public async Task<string?> CommitAsync()
+    public async Task<ImageRef?> CommitAsync()
     {
         if (!string.IsNullOrWhiteSpace(tempImagePath))
         {
-            string finalImagePath = await LocalImageService.MoveTempImageAsync(tempImagePath, Category);
-            tempImagePath = null;
-            existingImagePath = finalImagePath;
             resetRequested = false;
 
-            return finalImagePath;
+            if (existingImageRef is not null && tempImagePath is not null)
+            {
+                string finalImagePath = await LocalImageService.MoveTempImageAsync(tempImagePath, Category);
+                existingImageRef.Path = finalImagePath;
+            }
+            
+            tempImagePath = null;
+            return existingImageRef;
         }
 
-        if (resetRequested || string.IsNullOrWhiteSpace(existingImagePath))
+        if (resetRequested || string.IsNullOrWhiteSpace(existingImageRef?.Path))
         {
             return null;
         }
 
-        return existingImagePath;
+        return existingImageRef;
+    }
+    
+    public async Task<string?> CommitPathAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(tempImagePath))
+        {
+            resetRequested = false;
+
+            if (existingImageRef is not null && tempImagePath is not null)
+            {
+                string finalImagePath = await LocalImageService.MoveTempImageAsync(tempImagePath, Category);
+                existingImageRef.Path = finalImagePath;
+            }
+            
+            tempImagePath = null;
+            return existingImageRef?.Path;
+        }
+
+        if (resetRequested || string.IsNullOrWhiteSpace(existingImageRef?.Path))
+        {
+            return null;
+        }
+
+        return existingImageRef?.Path;
     }
 
     private void HandleUrlChanged(ChangeEventArgs args)
@@ -176,7 +216,8 @@ public partial class ImageFieldWidget : IAsyncDisposable
     {
         await DeleteCurrentTempImage();
 
-        existingImagePath = string.Empty;
+        existingImageRef = null;
+        
         urlInput = string.Empty;
         previewSource = null;
         errorMessage = null;
@@ -226,7 +267,7 @@ public partial class ImageFieldWidget : IAsyncDisposable
         {
             try
             {
-                await JSRuntime.InvokeVoidAsync("gameLogBookImageField.cleanup", widgetElement);
+                await JsRuntime.InvokeVoidAsync("gameLogBookImageField.cleanup", widgetElement);
             }
             catch (JSDisconnectedException)
             {
@@ -237,5 +278,25 @@ public partial class ImageFieldWidget : IAsyncDisposable
         }
 
         await DeleteCurrentTempImage();
+    }
+    
+    public static (int Width, int Height) ToFractionalAspectRatio(double aspectRatio, int precision = 1000)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(aspectRatio);
+
+        int numerator = (int)Math.Round(aspectRatio * precision);
+        int gcd = GreatestCommonDivisor(numerator, precision);
+
+        return (numerator / gcd, precision / gcd);
+    }
+
+    private static int GreatestCommonDivisor(int a, int b)
+    {
+        while (b != 0)
+        {
+            (a, b) = (b, a % b);
+        }
+
+        return Math.Abs(a);
     }
 }

@@ -141,6 +141,22 @@
     /*----- Transform -----*/
     --transform-scale-sm: 1.2;
 
+    /*----- Checker -----*/
+    --checker-size: 1rem;
+    
+    --checker-color-a: #ebedf1;
+    --checker-color-b: #d0d2d6;
+    
+    --checker-gradient-a: var(--checker-color-a) 25%;
+    --checker-gradient-b: var(--checker-color-b) 0 50%;
+    --checker-gradient-c: var(--checker-color-a) 0 75%;
+    --checker-gradient-d: var(--checker-color-b) 0%;
+    
+    --checker-gradient: conic-gradient(var(--checker-gradient-a), var(--checker-gradient-b), var(--checker-gradient-c), var(--checker-gradient-d));
+    --checker-layout: 0 0 / var(--checker-size) var(--checker-size);
+    
+    --checker-board: var(--checker-gradient) var(--checker-layout);
+
     /*----- Debug -----*/
     --debug-border-size-sm: 0.1rem;
     --debug-border-size-md: 0.2rem;

@@ -7,7 +7,7 @@ namespace GameLogBook.Models.Games;
 public class Game : ILibraryEntry
 {
     #region Constants
-    public const int MaxRating = 5;
+    public const int MaxRating = 10;
     #endregion
     
     // Database
@@ -42,24 +42,33 @@ public class Game : ILibraryEntry
     
     #region Constructors
 
-    public Game()
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="name">Name of the game. *Required*</param>
+    public Game(string name)
     {
+        // Database
         ID = -1;
-        IGDB = -1;
 
+        // Information
+        Name = name;
         GameType = GameType.None;
-
-        Name = string.Empty;
-        Summary = string.Empty;
         ReleaseDate = DateOnly.MinValue;
+        Summary = string.Empty;
         
+        // Images
         Cover = null;
         Hero = null;
         Logo = null;
         Icon = null;
 
+        // Relations
         GameCompanies = [];
         GamePlatforms = [];
+        
+        // APIs
+        IGDB = -1;
     }
 
     public Game(Game copyFrom)
