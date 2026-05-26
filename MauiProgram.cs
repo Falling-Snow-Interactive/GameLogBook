@@ -22,10 +22,10 @@ public static class MauiProgram
         builder.Logging.AddDebug();
         #endif
 
-        AddEmbeddedJsonConfiguration(builder.Configuration, "GameLogBook.appsettings.json");
+        AddEmbeddedJsonConfiguration(builder.Configuration, "appsettings.json");
         
         #if DEBUG
-        AddEmbeddedJsonConfiguration(builder.Configuration, "GameLogBook.appsettings.Development.json");
+        AddEmbeddedJsonConfiguration(builder.Configuration, "appsettings.Development.json");
         #endif
 
         builder.Services.Configure<IgdbSettings>(builder.Configuration.GetSection("Igdb"));
@@ -49,15 +49,20 @@ public static class MauiProgram
         return app;
     }
 
-    private static void AddEmbeddedJsonConfiguration(IConfigurationBuilder configuration, string resourceName)
+    private static void AddEmbeddedJsonConfiguration(IConfigurationBuilder configuration, string resourceFileName)
     {
-        Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName);
+        Assembly assembly = Assembly.GetExecutingAssembly();
+        string? resourceName = assembly.GetManifestResourceNames()
+                                       .FirstOrDefault(name =>
+                                                           name.EndsWith($".{resourceFileName}",
+                                                                         StringComparison.OrdinalIgnoreCase));
 
-        if (stream is null)
+        if (resourceName is null)
         {
             return;
         }
 
+        Stream stream = assembly.GetManifestResourceStream(resourceName)!;
         configuration.AddJsonStream(stream);
     }
 }
