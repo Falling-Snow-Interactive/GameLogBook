@@ -1,36 +1,34 @@
 @using VGL.Components.Popups.AddPopup
 
-<AddPopupShell Title="@PopupTitle"
-               Description="Search the shared catalog, import from IGDB, or save a local fallback for offline use."
-               SearchFor="@IgdbSearchFor.Companies"
-               SearchPlaceholder="Search for a company"
-               PopupClass="popup company-popup"
-               FormClass="company-form"
-               OnClose="HandleClose"
-               OnCompanySelected="HandleCompanySelected">
+<AddPopup Title="@PopupTitle"
+          Description="Search the shared catalog, import from IGDB, or save a local fallback for offline use."
+          SearchFor="@IgdbSearchFor.Companies"
+          SearchPlaceholder="Search for a company"
+          PopupClass="popup company-popup"
+          FormClass="company-form"
+          OnClose="HandleClose"
+          OnCompanySelected="HandleCompanySelected">
     
-    <div class="form-field">
-        <span>Name</span>
+    <EntryField Label="Name">
         <input class="text-input"
                @bind="name"
                @bind:event="oninput"
                placeholder="Name..."/>
-    </div>
+    </EntryField>
 
-    <div class="form-field">
-        <span>Summary</span>
+    <EntryField Label="Summary">
         <input class="detail-textarea"
                @bind="summary"
                @bind:event="oninput"
                placeholder="Summary..."/>
-    </div>
+    </EntryField>
 
-    <div class="form-actions">
+    <AddPopupActions>
         <button class="save-button"
                 type="button"
                 disabled="@(isSaving || string.IsNullOrWhiteSpace(name))"
                 @onclick="HandleSaveCompany">
             @(isSaving ? "Saving image..." : SaveButtonText)
         </button>
-    </div>
-</AddPopupShell>
+    </AddPopupActions>
+</AddPopup>

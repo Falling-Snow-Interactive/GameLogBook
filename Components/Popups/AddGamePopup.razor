@@ -1,103 +1,89 @@
 @using VGL.Models.Games
 
-<AddPopupShell Title="@PopupTitle" SearchFor="@IgdbSearchFor.Games" SearchPlaceholder="Search for a game"
-               OnClose="HandleCloseButtonClick" OnGameSelected="HandleGameSelected" LocalCompanies="@Companies">
+<AddPopup Title="@PopupTitle"
+          SearchFor="@IgdbSearchFor.Games"
+          SearchPlaceholder="Search for a game"
+          OnClose="HandleCloseButtonClick"
+          OnGameSelected="HandleGameSelected"
+          LocalCompanies="@Companies">
     <div class="game-details-form">
-        <section class="form-section">
-            <h4 class="form-section-title">Information</h4>
+        <AddPopupSection Title="Information">
+            <EntryField Label="Name" Class="form-span-all">
+                <input class="game-detail-input" @bind="name" @bind:event="oninput" placeholder="Game name" />
+            </EntryField>
 
-            <div class="adaptive-form-grid">
-                <label class="form-field form-span-all">
-                    <span>Name</span>
-                    <input class="game-detail-input" @bind="name"@bind:event="oninput" placeholder="Game name"/>
-                </label>
+            <EntryField Label="Release Date">
+                <input class="game-detail-input" type="date" @bind="releaseDate" @bind:event="oninput" placeholder="Release date" />
+            </EntryField>
 
-                <label class="form-field">
-                    <span>Release Date</span>
-                    <input class="game-detail-input" type="date" @bind="releaseDate" @bind:event="oninput" placeholder="Release date"/>
-                </label>
+            <EntryField Label="Type">
+                <EnumDropdown TEnum="GameType" class="game-detail-input" @bind-Value="type" />
+            </EntryField>
 
-                <label class="form-field">
-                    <span>Type</span>
-                    <EnumDropdown TEnum="GameType" class="game-detail-input" @bind-Value="type" />
-                </label>
+            <EntryField Label="Ownership">
+                <OwnershipInputWidget />
+            </EntryField>
 
-                <label class="form-field">
-                    <span>Ownership</span>
-                    <OwnershipInputWidget/>
-                </label>
+            <EntryField Label="Summary" Class="form-span-all">
+                <textarea class="game-detail-textarea" @bind="summary" @bind:event="oninput" placeholder="Summary"></textarea>
+            </EntryField>
 
-                <label class="form-field form-span-all">
-                    <span>Summary</span>
-                    <textarea class="game-detail-textarea" @bind="summary" @bind:event="oninput" placeholder="Summary"></textarea>
-                </label>
+            @if (availableCompanies.Count == 0)
+            {
+                <EntryField Class="form-span-all" Hint="No shared companies exist yet, so this game will save without developer or publisher links." />
+            }
 
-                @if (availableCompanies.Count == 0)
-                {
-                    <div class="form-field form-span-all">
-                        <p class="form-hint">No shared companies exist yet, so this game will save without developer or publisher links.</p>
-                    </div>
-                }
+            <EntryField Label="Developer" Class="form-span-wide" UseLabel="false">
+                <CompanySearch Companies="availableCompanies"
+                               @bind-SelectedCompanyIds="selectedDeveloperIDs"
+                               @bind-SearchText="developerSearchText"
+                               OnCompanyAdded="HandleCompanyAdded"
+                               Placeholder="Search companies..." />
+            </EntryField>
 
-                <div class="form-field form-span-wide">
-                    <span>Developer</span>
-                    <CompanySearch Companies="availableCompanies" @bind-SelectedCompanyIds="selectedDeveloperIDs"
-                                   @bind-SearchText="developerSearchText" OnCompanyAdded="HandleCompanyAdded"
-                                   Placeholder="Search companies..." />
-                </div>
+            <EntryField Label="Publisher" Class="form-span-wide" UseLabel="false">
+                <CompanySearch Companies="availableCompanies"
+                               @bind-SelectedCompanyIds="selectedPublisherIDs"
+                               @bind-SearchText="publisherSearchText"
+                               OnCompanyAdded="HandleCompanyAdded"
+                               Placeholder="Search companies..." />
+            </EntryField>
+        </AddPopupSection>
 
-                <div class="form-field form-span-wide">
-                    <span>Publisher</span>
-                    <CompanySearch Companies="availableCompanies" @bind-SelectedCompanyIds="selectedPublisherIDs"
-                                   @bind-SearchText="publisherSearchText" OnCompanyAdded="HandleCompanyAdded"
-                                   Placeholder="Search companies..." />
-                </div>
-            </div>
-        </section>
+        <AddPopupSection Title="Images">
+            <ImageFieldWidget @ref="coverField" class="form-span-wide"
+                              Label="Cover" FieldName="cover" Category="games"
+                              ImageRef="cover" AspectRatio="1" AltText="@($"{name} cover preview")" />
 
-        <section class="form-section">
-            <h4 class="form-section-title">Images</h4>
+            <ImageFieldWidget @ref="logoField" class="form-span-wide"
+                              Label="Logo" FieldName="logo" Category="games"
+                              ImageRef="logo" AspectRatio="1" AltText="@($"{name} logo preview")" />
 
-            <div class="adaptive-form-grid">
-                <ImageFieldWidget @ref="coverField" class="form-span-wide"
-                                  Label="Cover" FieldName="cover" Category="games"
-                                  ImageRef="cover" AspectRatio="1" AltText="@($"{name} cover preview")" />
+            <ImageFieldWidget @ref="heroField" class="form-span-wide"
+                              Label="Hero" FieldName="hero" Category="games"
+                              ImageRef="hero" AspectRatio="1" AltText="@($"{name} hero preview")" />
 
-                <ImageFieldWidget @ref="logoField" class="form-span-wide"
-                                  Label="Logo" FieldName="logo" Category="games"
-                                  ImageRef="logo" AspectRatio="1" AltText="@($"{name} logo preview")" />
-
-                <ImageFieldWidget @ref="heroField" class="form-span-wide"
-                                  Label="Hero" FieldName="hero" Category="games"
-                                  ImageRef="hero" AspectRatio="1" AltText="@($"{name} hero preview")" />
-
-                <ImageFieldWidget @ref="iconField" class="form-span-wide"
-                                  Label="Icon" FieldName="icon" Category="games"
-                                  ImageRef="icon" AspectRatio="1" AltText="@($"{name} icon preview")" />
-            </div>
-        </section>
+            <ImageFieldWidget @ref="iconField" class="form-span-wide"
+                              Label="Icon" FieldName="icon" Category="games"
+                              ImageRef="icon" AspectRatio="1" AltText="@($"{name} icon preview")" />
+        </AddPopupSection>
 
         @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
         {
             <p class="form-hint">@imageErrorMessage</p>
         }
 
-        <section class="form-section">
-            <h4 class="form-section-title">APIs</h4>
+        <AddPopupSection Title="APIs">
+            <EntryField Label="IGDB ID">
+                <input class="game-detail-input" type="number" @bind="igdb" @bind:event="oninput" placeholder="id" />
+            </EntryField>
+        </AddPopupSection>
 
-            <div class="adaptive-form-grid">
-                <label class="form-field">
-                    <span>IGDB ID</span>
-                    <input class="game-detail-input" type="number"@bind="igdb"@bind:event="oninput" placeholder="id"/>
-                </label>
-            </div>
-        </section>
-
-        <div class="form-actions">
+        <AddPopupActions>
             <button class="save-button" type="button" @onclick="HandleSaveButtonClick" 
                     disabled="@(isSaving || string.IsNullOrWhiteSpace(name))">
                 @(isSaving ? "Saving image..." : SaveButtonText)
             </button>
-        </div>
+        </AddPopupActions>
     </div>
-</AddPopupShell>
+</AddPopup>

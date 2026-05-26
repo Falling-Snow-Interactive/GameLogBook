@@ -1,88 +1,73 @@
 @using VGL.Models.Games
-<div class="popup-backdrop" @onclick="HandleClose">
-    <div class="popup" @onclick:stopPropagation="true">
-        <div class="popup-header">
-            <h3>@PopupTitle</h3>
-            <button class="close-button"
-                    type="button"
-                    title="Close"
-                    @onclick="HandleClose">
-                X
-            </button>
-        </div>
-        
-        <div class="popup-content">
-            <div class="playthrough-details-form">
-                <label class="form-field">
-                    <span>Name</span>
-                    <input class="playthrough-detail-input"
-                           @bind="playthroughName"
-                           @bind:event="oninput"
-                           placeholder="Enter name..."/>
 
-                </label>
+<AddPopup Title="@PopupTitle"
+          ShowSearch="false"
+          OnClose="HandleClose">
+    <div class="playthrough-details-form">
+        <EntryField Label="Name">
+            <input class="playthrough-detail-input"
+                   @bind="playthroughName"
+                   @bind:event="oninput"
+                   placeholder="Enter name..." />
+        </EntryField>
 
-                <div class="form-field game-picker-section">
-                    <span>Games</span>
-
-                    <div class="game-picker-card">
-                        <div class="game-picker-row">
-                            <select class="playthrough-detail-input"
-                                    value="@selectedGameIdToAdd"
-                                    @onchange="HandleSelectedGameChanged">
-                                <option value="">Select a game...</option>
-                                @foreach (Game game in AvailableGamesToAdd)
-                                {
-                                    <option value="@game.ID">@game.Name</option>
-                                }
-                            </select>
-
-                            <button class="add-game-button"
-                                    type="button"
-                                    @onclick="HandleAddSelectedGame"
-                                    disabled="@(selectedGameIdToAdd is null)">
-                                Add Game
-                            </button>
-                        </div>
-
-                        @if (selectedGameIds.Count == 0)
+        <EntryField Label="Games" Class="game-picker-section" UseLabel="false">
+            <div class="game-picker-card">
+                <div class="game-picker-row">
+                    <select class="playthrough-detail-input"
+                            value="@selectedGameIdToAdd"
+                            @onchange="HandleSelectedGameChanged">
+                        <option value="">Select a game...</option>
+                        @foreach (Game game in AvailableGamesToAdd)
                         {
-                            <p class="empty-games-message">No games added yet.</p>
+                            <option value="@game.ID">@game.Name</option>
                         }
-                        else
+                    </select>
+
+                    <button class="add-game-button"
+                            type="button"
+                            @onclick="HandleAddSelectedGame"
+                            disabled="@(selectedGameIdToAdd is null)">
+                        Add Game
+                    </button>
+                </div>
+
+                @if (selectedGameIds.Count == 0)
+                {
+                    <p class="empty-games-message">No games added yet.</p>
+                }
+                else
+                {
+                    <div class="selected-games-list">
+                        @foreach (Game game in SelectedGames)
                         {
-                            <div class="selected-games-list">
-                                @foreach (Game game in SelectedGames)
-                                {
-                                    <div class="selected-game-row" @key="game.ID">
-                                        <span>@game.Name</span>
-                                        <button class="remove-game-button"
-                                                type="button"
-                                                title="Remove @game.Name"
-                                                @onclick="() => HandleRemoveGame(game.ID)">
-                                            Remove
-                                        </button>
-                                    </div>
-                                }
+                            <div class="selected-game-row" @key="game.ID">
+                                <span>@game.Name</span>
+                                <button class="remove-game-button"
+                                        type="button"
+                                        title="Remove @game.Name"
+                                        @onclick="() => HandleRemoveGame(game.ID)">
+                                    Remove
+                                </button>
                             </div>
                         }
                     </div>
-                </div>
-
-                <div class="form-actions">
-                    <button class="save-button"
-                            type="button"
-                            @onclick="HandleSavePlaythrough"
-                            disabled="@string.IsNullOrWhiteSpace(playthroughName)">
-                        @SaveButtonText
-                    </button>
-                </div>
+                }
             </div>
-        </div>
+        </EntryField>
+
+        <AddPopupActions>
+            <button class="save-button"
+                    type="button"
+                    @onclick="HandleSavePlaythrough"
+                    disabled="@string.IsNullOrWhiteSpace(playthroughName)">
+                @SaveButtonText
+            </button>
+        </AddPopupActions>
 
         @if (!string.IsNullOrWhiteSpace(errorMessage))
         {
             <p class="error-message">@errorMessage</p>
         }
     </div>
-</div>
+</AddPopup>

@@ -1,45 +1,20 @@
 @using VGL.Models.Companies
 @using VGL.Models.Games
 
-<div class="popup-backdrop" @onclick="HandleClose">
-    <div class="@PopupClass" @onclick:stopPropagation="true">
-        <div class="popup-header">
-            <div>
-                <h3>@Title</h3>
-
-                @if (!string.IsNullOrWhiteSpace(Description))
-                {
-                    <p>@Description</p>
-                }
-            </div>
-
-            <button class="close-button"
-                    type="button"
-                    title="Close"
-                    @onclick="HandleClose">
-                X
-            </button>
-        </div>
-
-        <div class="@ContentClass">
-            @if (ShowSearch)
-            {
-                <div class="igdb-search">
-                    <IGDBSearch SearchFor="@SearchFor"
-                                Placeholder="@SearchPlaceholder"
-                                LocalCompanies="@LocalCompanies"
-                                OnGameSelected="@OnGameSelected"
-                                OnPlatformSelected="@OnPlatformSelected"
-                                OnCompanySelected="@OnCompanySelected" />
-                </div>
-
-                <hr class="popup-divider" />
-             }
-
-            @ChildContent
-        </div>
-    </div>
-</div>
+<AddPopup Title="@Title"
+          Description="@Description"
+          SearchFor="@SearchFor"
+          SearchPlaceholder="@SearchPlaceholder"
+          PopupClass="@PopupClass"
+          FormClass="@FormClass"
+          ShowSearch="@ShowSearch"
+          OnClose="@OnClose"
+          OnGameSelected="@OnGameSelected"
+          OnPlatformSelected="@OnPlatformSelected"
+          OnCompanySelected="@OnCompanySelected"
+          LocalCompanies="@LocalCompanies">
+    @ChildContent
+</AddPopup>
 
 @code {
     [Parameter, EditorRequired]
@@ -81,12 +56,4 @@
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
-    private string ContentClass => string.IsNullOrWhiteSpace(FormClass)
-                                       ? "popup-content popup-form"
-                                       : $"popup-content popup-form {FormClass}";
-
-    private async Task HandleClose()
-    {
-        await OnClose.InvokeAsync();
-    }
 }

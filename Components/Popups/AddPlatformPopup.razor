@@ -1,8 +1,8 @@
-<AddPopupShell Title="@PopupTitle"
-               SearchFor="@IgdbSearchFor.Platforms"
-               SearchPlaceholder="Search for a platform"
-               OnClose="CloseButton_Clicked"
-               OnPlatformSelected="IGDBSearch_PlatformSelected">
+<AddPopup Title="@PopupTitle"
+          SearchFor="@IgdbSearchFor.Platforms"
+          SearchPlaceholder="Search for a platform"
+          OnClose="CloseButton_Clicked"
+          OnPlatformSelected="IGDBSearch_PlatformSelected">
     
     <div class="platform-details-form">
         @if (!string.IsNullOrWhiteSpace(searchErrorMessage))
@@ -81,4 +81,4 @@
             </button>
         </div>
     </div>
-</AddPopupShell>
+</AddPopup>

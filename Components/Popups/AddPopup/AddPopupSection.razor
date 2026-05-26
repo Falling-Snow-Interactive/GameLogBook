@@ -1,0 +1,48 @@
+<section class="@RootClass" @attributes="AttributesWithoutClass">
+    @if (!string.IsNullOrWhiteSpace(Title))
+    {
+        <h4 class="@TitleClass">@Title</h4>
+    }
+
+    <div class="@GridClass">
+        @ChildContent
+    </div>
+</section>
+
+@code {
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public string TitleClass { get; set; } = "form-section-title";
+
+    [Parameter]
+    public string GridClass { get; set; } = "adaptive-form-grid";
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string RootClass => string.Join(' ',
+                                           new[]
+                                           {
+                                               "form-section",
+                                               Class,
+                                               CapturedClass
+                                           }.Where(className => !string.IsNullOrWhiteSpace(className)));
+
+    private string? CapturedClass => AdditionalAttributes?.TryGetValue("class", out object? value) == true
+                                         ? value?.ToString()
+                                         : null;
+
+    private Dictionary<string, object> AttributesWithoutClass =>
+        AdditionalAttributes?
+            .Where(attribute => attribute.Key != "class")
+            .ToDictionary(attribute => attribute.Key, attribute => attribute.Value)
+        ?? [];
+}

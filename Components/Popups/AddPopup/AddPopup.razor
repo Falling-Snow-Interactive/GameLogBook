@@ -1,0 +1,92 @@
+@using VGL.Models.Companies
+@using VGL.Models.Games
+
+<div class="popup-backdrop" @onclick="HandleClose">
+    <div class="@PopupClass" @onclick:stopPropagation="true">
+        <div class="popup-header">
+            <div>
+                <h3>@Title</h3>
+
+                @if (!string.IsNullOrWhiteSpace(Description))
+                {
+                    <p>@Description</p>
+                }
+            </div>
+
+            <button class="close-button"
+                    type="button"
+                    title="Close"
+                    @onclick="HandleClose">
+                X
+            </button>
+        </div>
+
+        <div class="@ContentClass">
+            @if (ShowSearch)
+            {
+                <div class="igdb-search">
+                    <IGDBSearch SearchFor="@SearchFor"
+                                Placeholder="@SearchPlaceholder"
+                                LocalCompanies="@LocalCompanies"
+                                OnGameSelected="@OnGameSelected"
+                                OnPlatformSelected="@OnPlatformSelected"
+                                OnCompanySelected="@OnCompanySelected" />
+                </div>
+
+                <hr class="popup-divider" />
+            }
+
+            @ChildContent
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Description { get; set; }
+
+    [Parameter]
+    public IgdbSearchFor SearchFor { get; set; } = IgdbSearchFor.Games;
+
+    [Parameter]
+    public string SearchPlaceholder { get; set; } = "Search";
+
+    [Parameter]
+    public string PopupClass { get; set; } = "popup";
+
+    [Parameter]
+    public string? FormClass { get; set; }
+
+    [Parameter]
+    public bool ShowSearch { get; set; } = true;
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    [Parameter]
+    public EventCallback<Game> OnGameSelected { get; set; }
+
+    [Parameter]
+    public EventCallback<IGDBSearchPlatformResult> OnPlatformSelected { get; set; }
+
+    [Parameter]
+    public EventCallback<Company> OnCompanySelected { get; set; }
+
+    [Parameter]
+    public IReadOnlyList<Company> LocalCompanies { get; set; } = [];
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private string ContentClass => string.IsNullOrWhiteSpace(FormClass)
+                                       ? "popup-content popup-form"
+                                       : $"popup-content popup-form {FormClass}";
+
+    private async Task HandleClose()
+    {
+        await OnClose.InvokeAsync();
+    }
+}

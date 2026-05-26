@@ -1,0 +1,75 @@
+@if (UseLabel)
+{
+    <label class="@RootClass" @attributes="AttributesWithoutClass">
+        @FieldContent
+    </label>
+}
+else
+{
+    <div class="@RootClass" @attributes="AttributesWithoutClass">
+        @FieldContent
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string? Label { get; set; }
+
+    [Parameter]
+    public string LabelClass { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Hint { get; set; }
+
+    [Parameter]
+    public string? Error { get; set; }
+
+    [Parameter]
+    public bool UseLabel { get; set; } = true;
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string RootClass => string.Join(' ',
+                                           new[]
+                                           {
+                                               "form-field",
+                                               Class,
+                                               CapturedClass
+                                           }.Where(className => !string.IsNullOrWhiteSpace(className)));
+
+    private string? CapturedClass => AdditionalAttributes?.TryGetValue("class", out object? value) == true
+                                         ? value?.ToString()
+                                         : null;
+
+    private Dictionary<string, object> AttributesWithoutClass =>
+        AdditionalAttributes?
+            .Where(attribute => attribute.Key != "class")
+            .ToDictionary(attribute => attribute.Key, attribute => attribute.Value)
+        ?? [];
+
+    private RenderFragment FieldContent => @<text>
+        @if (!string.IsNullOrWhiteSpace(Label))
+        {
+            <span class="@LabelClass">@Label</span>
+        }
+
+        @ChildContent
+
+        @if (!string.IsNullOrWhiteSpace(Hint))
+        {
+            <p class="form-hint">@Hint</p>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Error))
+        {
+            <p class="form-hint">@Error</p>
+        }
+    </text>;
+}
