@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using VGL.Models.Companies;
 using VGL.Services;
 
-namespace VGL.Components.Elements.CompanyElements;
+namespace VGL.Components.Popups;
 
 public partial class AddCompanyPopup
 {

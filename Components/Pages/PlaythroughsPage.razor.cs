@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
-using VGL.Components.Elements.AddPlaythrough;
+using VGL.Components.Popups;
 using VGL.Models;
 using VGL.Models.Games;
 using VGL.Services;

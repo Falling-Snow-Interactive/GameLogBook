@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using VGL.Components.Elements.CompanyElements;
+using VGL.Components.Popups;
 using VGL.Models.Companies;
 using VGL.Models.Games;
 using VGL.Services;

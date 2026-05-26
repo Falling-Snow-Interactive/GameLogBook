@@ -21,9 +21,11 @@
     background-color: rgba(255, 255, 255, 0.5);
 }
 
-.top-row {
+.navbar-header {
     min-height: 3.5rem;
     background-color: rgba(0,0,0,0.4);
+
+    /*border: var(--debug-border-size-sm) dashed #00ff15;*/
 }
 
 .navbar-brand {
@@ -65,30 +67,18 @@
     color: white;
 }
 
-.nav-scrollable {
-    display: none;
-}
-
-.nav-scrollable .nav {
-    min-height: 100%;
-}
-
-.navbar-toggler:checked ~ .nav-scrollable {
-    display: block;
+.navbar-body {  
+    display: flex;
+    flex-grow: 1;
+    flex-shrink: 0;
+    flex-direction: column;
+    
+    /*border: var(--debug-border-size-sm) dashed #fffb00;*/
 }
 
 @media (min-width: 641px) {
     .navbar-toggler {
         display: none;
-    }
-
-    .nav-scrollable {
-        /* Never collapse the sidebar for wide screens */
-        display: block;
-
-        /* Allow sidebar to scroll for tall menus */
-        height: calc(100vh - 3.5rem);
-        overflow-y: auto;
     }
 }
 
@@ -99,4 +89,57 @@
 .nav-item-bottom {
     margin-top: auto;
     padding-top: 1rem;
+}
+
+.navbar-logo {
+    width: 100%;
+    height: auto;
+    max-height: 10rem;
+    
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.navbar-footer {
+    display: flex;
+    flex: 0;
+    flex-direction: row;
+    
+    width: 100%;
+    height:3rem;
+    
+    /*border: var(--debug-border-size-sm) dashed #00ffbc;*/
+}
+
+.navbar-settings {
+    color: #d7d7d7;
+    
+    flex-grow: 1;
+    flex-shrink: 0;
+
+    aspect-ratio: 1;
+    height: 100%;
+    width: auto;
+    
+    /*border: var(--debug-border-size-sm) dashed #ff0000;*/
+}
+
+.navbar-profile {
+    color: var(--color-surface);
+    
+    height: 100%;
+    width: auto;
+    
+    flex-grow: 1;
+    flex-shrink: 0;
+    
+    align-items: center;
+    align-content: center;
+    justify-items: center;
+    text-align: center;
+    text-justify: distribute;
+    
+    font-size: var(--font-size-title);
+    
+    /*border: var(--debug-border-size-sm) dashed #0015ff;*/
 }

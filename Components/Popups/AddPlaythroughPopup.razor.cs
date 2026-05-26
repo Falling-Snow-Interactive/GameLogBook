@@ -3,7 +3,7 @@ using VGL.Models;
 using VGL.Models.Games;
 using VGL.Services;
 
-namespace VGL.Components.Elements.AddPlaythrough;
+namespace VGL.Components.Popups;
 
 public partial class AddPlaythroughPopup : ComponentBase
 {

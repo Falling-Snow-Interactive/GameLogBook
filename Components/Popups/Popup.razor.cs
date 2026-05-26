@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using VGL.Services;
 
-namespace VGL.Components.Elements;
+namespace VGL.Components.Popups;
 
 public partial class Popup : ComponentBase
 {

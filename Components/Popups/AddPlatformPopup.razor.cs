@@ -9,7 +9,7 @@ using VGL.Services;
 using IGDBGame = IGDB.Models.Game;
 using Platform = VGL.Models.Platforms.Platform;
 
-namespace VGL.Components.Elements.PlatformElements;
+namespace VGL.Components.Popups;
 
 public partial class AddPlatformPopup : ComponentBase
 {

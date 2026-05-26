@@ -87,13 +87,13 @@ main {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-.nav-scrollable {
-    display: none;
-}
+/*.nav-scrollable {*/
+/*    display: none;*/
+/*}*/
 
-.navbar-toggler:checked ~ .nav-scrollable {
-    display: block;
-}
+/*.navbar-toggler:checked ~ .nav-scrollable {*/
+/*    display: block;*/
+/*}*/
 
 .nav-spacer {
     height: 1rem;
@@ -335,25 +335,22 @@ main {
     }
 
     .sidebar {
-        width: 250px;
-        height: 100vh;
+        width: 300px;
+        max-width: 300px;
+        height: 100%;
         position: sticky;
         top: 0;
+
+        display: flex;
+        flex-grow: 1;
+        flex-shrink: 0;
+        
+        flex-direction: column;
     }
 
     article {
         padding-left: 2rem !important;
         padding-right: 1.5rem !important;
-    }
-
-    .navbar-toggler {
-        display: none;
-    }
-
-    .nav-scrollable {
-        display: block;
-        height: calc(100vh - 3.5rem);
-        overflow-y: auto;
     }
 }
 

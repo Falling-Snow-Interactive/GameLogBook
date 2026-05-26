@@ -54,6 +54,7 @@
         <EmbeddedResource Include="appsettings.json" />
         <EmbeddedResource Include="appsettings.Development.json"
                           Condition="Exists('appsettings.Development.json')" />
+        <None Include="wwwroot\assets\logo_image.png" />
     </ItemGroup>
 
     <ItemGroup>
@@ -89,7 +90,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Components\Popups\" />
+      <AdditionalFiles Include="Components\Popups\AddPlaythrough\AddPlaythroughButton.razor" />
+      <AdditionalFiles Include="Components\Popups\AddPlaythrough\AddPlaythroughPopup.razor" />
+      <AdditionalFiles Include="Components\Popups\AddPopup\AddPopupShell.razor" />
     </ItemGroup>
 
 </Project>

@@ -7,7 +7,7 @@ using VGL.Services;
 using Company = VGL.Models.Companies.Company;
 using Game = VGL.Models.Games.Game;
 
-namespace VGL.Components.Elements.GameElements;
+namespace VGL.Components.Popups;
 
 public partial class AddGamePopup
 {

@@ -1,9 +1,5 @@
-@using VGL.Components.Elements.CompanyElements
-@using VGL.Components.Elements.IGDBSearch
-@using VGL.Components.Elements.AddPopup
-@using VGL.Components.Elements.ImageField
-@using VGL.Models.Companies
 @using VGL.Models.Games
+@using VGL.Components.Popups.AddPopup
 
 <AddPopupShell Title="@PopupTitle" SearchFor="@IgdbSearchFor.Games" SearchPlaceholder="Search for a game"
                OnClose="HandleCloseButtonClick" OnGameSelected="HandleGameSelected" LocalCompanies="@Companies">

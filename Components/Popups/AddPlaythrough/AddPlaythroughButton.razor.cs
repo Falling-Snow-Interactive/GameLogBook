@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace VGL.Components.Elements.AddPlaythrough;
+namespace VGL.Components.Popups.AddPlaythrough;
 
 public partial class AddPlaythroughButton : ComponentBase
 {
