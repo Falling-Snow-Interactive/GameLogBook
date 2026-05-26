@@ -7,7 +7,7 @@ public interface ILibraryEntry
     public string Name { get; }
     public string? Summary { get; }
     
-    public DateOnly? ReleaseDate { get; }
+    public DateOnly? Date { get; }
     
     public ImageRef? Cover { get; }
     public ImageRef? Hero { get; }

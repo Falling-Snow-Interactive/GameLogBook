@@ -498,7 +498,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
         LocalGame localGame = new()
                               {
-                                  IgdbId = igdbGame.Id ?? 0,
+                                  IGDB = igdbGame.Id ?? 0,
                                   Name = igdbGame.Name ?? string.Empty,
                                   Summary = igdbGame.Summary,
                                   ReleaseDate = ToDateOnly(igdbGame.FirstReleaseDate?.ToUnixTimeSeconds()),
@@ -531,7 +531,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     {
         if (igdbId.HasValue)
         {
-            LocalCompany? byIgdbId = LocalCompanies.FirstOrDefault(company => company.IgdbId == igdbId.Value);
+            LocalCompany? byIgdbId = LocalCompanies.FirstOrDefault(company => company.IGDB == igdbId.Value);
             if (byIgdbId is not null)
             {
                 return byIgdbId;
@@ -566,7 +566,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     {
         return new LocalCompany
                {
-                   IgdbId = igdbCompany.Id,
+                   IGDB = igdbCompany.Id,
                    Name = igdbCompany.Name ?? string.Empty,
                    PendingImageUrl = ToPendingImageUrl(igdbCompany.Logo?.Value),
                    LastSyncedAt = DateTimeOffset.UtcNow
@@ -919,12 +919,12 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
     private string GetCompanyRoleSummary(LocalCompany company)
     {
-        if (!company.IgdbId.HasValue)
+        if (!company.IGDB.HasValue)
         {
             return "Local company";
         }
 
-        LocalCompany? localCompany = LocalCompanies.FirstOrDefault(candidate => candidate.IgdbId == company.IgdbId);
+        LocalCompany? localCompany = LocalCompanies.FirstOrDefault(candidate => candidate.IGDB == company.IGDB);
         string[] linkedRoles = localCompany is null
                                    ? []
                                    : GetLinkedRoles(localCompany.ID);

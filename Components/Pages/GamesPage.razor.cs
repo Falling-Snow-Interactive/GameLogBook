@@ -48,10 +48,10 @@ public partial class GamesPage : CollectionPageBase<Game>
     {
         Company? existingCompany = null;
 
-        if (newCompany.IgdbId.HasValue)
+        if (newCompany.IGDB.HasValue)
         {
             existingCompany = await DbContext.Companies
-                                             .FirstOrDefaultAsync(company => company.IgdbId == newCompany.IgdbId.Value);
+                                             .FirstOrDefaultAsync(company => company.IGDB == newCompany.IGDB.Value);
         }
 
         if (existingCompany is null && !string.IsNullOrWhiteSpace(newCompany.Name))
@@ -59,7 +59,7 @@ public partial class GamesPage : CollectionPageBase<Game>
             string trimmedName = newCompany.Name.Trim();
 
             existingCompany = await DbContext.Companies
-                                             .FirstOrDefaultAsync(company => company.IgdbId == null
+                                             .FirstOrDefaultAsync(company => company.IGDB == null
                                                                              && company.Name == trimmedName);
         }
 
@@ -99,7 +99,7 @@ public partial class GamesPage : CollectionPageBase<Game>
             return;
         }
 
-        existingGame.IgdbId = updatedGame.IgdbId;
+        existingGame.IGDB = updatedGame.IGDB;
         existingGame.Name = updatedGame.Name.Trim();
         existingGame.ReleaseDate = updatedGame.ReleaseDate;
         existingGame.Summary = string.IsNullOrWhiteSpace(updatedGame.Summary) ? null : updatedGame.Summary.Trim();

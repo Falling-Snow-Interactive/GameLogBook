@@ -35,22 +35,22 @@
         <div class="library-entry-body">
             <div class="library-entry-information">
                 <label class="library-entry-title">@Entry.Name</label>
-                <DateOnlyWidget Date="Entry.ReleaseDate" 
+                <DateOnlyWidget Date="Entry.Date" 
                                 Class="library-entry-release-date" />
 
                 <div class="library-entry-companies">
                     @if (RelatedCompanies is { Count: > 0 })
                     { 
                         <span class="library-entry-games-label">Related games:</span> 
-                        <div class="game-chip-list">
-                        @foreach (Company company in RelatedCompanies)
-                        {
-                            <LocalImage ImageClass="entry-icon"
-                                        ImagePath="@company.Icon?.ImagePath"
-                                        AltText="@company.Name    icon"
-                                        MaxHeight="50" MaxWidth="50"/>
-                        }
-                        </div>
+                        @* <div class="game-chip-list"> *@
+                        @* @foreach (Company company in RelatedCompanies) *@
+                        @* { *@
+                        @*     <LocalImage ImageClass="entry-icon" *@
+                        @*                 ImagePath="@company.Icon?.ImagePath" *@
+                        @*                 AltText="@company.Name    icon" *@
+                        @*                 MaxHeight="50" MaxWidth="50"/> *@
+                        @* } *@
+                        @* </div> *@
                     }
                 </div>
 
@@ -58,15 +58,15 @@
                     @if (RelatedGames is { Count: > 0 })
                     {
                         <span class="library-entry-games-label">Related games:</span>
-                        <div class="game-chip-list">
-                            @foreach (Game game in RelatedGames)
-                            {
-                                <LocalImage ImageClass="entry-icon"
-                                            ImagePath="@game.Icon?.ImagePath"
-                                            AltText="@game.Name  icon"
-                                            MaxHeight="50" MaxWidth="50"/>
-                            }
-                        </div>
+                        @* <div class="game-chip-list"> *@
+                        @*     @foreach (Game game in RelatedGames) *@
+                        @*     { *@
+                        @*         <LocalImage ImageClass="entry-icon" *@
+                        @*                     ImagePath="@game.Icon?.ImagePath" *@
+                        @*                     AltText="@game.Name  icon" *@
+                        @*                     MaxHeight="50" MaxWidth="50"/> *@
+                        @*     } *@
+                        @* </div> *@
                     }
                 </div>
                 

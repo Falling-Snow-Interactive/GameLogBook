@@ -6,17 +6,19 @@ namespace GameLogBook.Models.Games;
 
 public class Game : ILibraryEntry
 {
-    // Constants
+    #region Constants
     public const int MaxRating = 5;
+    #endregion
     
-    // Game Properties
+    // Database
     public int ID { get; set; }
-    public long? IgdbId { get; set; }
     
     // Game Information
-    public GameType GameType { get; set; }
     public string Name { get; set; }
     public string? Summary { get; set; }
+    
+    public GameType GameType { get; set; }
+    
     public DateOnly? ReleaseDate { get; set; }
     
     // Images
@@ -32,12 +34,18 @@ public class Game : ILibraryEntry
     public List<GameCompany> GameCompanies { get; set; }
     public List<GamePlatform> GamePlatforms { get; set; }
     
+    // Online APIs
+    public long? IGDB { get; set; }
+    
+    // ILibaryEntry
+    public DateOnly? Date => ReleaseDate;
+    
     #region Constructors
 
     public Game()
     {
         ID = -1;
-        IgdbId = -1;
+        IGDB = -1;
 
         GameType = GameType.None;
 
@@ -57,7 +65,7 @@ public class Game : ILibraryEntry
     public Game(Game copyFrom)
     {
         ID = copyFrom.ID;
-        IgdbId = copyFrom.IgdbId;
+        IGDB = copyFrom.IGDB;
         
         GameType = copyFrom.GameType;
         

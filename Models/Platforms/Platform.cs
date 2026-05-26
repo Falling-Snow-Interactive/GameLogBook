@@ -27,6 +27,9 @@ public class Platform(string name) : ILibraryEntry
     
     // IGDB
     public long? IgdbId { get; set; }
+    
+    // ILibraryEntry
+    public DateOnly? Date => ReleaseDate;
 
     public Platform(Platform other) : this(other.Name)
     {

@@ -79,7 +79,7 @@ public partial class AddCompanyPopup
         Company company = new()
                           {
                               ID = InitialCompany?.ID ?? 0,
-                              IgdbId = companyIgdbId,
+                              IGDB = companyIgdbId,
                               Name = companyName.Trim(),
                               ImagePath = imagePath,
                               LastSyncedAt = DateTimeOffset.UtcNow
@@ -110,7 +110,7 @@ public partial class AddCompanyPopup
 
     private async Task LoadCompany(Company company)
     {
-        companyIgdbId = company.IgdbId;
+        companyIgdbId = company.IGDB;
         companyName = company.Name;
         companyImagePath = company.ImagePath ?? string.Empty;
         companyImageUrl = company.PendingImageUrl ?? string.Empty;

@@ -34,16 +34,16 @@ public partial class CompaniesPage : CollectionPageBase<Company>
     {
         Company? existingCompany = null;
 
-        if (newCompany.IgdbId.HasValue)
+        if (newCompany.IGDB.HasValue)
         {
             existingCompany = await DbContext.Companies
-                                             .FirstOrDefaultAsync(company => company.IgdbId == newCompany.IgdbId.Value);
+                                             .FirstOrDefaultAsync(company => company.IGDB == newCompany.IGDB.Value);
         }
 
         if (existingCompany is null && !string.IsNullOrWhiteSpace(newCompany.Name))
         {
             existingCompany = await DbContext.Companies
-                                             .FirstOrDefaultAsync(company => company.IgdbId == null
+                                             .FirstOrDefaultAsync(company => company.IGDB == null
                                                                              && company.Name == newCompany.Name.Trim());
         }
 
@@ -74,7 +74,7 @@ public partial class CompaniesPage : CollectionPageBase<Company>
             return;
         }
 
-        existingCompany.IgdbId = updatedCompany.IgdbId;
+        existingCompany.IGDB = updatedCompany.IGDB;
         existingCompany.Name = updatedCompany.Name.Trim();
         existingCompany.ImagePath = string.IsNullOrWhiteSpace(updatedCompany.ImagePath)
                                         ? null
@@ -114,7 +114,7 @@ public partial class CompaniesPage : CollectionPageBase<Company>
 
     private string GetCompanySourceSummary(Company company)
     {
-        return company.IgdbId.HasValue ? "IGDB" : "Manual";
+        return company.IGDB.HasValue ? "IGDB" : "Manual";
     }
 
     private bool CompanyHasLinkedGames(Company company)
@@ -130,7 +130,7 @@ public partial class CompaniesPage : CollectionPageBase<Company>
             return false;
         }
 
-        company = DbContext.Companies.FirstOrDefault(company => company.IgdbId == igdbId.Value);
+        company = DbContext.Companies.FirstOrDefault(company => company.IGDB == igdbId.Value);
         return company != null;
     }
 
@@ -190,7 +190,7 @@ public partial class CompaniesPage : CollectionPageBase<Company>
         Company editableCompany = new()
                                   {
                                       ID = company.ID,
-                                      IgdbId = company.IgdbId,
+                                      IGDB = company.IGDB,
                                       Name = company.Name,
                                       ImagePath = company.ImagePath,
                                       LastSyncedAt = company.LastSyncedAt

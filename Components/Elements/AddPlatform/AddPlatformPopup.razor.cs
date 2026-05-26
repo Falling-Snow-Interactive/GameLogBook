@@ -271,8 +271,8 @@ public partial class AddPlatformPopup : ComponentBase
         }
 
         long?[] localIgdbGameIds = Games
-                                   .Where(game => game.IgdbId > 0)
-                                   .Select(game => game.IgdbId)
+                                   .Where(game => game.IGDB > 0)
+                                   .Select(game => game.IGDB)
                                    .ToArray();
 
         if (localIgdbGameIds.Length == 0)
@@ -301,7 +301,7 @@ public partial class AddPlatformPopup : ComponentBase
                                            .ToHashSet();
 
             selectedGameIds = Games
-                              .Where(game => game.IgdbId.HasValue && matchedGameIds.Contains(game.IgdbId.Value))
+                              .Where(game => game.IGDB.HasValue && matchedGameIds.Contains(game.IGDB.Value))
                               .Select(game => game.ID)
                               .ToHashSet();
         }

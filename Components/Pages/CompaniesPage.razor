@@ -1,7 +1,8 @@
 @page "/companies"
-@using GameLogBook.Components.Elements.AddCompany
+
 @using GameLogBook.Models.Companies
-@using GameLogBook.Models.Games
+@using GameLogBook.Components.Elements.LibraryEntries
+
 @inherits CollectionPageBase<Company>
 
 <PageTitle>Companies</PageTitle>
@@ -16,66 +17,70 @@
     <div class="collection-grid">
         @foreach (Company company in Items)
         {
-            <article class="collection-card company-card"
-                     role="button"
-                     tabindex="0"
-                     @onclick="() => OpenEditPopup(company)">
-                @if (!string.IsNullOrWhiteSpace(company.ImagePath))
-                {
-                    <LocalImage ImagePath="@company.ImagePath"
-                                ImageClass="company-cover"
-                                AltText="@($"{company.Name} logo")">
-                        <Placeholder>
-                            <div class="company-cover company-cover-placeholder">
-                                <span class="bi bi-building" aria-hidden="true"></span>
-                            </div>
-                        </Placeholder>
-                    </LocalImage>
-                }
-                else
-                {
-                    <div class="company-cover company-cover-placeholder">
-                        <span class="bi bi-building" aria-hidden="true"></span>
-                    </div>
-                }
-
-                <div class="company-content">
-                    <div class="company-title-row">
-                        <h4>@company.Name</h4>
-                        <button class="collection-remove-button"
-                                type="button"
-                                title="Remove @company.Name"
-                                disabled="@CompanyHasLinkedGames(company)"
-                                @onclick:stopPropagation="true"
-                                @onclick="() => HandleRemove(company)">
-                            Remove
-                        </button>
-                    </div>
-
-                    <div class="company-badges">
-                        <span class="company-badge neutral-badge">@GetCompanySourceSummary(company)</span>
-                        <span class="company-badge neutral-badge">@GetCompanyRoleSummary(company)</span>
-                    </div>
-
-                    <div class="company-games">
-                        <span class="company-games-label">Games worked on</span>
-
-                        @if (GetGameNames(company).Count == 0)
-                        {
-                            <span class="company-games-empty">No linked games yet</span>
-                        }
-                        else
-                        {
-                            <div class="game-chip-list">
-                                @foreach (string gameName in GetGameNames(company))
-                                {
-                                    <span class="game-chip">@gameName</span>
-                                }
-                            </div>
-                        }
-                    </div>
-                </div>
-            </article>
+            <LibraryEntry Entry="company"
+                          OnClick="() => OpenEditPopup(company)"
+                          OnRemove="() => RemoveItemAsync(company)"/>
+            
+            @* <article class="collection-card company-card" *@
+            @*          role="button" *@
+            @*          tabindex="0" *@
+            @*          @onclick="() => OpenEditPopup(company)"> *@
+            @*     @if (!string.IsNullOrWhiteSpace(company.ImagePath)) *@
+            @*     { *@
+            @*         <LocalImage ImagePath="@company.ImagePath" *@
+            @*                     ImageClass="company-cover" *@
+            @*                     AltText="@($"{company.Name} logo")"> *@
+            @*             <Placeholder> *@
+            @*                 <div class="company-cover company-cover-placeholder"> *@
+            @*                     <span class="bi bi-building" aria-hidden="true"></span> *@
+            @*                 </div> *@
+            @*             </Placeholder> *@
+            @*         </LocalImage> *@
+            @*     } *@
+            @*     else *@
+            @*     { *@
+            @*         <div class="company-cover company-cover-placeholder"> *@
+            @*             <span class="bi bi-building" aria-hidden="true"></span> *@
+            @*         </div> *@
+            @*     } *@
+            @* *@
+            @*     <div class="company-content"> *@
+            @*         <div class="company-title-row"> *@
+            @*             <h4>@company.Name</h4> *@
+            @*             <button class="collection-remove-button" *@
+            @*                     type="button" *@
+            @*                     title="Remove @company.Name" *@
+            @*                     disabled="@CompanyHasLinkedGames(company)" *@
+            @*                     @onclick:stopPropagation="true" *@
+            @*                     @onclick="() => HandleRemove(company)"> *@
+            @*                 Remove *@
+            @*             </button> *@
+            @*         </div> *@
+            @* *@
+            @*         <div class="company-badges"> *@
+            @*             <span class="company-badge neutral-badge">@GetCompanySourceSummary(company)</span> *@
+            @*             <span class="company-badge neutral-badge">@GetCompanyRoleSummary(company)</span> *@
+            @*         </div> *@
+            @* *@
+            @*         <div class="company-games"> *@
+            @*             <span class="company-games-label">Games worked on</span> *@
+            @* *@
+            @*             @if (GetGameNames(company).Count == 0) *@
+            @*             { *@
+            @*                 <span class="company-games-empty">No linked games yet</span> *@
+            @*             } *@
+            @*             else *@
+            @*             { *@
+            @*                 <div class="game-chip-list"> *@
+            @*                     @foreach (string gameName in GetGameNames(company)) *@
+            @*                     { *@
+            @*                         <span class="game-chip">@gameName</span> *@
+            @*                     } *@
+            @*                 </div> *@
+            @*             } *@
+            @*         </div> *@
+            @*     </div> *@
+            @* </article> *@
         }
     </div>
 </CollectionPageShell>

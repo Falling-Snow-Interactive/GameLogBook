@@ -154,7 +154,7 @@ public partial class AddGamePopup
                     {
                         ID = InitialGame?.ID ?? 0,
                         
-                        IgdbId = igdb,
+                        IGDB = igdb,
                         
                         Name = gameName.Trim(),
                         GameType = gameType,
@@ -221,7 +221,7 @@ public partial class AddGamePopup
 
     private async Task LoadGame(Game game)
     {
-        igdb = game.IgdbId;
+        igdb = game.IGDB;
         gameName = game.Name;
         selectedDeveloperCompanyIDs = ResolveLocalCompanyIds(game.GetDeveloperIDs());
         selectedPublisherCompanyIDs = ResolveLocalCompanyIds(game.GetPublisherIDs());

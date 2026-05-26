@@ -62,6 +62,6 @@ public partial class DeveloperSearch : ComponentBase
     
     private static string GetCompanyBadge(Company company)
     {
-        return company.IgdbId.HasValue ? "Shared IGDB company" : "Shared local company";
+        return company.IGDB.HasValue ? "Shared IGDB company" : "Shared local company";
     }
 }

@@ -24,17 +24,39 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
     {
         base.OnModelCreating(modelBuilder);
 
+        SetupDatabases(modelBuilder);
+        SetupRelationalDbs(modelBuilder);
+    }
+
+    private void SetupDatabases(ModelBuilder modelBuilder)
+    {
+        SetupGameDb(modelBuilder);
+        SetupPlatformDb(modelBuilder);
+        SetupCompanyDb(modelBuilder);
+    }
+
+    private void SetupGameDb(ModelBuilder modelBuilder)
+    {
         modelBuilder.Entity<Game>().OwnsOne(game => game.Cover);
         modelBuilder.Entity<Game>().OwnsOne(game => game.Hero);
         modelBuilder.Entity<Game>().OwnsOne(game => game.Logo);
         modelBuilder.Entity<Game>().OwnsOne(game => game.Icon);
-        
+    }
+
+    private void SetupPlatformDb(ModelBuilder modelBuilder)
+    {
         modelBuilder.Entity<PlatformModel>().OwnsOne(platform => platform.Cover);
         modelBuilder.Entity<PlatformModel>().OwnsOne(platform => platform.Hero);
         modelBuilder.Entity<PlatformModel>().OwnsOne(platform => platform.Logo);
         modelBuilder.Entity<PlatformModel>().OwnsOne(platform => platform.Icon);
+    }
 
-        SetupRelationalDbs(modelBuilder);
+    private void SetupCompanyDb(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Company>().OwnsOne(company => company.Cover);
+        modelBuilder.Entity<Company>().OwnsOne(company => company.Hero);
+        modelBuilder.Entity<Company>().OwnsOne(company => company.Logo);
+        modelBuilder.Entity<Company>().OwnsOne(company => company.Icon);
     }
 
     private void SetupRelationalDbs(ModelBuilder modelBuilder)
