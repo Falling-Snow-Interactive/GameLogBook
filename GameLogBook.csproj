@@ -88,4 +88,8 @@
         <Content Include="Components\**\*.razor.css" Pack="false" CopyToPublishDirectory="Never" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Components\Popups\" />
+    </ItemGroup>
+
 </Project>

@@ -18,6 +18,8 @@ main {
     line-height: 1;
 }
 
+/* ----- Navbar ----- */
+
 .navbar-toggler {
     appearance: none;
     cursor: pointer;
@@ -37,6 +39,17 @@ main {
 
 .navbar-brand {
     font-size: 1.1rem;
+}
+
+.navbar-section {
+    color: #d7d7d7;
+    font-size: 1.2rem;
+    
+    padding: 1rem;
+}
+
+.navbar-text-color {
+    color: #d7d7d7;
 }
 
 .nav-item {
@@ -85,6 +98,15 @@ main {
 .nav-spacer {
     height: 1rem;
 }
+
+.nav-section {
+    color: white;
+    
+    font-size: var(--font-size-title);
+    font-weight: var(--font-weight-regular);
+}
+
+/* ----- Images ----- */
 
 .game-cover {
     display: block;

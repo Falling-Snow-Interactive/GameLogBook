@@ -134,6 +134,10 @@
     --cover-border: var(--debug-border-size-sm) solid var(--color-border);
 
     /*----- Font -----*/
+    --font-size-title: 24px;
+    --font-size-subtitle: 18px;
+    --font-size-rg: 16px;
+    --font-size-sm: 12px;
     
     --font-weight-regular: 400;
     --font-weight-bold: 600;
