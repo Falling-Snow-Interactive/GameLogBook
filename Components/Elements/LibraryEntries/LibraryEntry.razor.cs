@@ -3,6 +3,7 @@ using VGL.Models.Companies;
 using VGL.Models.Games;
 using VGL.Models.Games.Company;
 using VGL.Models.Libraries.Entries;
+using PlatformModel = VGL.Models.Platforms.Platform;
 
 namespace VGL.Components.Elements.LibraryEntries;
 
@@ -42,14 +43,7 @@ public partial class LibraryEntry : ComponentBase
 
     private IReadOnlyList<Company> GetRoleCompanies(GameCompanyRole role)
     {
-        if (Entry is not Game game)
-        {
-            return [];
-        }
-
-        List<int> companyIds = role is GameCompanyRole.Developer
-                                   ? game.GetDeveloperIDs()
-                                   : game.GetPublisherIDs();
+        List<int> companyIds = GetCompanyIds(role);
 
         if (companyIds.Count == 0)
         {
@@ -67,13 +61,33 @@ public partial class LibraryEntry : ComponentBase
                    .ToList();
         }
 
-        return game.GameCompanies
-                   .Where(gameCompany => gameCompany.Role == role)
-                   .Select(gameCompany => gameCompany.Company)
-                   .Where(company => company is not null)
-                   .DistinctBy(company => company.ID)
-                   .OrderBy(company => company.Name)
-                   .ToList();
+        if (Entry is Game game)
+        {
+            return game.GameCompanies
+                       .Where(gameCompany => gameCompany.Role == role)
+                       .Select(gameCompany => gameCompany.Company)
+                       .Where(company => company is not null)
+                       .DistinctBy(company => company.ID)
+                       .OrderBy(company => company.Name)
+                       .ToList();
+        }
+
+        return [];
+    }
+
+    private List<int> GetCompanyIds(GameCompanyRole role)
+    {
+        return Entry switch
+               {
+                   Game game when role is GameCompanyRole.Developer => game.GetDeveloperIDs(),
+                   Game game when role is GameCompanyRole.Publisher => game.GetPublisherIDs(),
+                   PlatformModel platform when role is GameCompanyRole.Developer => (platform.ManufacturerIds ?? [])
+                                                                                    .Where(companyId => companyId > 0)
+                                                                                    .Distinct()
+                                                                                    .Order()
+                                                                                    .ToList(),
+                   _ => [],
+               };
     }
 
     private static string? GetCompanyImagePath(Company company)

@@ -137,6 +137,16 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
     {
         return gameNamesByPlatformID.GetValueOrDefault(platform.ID) ?? [];
     }
+
+    private List<Company> GetRelatedCompanies(PlatformModel platform)
+    {
+        HashSet<int> companyIds = (platform.ManufacturerIds ?? []).ToHashSet();
+
+        return companies
+               .Where(company => companyIds.Contains(company.ID))
+               .OrderBy(company => company.Name)
+               .ToList();
+    }
     
     private bool PlatformHasLinkedGames(PlatformModel platform)
     {
