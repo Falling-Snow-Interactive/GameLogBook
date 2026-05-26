@@ -1,8 +1,8 @@
-using GameLogBook.Models.Games.Company;
-using GameLogBook.Models.Games.Platform;
-using GameLogBook.Models.Libraries.Entries;
+using VGL.Models.Games.Company;
+using VGL.Models.Games.Platforms;
+using VGL.Models.Libraries.Entries;
 
-namespace GameLogBook.Models.Games;
+namespace VGL.Models.Games;
 
 public class Game : ILibraryEntry
 {
@@ -32,7 +32,7 @@ public class Game : ILibraryEntry
 
     // Relations
     public List<GameCompany> GameCompanies { get; set; }
-    public List<GamePlatform> GamePlatforms { get; set; }
+    public List<GamePlatformRelation> GamePlatforms { get; set; }
     
     // Online APIs
     public long? IGDB { get; set; }
@@ -196,7 +196,7 @@ public class Game : ILibraryEntry
 
         foreach (int companyID in normalizedPlatformIDs.Where(companyId => !existingCompanyIds.Contains(companyId)))
         {
-            GamePlatforms.Add(new GamePlatform
+            GamePlatforms.Add(new GamePlatformRelation
                               {
                                   Game = this,
                                   PlatformID = companyID,

@@ -1,11 +1,11 @@
 ﻿using System;
-using GameLogBook.Data;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using VGL.Data;
 
 #nullable disable
 
-namespace GameLogBook.Migrations
+namespace VGL.Migrations
 {
     /// <inheritdoc />
     [DbContext(typeof(GameLogBookDbContext))]
@@ -21,14 +21,14 @@ namespace GameLogBook.Migrations
                 type: "TEXT",
                 nullable: true);
 
-            migrationBuilder.Sql("""
-                                 CREATE TABLE "GameCompanies_Migration" (
-                                     "GameId" INTEGER NOT NULL,
-                                     "CompanyId" INTEGER NOT NULL,
-                                     "Role" INTEGER NOT NULL,
-                                     PRIMARY KEY ("GameId", "CompanyId", "Role")
-                                 );
-                                 """);
+            migrationBuilder.Sql($"""
+                                  CREATE TABLE "GameCompanies_Migration" (
+                                      "GameId" INTEGER NOT NULL,
+                                      "CompanyId" INTEGER NOT NULL,
+                                      "Role" INTEGER NOT NULL,
+                                      PRIMARY KEY ("GameId", "CompanyId", "Role")
+                                  );
+                                  """);
 
             migrationBuilder.Sql("""
                                  INSERT INTO Companies (IgdbId, Name, CoverUrl, LastSyncedAt)

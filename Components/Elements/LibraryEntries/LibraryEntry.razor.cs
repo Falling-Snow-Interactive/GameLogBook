@@ -1,9 +1,9 @@
-using GameLogBook.Models.Companies;
-using GameLogBook.Models.Games;
-using GameLogBook.Models.Libraries.Entries;
 using Microsoft.AspNetCore.Components;
+using VGL.Models.Companies;
+using VGL.Models.Games;
+using VGL.Models.Libraries.Entries;
 
-namespace GameLogBook.Components.Elements.LibraryEntries;
+namespace VGL.Components.Elements.LibraryEntries;
 
 public partial class LibraryEntry : ComponentBase
 {

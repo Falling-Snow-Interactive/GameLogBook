@@ -1,7 +1,7 @@
-using GameLogBook.Models.Games;
 using Microsoft.AspNetCore.Components;
+using VGL.Models.Games;
 
-namespace GameLogBook.Components.Elements.GameElements;
+namespace VGL.Components.Elements.GameElements;
 
 public partial class GameCoverWidget : ComponentBase
 {

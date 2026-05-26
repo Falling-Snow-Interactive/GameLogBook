@@ -1,14 +1,15 @@
 using System.Diagnostics.CodeAnalysis;
-using GameLogBook.Components.Elements.GameElements;
-using GameLogBook.Models;
-using GameLogBook.Models.Games;
-using GameLogBook.Models.Games.Company;
-using GameLogBook.Services;
-using Company = GameLogBook.Models.Companies.Company;
+using VGL.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using VGL.Components.Elements.GameElements;
+using VGL.Models.Games;
+using VGL.Models.Games.Company;
+using VGL.Services;
+using Company = VGL.Models.Companies.Company;
+using GameView = VGL.Components.Elements.GameElements.GameView;
 
-namespace GameLogBook.Components.Pages;
+namespace VGL.Components.Pages;
 
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public partial class GamesPage : CollectionPageBase<Game>
@@ -50,8 +51,7 @@ public partial class GamesPage : CollectionPageBase<Game>
 
         if (newCompany.IGDB.HasValue)
         {
-            existingCompany = await DbContext.Companies
-                                             .FirstOrDefaultAsync(company => company.IGDB == newCompany.IGDB.Value);
+            existingCompany = await DbContext.Companies.FirstOrDefaultAsync(company => company.IGDB == newCompany.IGDB.Value);
         }
 
         if (existingCompany is null && !string.IsNullOrWhiteSpace(newCompany.Name))

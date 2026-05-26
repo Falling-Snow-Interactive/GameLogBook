@@ -1,15 +1,15 @@
-using GameLogBook.Components.Elements.IGDBSearch;
-using GameLogBook.Components.Elements.ImageField;
-using GameLogBook.Models;
-using GameLogBook.Models.Companies;
-using GameLogBook.Models.Games;
-using GameLogBook.Services;
 using IGDB;
 using Microsoft.AspNetCore.Components;
+using VGL.Components.Elements.IGDBSearch;
+using VGL.Components.Elements.ImageField;
+using VGL.Models;
+using VGL.Models.Companies;
+using VGL.Models.Games;
+using VGL.Services;
 using IGDBGame = IGDB.Models.Game;
-using Platform = GameLogBook.Models.Platforms.Platform;
+using Platform = VGL.Models.Platforms.Platform;
 
-namespace GameLogBook.Components.Elements.PlatformElements;
+namespace VGL.Components.Elements.PlatformElements;
 
 public partial class AddPlatformPopup : ComponentBase
 {

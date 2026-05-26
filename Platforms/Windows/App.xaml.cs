@@ -1,6 +1,6 @@
 using Microsoft.UI.Xaml;
 
-namespace GameLogBook.WinUI;
+namespace VGL.WinUI;
 
 public partial class App : MauiWinUIApplication
 {

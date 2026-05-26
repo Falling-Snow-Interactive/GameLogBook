@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace GameLogBook.Components.Elements.CompanyElements;
+namespace VGL.Components.Elements.CompanyElements;
 
 public partial class CompaniesWidget : ComponentBase
 {

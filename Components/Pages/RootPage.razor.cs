@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace GameLogBook.Components.Pages;
+namespace VGL.Components.Pages;
 
 public partial class RootPage : ComponentBase
 {

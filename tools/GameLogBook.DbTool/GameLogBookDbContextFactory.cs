@@ -1,8 +1,7 @@
-using GameLogBook.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace GameLogBook.Data;
+namespace VGL.Data;
 
 public class GameLogBookDbContextFactory : IDesignTimeDbContextFactory<GameLogBookDbContext>
 {

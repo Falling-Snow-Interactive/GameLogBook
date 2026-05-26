@@ -1,8 +1,7 @@
-using GameLogBook.Diagnostics;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using VGL.Diagnostics;
 
-namespace GameLogBook.Components.Elements;
+namespace VGL.Components.Elements;
 
 public class LoggedErrorBoundary : ErrorBoundary
 {

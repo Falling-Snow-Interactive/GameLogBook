@@ -1,6 +1,4 @@
-using Microsoft.Maui.Storage;
-
-namespace GameLogBook.Data;
+namespace VGL.Data;
 
 internal static class DatabasePathResolver
 {
@@ -29,8 +27,8 @@ internal static class DatabasePathResolver
     {
         string? configuredPath = Environment.GetEnvironmentVariable("GAMELOGBOOK_DB_PATH");
         return string.IsNullOrWhiteSpace(configuredPath)
-            ? null
-            : Path.GetFullPath(configuredPath);
+                   ? null
+                   : Path.GetFullPath(configuredPath);
     }
 
     private static string? GetMacAppContainerDatabasePath()

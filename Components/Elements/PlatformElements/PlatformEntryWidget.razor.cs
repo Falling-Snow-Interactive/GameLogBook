@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
-using Platform = GameLogBook.Models.Platforms.Platform;
+using Platform = VGL.Models.Platforms.Platform;
 
-namespace GameLogBook.Components.Elements.PlatformElements;
+namespace VGL.Components.Elements.PlatformElements;
 
 public partial class PlatformEntryWidget : ComponentBase
 {

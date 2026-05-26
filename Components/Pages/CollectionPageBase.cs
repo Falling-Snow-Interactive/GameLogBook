@@ -1,8 +1,8 @@
-using GameLogBook.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using VGL.Data;
 
-namespace GameLogBook.Components.Pages;
+namespace VGL.Components.Pages;
 
 public abstract class CollectionPageBase<TEntity> : ComponentBase
     where TEntity : class

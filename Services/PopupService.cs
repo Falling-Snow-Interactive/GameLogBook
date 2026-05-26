@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace GameLogBook.Services;
+namespace VGL.Services;
 
 public sealed class PopupService
 {

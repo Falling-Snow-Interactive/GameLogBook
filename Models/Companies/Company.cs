@@ -1,6 +1,6 @@
-using GameLogBook.Models.Libraries.Entries;
+using VGL.Models.Libraries.Entries;
 
-namespace GameLogBook.Models.Companies;
+namespace VGL.Models.Companies;
 
 public class Company : ILibraryEntry
 {

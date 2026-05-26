@@ -1,7 +1,6 @@
+using VGL.Models.Libraries.Entries;
 
-using GameLogBook.Models.Libraries.Entries;
-
-namespace GameLogBook.Models.Platforms;
+namespace VGL.Models.Platforms;
 
 public class Platform(string name) : ILibraryEntry
 {

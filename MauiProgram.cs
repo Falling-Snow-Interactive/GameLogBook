@@ -1,13 +1,13 @@
 using System.Reflection;
-using GameLogBook.Data;
-using GameLogBook.Models.Configuration;
-using GameLogBook.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using VGL.Data;
+using VGL.Models.Configuration;
+using VGL.Services;
 
-namespace GameLogBook;
+namespace VGL;
 
 public static class MauiProgram
 {

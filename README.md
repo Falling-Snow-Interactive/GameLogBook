@@ -1,6 +1,6 @@
-# GameLogBook
+# Video Game Logbook
 
-GameLogBook is a local-first game library app built with .NET MAUI Blazor Hybrid.
+Video Game Logbook is a local-first game library app built with .NET MAUI Blazor Hybrid.
 
 The app runs as a native desktop/mobile app with an embedded Blazor WebView. It does not require a local web server or a browser tab. Data is stored in a local SQLite database under the app data directory for the current device.
 

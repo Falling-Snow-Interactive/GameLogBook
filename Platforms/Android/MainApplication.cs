@@ -1,7 +1,8 @@
 using Android.App;
 using Android.Runtime;
+using VGL;
 
-namespace GameLogBook;
+namespace VGL;
 
 [Application]
 public class MainApplication(IntPtr handle, JniHandleOwnership ownership)

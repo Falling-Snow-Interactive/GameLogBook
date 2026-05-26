@@ -1,4 +1,4 @@
-namespace GameLogBook.Models;
+namespace VGL.Models;
 
 public class Playthrough
 {

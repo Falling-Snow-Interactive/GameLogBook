@@ -1,4 +1,4 @@
-namespace GameLogBook.Models.Games.Company;
+namespace VGL.Models.Games.Company;
 
 public class GameCompany
 {

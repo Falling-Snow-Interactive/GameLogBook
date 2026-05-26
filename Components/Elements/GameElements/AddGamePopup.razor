@@ -1,27 +1,21 @@
-@using GameLogBook.Models.Games
-@using GameLogBook.Components.Elements.AddPopup
-@using GameLogBook.Components.Elements.CompanyElements
+@using VGL.Components.Elements.CompanyElements
+@using VGL.Components.Elements.IGDBSearch
+@using VGL.Components.Elements.AddPopup
+@using VGL.Components.Elements.ImageField
+@using VGL.Models.Companies
+@using VGL.Models.Games
 
-<AddPopupShell Title="@PopupTitle"
-               SearchFor="@IgdbSearchFor.Games"
-               SearchPlaceholder="Search for a game"
-               OnClose="HandleCloseButtonClick"
-               OnGameSelected="HandleGameSelected"
-               LocalCompanies="@Companies">
+<AddPopupShell Title="@PopupTitle" SearchFor="@IgdbSearchFor.Games" SearchPlaceholder="Search for a game"
+               OnClose="HandleCloseButtonClick" OnGameSelected="HandleGameSelected" LocalCompanies="@Companies">
     <div class="game-details-form">
         <label class="form-field form-field-full">
             <span>Name</span>
-            <input class="game-detail-input"
-                   @bind="name"
-                   @bind:event="oninput"
-                   placeholder="Game name"/>
+            <input class="game-detail-input" @bind="name"@bind:event="oninput" placeholder="Game name"/>
         </label>
 
         <label class="form-field form-field">
             <span>Type</span>
-            <EnumDropdown TEnum="GameType"
-                          class="game-detail-input"
-                          @bind-Value="type" />
+            <EnumDropdown TEnum="GameType" class="game-detail-input" @bind-Value="type" />
         </label>
 
         <label class="form-field form-field">
@@ -38,84 +32,43 @@
 
         <div class="form-field">
             <span>Developer</span>
-            <CompanySearch Companies="availableCompanies"
-                           @bind-SelectedCompanyIds="selectedDeveloperIDs"
-                           @bind-SearchText="developerSearchText"
-                           OnCompanyAdded="HandleCompanyAdded"
+            <CompanySearch Companies="availableCompanies" @bind-SelectedCompanyIds="selectedDeveloperIDs"
+                           @bind-SearchText="developerSearchText" OnCompanyAdded="HandleCompanyAdded"
                            Placeholder="Search companies..." />
         </div>
 
         <div class="form-field">
             <span>Publisher</span>
-            <CompanySearch Companies="availableCompanies"
-                           @bind-SelectedCompanyIds="selectedPublisherIDs"
-                           @bind-SearchText="publisherSearchText"
-                           OnCompanyAdded="HandleCompanyAdded"
+            <CompanySearch Companies="availableCompanies" @bind-SelectedCompanyIds="selectedPublisherIDs" 
+                           @bind-SearchText="publisherSearchText" OnCompanyAdded="HandleCompanyAdded"
                            Placeholder="Search companies..." />
         </div>
 
         <label class="form-field">
             <span>Release Date</span>
-            <input class="game-detail-input"
-                   type="date"
-                   @bind="releaseDate"
-                   @bind:event="oninput"
-                   placeholder="Release date"/>
+            <input class="game-detail-input" type="date" @bind="releaseDate" @bind:event="oninput" placeholder="Release date"/>
         </label>
 
         <label class="form-field">
             <span>IGDB ID</span>
-            <input class="game-detail-input"
-                   type="number"
-                   @bind="igdb"
-                   @bind:event="oninput"
-                   placeholder="id"/>
+            <input class="game-detail-input" type="number"@bind="igdb"@bind:event="oninput" placeholder="id"/>
         </label>
 
-        <ImageFieldWidget @ref="coverField"
-                          class="form-field-full"
-                          Label="Cover"
-                          FieldName="cover"
-                          Category="games"
-                          AspectRatioWidth="2"
-                          AspectRatioHeight="3"
-                          
-                          ImagePath="@cover?.Path"
-                          PendingImageUrl="@cover?.PendingUrl"
-                          AltText="@($"{name} cover preview")" />
+        <ImageFieldWidget @ref="coverField" class="form-field-full"
+                          Label="Cover" FieldName="cover" Category="games"
+                          ImageRef="cover" AspectRatio="1" AltText="@($"{name} cover preview")" />
 
-        <ImageFieldWidget @ref="heroField"
-                          class="form-field-full"
-                          Label="Hero"
-                          FieldName="hero"
-                          Category="games"
-                          AspectRatioWidth="96"
-                          AspectRatioHeight="31"
-                          ImagePath="@hero?.Path"
-                          PendingImageUrl="@hero?.PendingUrl"
-                          AltText="@($"{name} hero preview")" />
+        <ImageFieldWidget @ref="heroField" class="form-field-full"
+                          Label="Hero" FieldName="hero" Category="games"
+                          ImageRef="hero" AspectRatio="1" AltText="@($"{name} hero preview")" />
 
-        <ImageFieldWidget @ref="logoField"
-                          class="form-field-full"
-                          Label="Logo"
-                          FieldName="logo"
-                          Category="games"
-                          AspectRatioWidth="2"
-                          AspectRatioHeight="1"
-                          ImagePath="@logo?.Path"
-                          PendingImageUrl="@logo?.PendingUrl"
-                          AltText="@($"{name} logo preview")" />
+        <ImageFieldWidget @ref="logoField" class="form-field-full"
+                          Label="Logo" FieldName="logo" Category="games"
+                          ImageRef="logo" AspectRatio="1" AltText="@($"{name} logo preview")" />
         
-        <ImageFieldWidget @ref="iconField"
-                          class="form-field-full"
-                          Label="Icon"
-                          FieldName="icon"
-                          Category="games"
-                          AspectRatioWidth="1"
-                          AspectRatioHeight="1"
-                          ImagePath="@icon?.Path"
-                          PendingImageUrl="@icon?.PendingUrl"
-                          AltText="@($"{name} icon preview")" />
+        <ImageFieldWidget @ref="iconField" class="form-field-full"
+                          Label="Icon" FieldName="icon" Category="games"
+                          ImageRef="icon" AspectRatio="1" AltText="@($"{name} icon preview")" />
 
         @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
         {
@@ -124,16 +77,11 @@
 
         <label class="form-field form-field-full">
             <span>Summary</span>
-            <textarea class="game-detail-textarea"
-                  @bind="summary"
-                  @bind:event="oninput"
-                  placeholder="Summary"></textarea>
+            <textarea class="game-detail-textarea" @bind="summary" @bind:event="oninput" placeholder="Summary"></textarea>
         </label>
 
         <div class="form-actions form-field-full">
-            <button class="save-button"
-                    type="button"
-                    @onclick="HandleSaveButtonClick"
+            <button class="save-button" type="button" @onclick="HandleSaveButtonClick" 
                     disabled="@(isSaving || string.IsNullOrWhiteSpace(name))">
                 @(isSaving ? "Saving image..." : SaveButtonText)
             </button>

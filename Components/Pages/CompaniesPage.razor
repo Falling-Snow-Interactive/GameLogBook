@@ -1,9 +1,9 @@
 @page "/companies"
+@using VGL.Components.Elements.CollectionPageShell
+@using VGL.Models.Companies
+@using VGL.Components.Elements.LibraryEntries
 
-@using GameLogBook.Models.Companies
-@using GameLogBook.Components.Elements.LibraryEntries
-
-@inherits CollectionPageBase<Company>
+@inherits CollectionPageBase<VGL.Models.Companies.Company>
 
 <PageTitle>Companies</PageTitle>
 

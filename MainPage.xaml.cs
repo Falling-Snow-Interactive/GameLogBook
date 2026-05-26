@@ -1,4 +1,4 @@
-namespace GameLogBook;
+namespace VGL;
 
 public partial class MainPage : ContentPage
 {

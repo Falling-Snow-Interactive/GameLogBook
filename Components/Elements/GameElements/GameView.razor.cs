@@ -1,8 +1,8 @@
-using GameLogBook.Models.Games;
-using GameLogBook.Services;
 using Microsoft.AspNetCore.Components;
+using VGL.Models.Games;
+using VGL.Services;
 
-namespace GameLogBook.Components.Elements.GameElements;
+namespace VGL.Components.Elements.GameElements;
 
 public partial class GameView : ComponentBase
 {

@@ -1,7 +1,7 @@
-using GameLogBook.Models.Companies;
 using Microsoft.AspNetCore.Components;
+using VGL.Models.Companies;
 
-namespace GameLogBook.Components.Elements.CompanyElements;
+namespace VGL.Components.Elements.CompanyElements;
 
 public partial class DeveloperSearch : ComponentBase
 {

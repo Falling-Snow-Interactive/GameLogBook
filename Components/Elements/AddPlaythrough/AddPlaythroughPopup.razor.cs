@@ -1,9 +1,9 @@
-using GameLogBook.Models;
-using GameLogBook.Models.Games;
-using GameLogBook.Services;
 using Microsoft.AspNetCore.Components;
+using VGL.Models;
+using VGL.Models.Games;
+using VGL.Services;
 
-namespace GameLogBook.Components.Elements.AddPlaythrough;
+namespace VGL.Components.Elements.AddPlaythrough;
 
 public partial class AddPlaythroughPopup : ComponentBase
 {

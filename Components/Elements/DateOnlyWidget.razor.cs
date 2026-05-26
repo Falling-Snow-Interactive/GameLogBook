@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace GameLogBook.Components.Elements;
+namespace VGL.Components.Elements;
 
 public partial class DateOnlyWidget : ComponentBase
 {

@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace GameLogBook.Migrations
+namespace VGL.Migrations
 {
     /// <inheritdoc />
     public partial class AddGameType : Migration

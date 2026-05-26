@@ -1,9 +1,9 @@
-using GameLogBook.Models.Companies;
-using GameLogBook.Services;
 using IGDB;
 using Microsoft.AspNetCore.Components;
+using VGL.Models.Companies;
+using VGL.Services;
 
-namespace GameLogBook.Components.Elements;
+namespace VGL.Components.Elements;
 
 public partial class CompanyPicker : ComponentBase
 {

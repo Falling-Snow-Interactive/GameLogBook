@@ -1,6 +1,6 @@
 using Foundation;
 
-namespace GameLogBook;
+namespace VGL;
 
 [Register("AppDelegate")]
 public class AppDelegate : MauiUIApplicationDelegate

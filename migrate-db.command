@@ -358,7 +358,7 @@ run_step "Creating migration $migration_name" \
     --project tools/GameLogBook.DbTool \
     --startup-project tools/GameLogBook.DbTool \
     --output-dir ../../Migrations \
-    --namespace GameLogBook.Migrations \
+    --namespace VGL.Migrations \
     --no-build || \
     fail_with_log "Migration Failed" "Could not create migration $migration_name."
 

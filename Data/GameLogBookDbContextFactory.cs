@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace GameLogBook.Data;
+namespace VGL.Data;
 
 public class GameLogBookDbContextFactory : IDesignTimeDbContextFactory<GameLogBookDbContext>
 {
@@ -10,8 +10,8 @@ public class GameLogBookDbContextFactory : IDesignTimeDbContextFactory<GameLogBo
         string databasePath = DatabasePathResolver.GetDesignTimeDatabasePath();
 
         DbContextOptions<GameLogBookDbContext> options = new DbContextOptionsBuilder<GameLogBookDbContext>()
-            .UseSqlite($"Data Source={databasePath}")
-            .Options;
+                                                         .UseSqlite($"Data Source={databasePath}")
+                                                         .Options;
 
         return new GameLogBookDbContext(options);
     }

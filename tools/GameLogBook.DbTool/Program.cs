@@ -1,4 +1,4 @@
-using GameLogBook.Data;
+using VGL.Data;
 using Microsoft.EntityFrameworkCore;
 
 string databasePath = ResolveDatabasePath();

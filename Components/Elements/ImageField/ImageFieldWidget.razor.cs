@@ -1,10 +1,10 @@
-using GameLogBook.Models;
-using GameLogBook.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
+using VGL.Models;
+using VGL.Services;
 
-namespace GameLogBook.Components.Elements.ImageField;
+namespace VGL.Components.Elements.ImageField;
 
 public partial class ImageFieldWidget : IAsyncDisposable
 {

@@ -1,7 +1,7 @@
-using GameLogBook.Services;
 using Microsoft.AspNetCore.Components;
+using VGL.Services;
 
-namespace GameLogBook.Components.Elements.LocalImage;
+namespace VGL.Components.Elements.LocalImage;
 
 public partial class LocalImage
 {

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace GameLogBook.Components.Elements.AddPlaythrough;
+namespace VGL.Components.Elements.AddPlaythrough;
 
 public partial class AddPlaythroughButton : ComponentBase
 {

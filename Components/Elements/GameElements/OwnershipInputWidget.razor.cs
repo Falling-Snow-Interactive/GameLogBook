@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace GameLogBook.Components.Elements.GameElements;
+namespace VGL.Components.Elements.GameElements;
 
 public partial class OwnershipInputWidget : ComponentBase
 {

@@ -1,7 +1,6 @@
 using System.Text;
-using Microsoft.Maui.Storage;
 
-namespace GameLogBook.Diagnostics;
+namespace VGL.Diagnostics;
 
 internal static class AppErrorLogger
 {

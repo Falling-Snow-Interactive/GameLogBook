@@ -1,9 +1,9 @@
-using GameLogBook.Models;
-using GameLogBook.Services;
-using GameLogBook.Models.Games;
 using IGDB;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using VGL.Models;
+using VGL.Models.Games.Company;
+using VGL.Services;
 using IgdbCompany = IGDB.Models.Company;
 using IgdbCompanyLogo = IGDB.Models.CompanyLogo;
 using IgdbCover = IGDB.Models.Cover;
@@ -12,11 +12,11 @@ using IgdbInvolvedCompany = IGDB.Models.InvolvedCompany;
 using IgdbPlatform = IGDB.Models.Platform;
 using IgdbPlatformVersion = IGDB.Models.PlatformVersion;
 using IgdbPlatformVersionCompany = IGDB.Models.PlatformVersionCompany;
-using LocalCompany = GameLogBook.Models.Companies.Company;
-using LocalGame = GameLogBook.Models.Games.Game;
-using LocalPlatform = GameLogBook.Models.Platforms.Platform;
+using LocalCompany = VGL.Models.Companies.Company;
+using LocalGame = VGL.Models.Games.Game;
+using LocalPlatform = VGL.Models.Platforms.Platform;
 
-namespace GameLogBook.Components.Elements.IGDBSearch;
+namespace VGL.Components.Elements.IGDBSearch;
 
 public partial class IGDBSearch : ComponentBase, IDisposable
 {

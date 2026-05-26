@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace GameLogBook.Migrations
+namespace VGL.Migrations
 {
     /// <inheritdoc />
     public partial class UseLocalImagePaths : Migration
@@ -28,14 +28,14 @@ namespace GameLogBook.Migrations
                 type: "TEXT",
                 nullable: true);
 
-            migrationBuilder.Sql("""
-                                 UPDATE "Platforms"
-                                 SET "ImagePath" = "CoverUrl"
-                                 WHERE "CoverUrl" IS NOT NULL
-                                       AND "CoverUrl" NOT LIKE 'http://%'
-                                       AND "CoverUrl" NOT LIKE 'https://%'
-                                       AND "CoverUrl" NOT LIKE '//%';
-                                 """);
+            migrationBuilder.Sql($"""
+                                  UPDATE "Platforms"
+                                  SET "ImagePath" = "CoverUrl"
+                                  WHERE "CoverUrl" IS NOT NULL
+                                        AND "CoverUrl" NOT LIKE 'http://%'
+                                        AND "CoverUrl" NOT LIKE 'https://%'
+                                        AND "CoverUrl" NOT LIKE '//%';
+                                  """);
 
             migrationBuilder.Sql("""
                                  UPDATE "Companies"

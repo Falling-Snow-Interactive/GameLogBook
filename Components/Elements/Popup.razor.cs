@@ -1,7 +1,7 @@
-using GameLogBook.Services;
 using Microsoft.AspNetCore.Components;
+using VGL.Services;
 
-namespace GameLogBook.Components.Elements;
+namespace VGL.Components.Elements;
 
 public partial class Popup : ComponentBase
 {

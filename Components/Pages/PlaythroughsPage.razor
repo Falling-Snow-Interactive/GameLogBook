@@ -1,7 +1,10 @@
 @page "/playthroughs"
-@using GameLogBook.Components.Elements.AddPlaythrough
-@using GameLogBook.Models
-@inherits CollectionPageBase<Playthrough>
+
+@using VGL.Models
+@using VGL.Components.Elements.CollectionPageShell
+@using VGL.Components.Elements.NamedCollectionEntry
+
+@inherits CollectionPageBase<VGL.Models.Playthrough>
 
 <PageTitle>Playthroughs</PageTitle>
 

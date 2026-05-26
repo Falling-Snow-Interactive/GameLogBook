@@ -3,7 +3,7 @@ using Microsoft.Maui.Graphics.Platform;
 using GraphicsIImage = Microsoft.Maui.Graphics.IImage;
 using GraphicsImageFormat = Microsoft.Maui.Graphics.ImageFormat;
 
-namespace GameLogBook.Services;
+namespace VGL.Services;
 
 public class LocalImageService
 {

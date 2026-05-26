@@ -1,8 +1,8 @@
-using GameLogBook.Models.Configuration;
 using IGDB;
 using Microsoft.Extensions.Options;
+using VGL.Models.Configuration;
 
-namespace GameLogBook.Services;
+namespace VGL.Services;
 
 public class IGDBClientProvider(IOptions<IgdbSettings> options)
 {

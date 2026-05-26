@@ -1,9 +1,9 @@
-using GameLogBook.Models.Companies;
-using GameLogBook.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using VGL.Models.Companies;
+using VGL.Services;
 
-namespace GameLogBook.Components.Elements.CompanyElements;
+namespace VGL.Components.Elements.CompanyElements;
 
 public partial class AddCompanyPopup
 {

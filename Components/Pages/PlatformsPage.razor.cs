@@ -1,13 +1,13 @@
-using GameLogBook.Components.Elements.PlatformElements;
-using GameLogBook.Models;
-using GameLogBook.Models.Companies;
-using GameLogBook.Models.Games;
-using GameLogBook.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
-using PlatformModel = GameLogBook.Models.Platforms.Platform;
+using VGL.Components.Elements.PlatformElements;
+using VGL.Models;
+using VGL.Models.Companies;
+using VGL.Models.Games;
+using VGL.Services;
+using PlatformModel = VGL.Models.Platforms.Platform;
 
-namespace GameLogBook.Components.Pages;
+namespace VGL.Components.Pages;
 
 public partial class PlatformsPage : CollectionPageBase<PlatformModel>
 {

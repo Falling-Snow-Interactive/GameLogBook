@@ -1,4 +1,4 @@
-namespace GameLogBook.Models.Configuration;
+namespace VGL.Models.Configuration;
 
 public class IgdbSettings
 {

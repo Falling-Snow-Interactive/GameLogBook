@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace GameLogBook.Migrations
+namespace VGL.Migrations
 {
     /// <inheritdoc />
     public partial class AddPlatformCoverUrl : Migration

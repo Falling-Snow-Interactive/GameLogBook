@@ -1,3 +1,5 @@
+@using VGL.Models.Companies
+@using VGL.Models.Games
 <div class="igdb-search">
     <span class="igdb-search-label">@Label</span>
 
@@ -36,7 +38,7 @@
                         @switch (SearchFor)
                         {
                             case IgdbSearchFor.Games:
-                                @foreach (GameLogBook.Models.Games.Game game in gameResults)
+                                @foreach (Game game in gameResults)
                                 {
                                     <button class="igdb-search-result igdb-search-game-result"
                                             type="button"
@@ -85,7 +87,7 @@
 
                                 break;
                             case IgdbSearchFor.Companies:
-                                @foreach (Models.Companies.Company company in companyResults)
+                                @foreach (Company company in companyResults)
                                 {
                                     <button class="igdb-search-result"
                                             type="button"

@@ -1,11 +1,11 @@
-using GameLogBook.Components.Elements.AddPlaythrough;
-using GameLogBook.Models;
-using GameLogBook.Models.Games;
-using GameLogBook.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using VGL.Components.Elements.AddPlaythrough;
+using VGL.Models;
+using VGL.Models.Games;
+using VGL.Services;
 
-namespace GameLogBook.Components.Pages;
+namespace VGL.Components.Pages;
 
 public partial class PlaythroughsPage : CollectionPageBase<Playthrough>
 {
@@ -58,10 +58,10 @@ public partial class PlaythroughsPage : CollectionPageBase<Playthrough>
     protected override async Task OpenAddPopup()
     {
         Playthrough? playthrough = await PopupService.ShowAsync<AddPlaythroughPopup, Playthrough>(
-            new Dictionary<string, object?>
-            {
-                [nameof(AddPlaythroughPopup.LibraryGames)] = Games
-            });
+                                                                                                  new Dictionary<string, object?>
+                                                                                                  {
+                                                                                                      [nameof(AddPlaythroughPopup.LibraryGames)] = Games
+                                                                                                  });
 
         if (playthrough is not null)
         {

@@ -1,6 +1,6 @@
-using GameLogBook.Diagnostics;
+using VGL.Diagnostics;
 
-namespace GameLogBook;
+namespace VGL;
 
 public partial class App : Application
 {

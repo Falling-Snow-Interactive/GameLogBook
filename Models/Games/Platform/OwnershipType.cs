@@ -1,4 +1,4 @@
-namespace GameLogBook.Models.Games;
+namespace VGL.Models.Games.Platforms;
 
 public enum OwnershipType
 {

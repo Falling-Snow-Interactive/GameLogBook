@@ -1,8 +1,8 @@
-using GameLogBook.Models.Companies;
-using GameLogBook.Models.Games;
 using Microsoft.AspNetCore.Components;
+using VGL.Models.Companies;
+using VGL.Models.Games;
 
-namespace GameLogBook.Components.Elements.GameElements;
+namespace VGL.Components.Elements.GameElements;
 
 public partial class GameEntry
 {

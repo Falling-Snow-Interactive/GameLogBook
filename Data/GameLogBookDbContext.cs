@@ -1,19 +1,19 @@
-using GameLogBook.Models;
-using GameLogBook.Models.Companies;
-using GameLogBook.Models.Games;
-using GameLogBook.Models.Games.Company;
-using GameLogBook.Models.Games.Platform;
 using Microsoft.EntityFrameworkCore;
-using PlatformModel = GameLogBook.Models.Platforms.Platform;
+using VGL.Models;
+using VGL.Models.Companies;
+using VGL.Models.Games;
+using VGL.Models.Games.Company;
+using VGL.Models.Games.Platforms;
+using Platform = VGL.Models.Platforms.Platform;
 
-namespace GameLogBook.Data;
+namespace VGL.Data;
 
 public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options) 
     : DbContext(options)
 {
     public DbSet<Game> Games => Set<Game>();
     public DbSet<Company> Companies => Set<Company>();
-    public DbSet<PlatformModel> Platforms => Set<PlatformModel>();
+    public DbSet<Platform> Platforms => Set<Platform>();
     
     public DbSet<Playthrough> Playthroughs => Set<Playthrough>();
     
@@ -45,10 +45,10 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
 
     private void SetupPlatformDb(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<PlatformModel>().OwnsOne(platform => platform.Cover);
-        modelBuilder.Entity<PlatformModel>().OwnsOne(platform => platform.Hero);
-        modelBuilder.Entity<PlatformModel>().OwnsOne(platform => platform.Logo);
-        modelBuilder.Entity<PlatformModel>().OwnsOne(platform => platform.Icon);
+        modelBuilder.Entity<Platform>().OwnsOne(platform => platform.Cover);
+        modelBuilder.Entity<Platform>().OwnsOne(platform => platform.Hero);
+        modelBuilder.Entity<Platform>().OwnsOne(platform => platform.Logo);
+        modelBuilder.Entity<Platform>().OwnsOne(platform => platform.Icon);
     }
 
     private void SetupCompanyDb(ModelBuilder modelBuilder)
@@ -95,29 +95,29 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
     
     private void SetupGamePlatformRelationalDb(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<GamePlatform>()
-                    .HasKey(gamePlatform => new
-                                            {
-                                                GameId = gamePlatform.GameID,
-                                                Platform = gamePlatform.PlatformID,
-                                                gamePlatform.Ownership,
-                                            });
+        modelBuilder.Entity<GamePlatformRelation>()
+                    .HasKey(gpr => new
+                                   {
+                                       GameId = gpr.GameID,
+                                       Platform = gpr.PlatformID,
+                                       gpr.Ownership,
+                                   });
 
-        modelBuilder.Entity<GamePlatform>()
-                    .HasOne(gamePlatform => gamePlatform.Game)
+        modelBuilder.Entity<GamePlatformRelation>()
+                    .HasOne(gpr => gpr.Game)
                     .WithMany(game => game.GamePlatforms)
                     .HasForeignKey(gamePlatform => gamePlatform.GameID)
                     .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<GamePlatform>()
-                    .HasOne(gamePlatform => gamePlatform.Platform)
+        modelBuilder.Entity<GamePlatformRelation>()
+                    .HasOne(gpr => gpr.Platform)
                     .WithMany()
                     .HasForeignKey(gamePlatform => gamePlatform.PlatformID)
                     .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<PlatformModel>()
+        modelBuilder.Entity<Platform>()
                     .HasIndex(platform => platform.ID)
                     .IsUnique()
-                    .HasFilter($"{nameof(PlatformModel.ID)} IS NOT NULL");
+                    .HasFilter($"{nameof(Platform.ID)} IS NOT NULL");
     }
 }

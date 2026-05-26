@@ -1,11 +1,11 @@
-using GameLogBook.Components.Elements.CompanyElements;
-using GameLogBook.Models.Companies;
-using GameLogBook.Models.Games;
-using GameLogBook.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using VGL.Components.Elements.CompanyElements;
+using VGL.Models.Companies;
+using VGL.Models.Games;
+using VGL.Services;
 
-namespace GameLogBook.Components.Pages;
+namespace VGL.Components.Pages;
 
 public partial class CompaniesPage : CollectionPageBase<Company>
 {

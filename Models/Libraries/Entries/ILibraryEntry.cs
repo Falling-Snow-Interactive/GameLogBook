@@ -1,4 +1,4 @@
-namespace GameLogBook.Models.Libraries.Entries;
+namespace VGL.Models.Libraries.Entries;
 
 public interface ILibraryEntry
 {

@@ -1,12 +1,13 @@
-using GameLogBook.Components.Elements.ImageField;
-using GameLogBook.Models;
-using GameLogBook.Models.Games;
-using GameLogBook.Services;
 using Microsoft.AspNetCore.Components;
-using Company = GameLogBook.Models.Companies.Company;
-using Game = GameLogBook.Models.Games.Game;
+using VGL.Components.Elements.ImageField;
+using VGL.Models;
+using VGL.Models.Games;
+using VGL.Models.Games.Company;
+using VGL.Services;
+using Company = VGL.Models.Companies.Company;
+using Game = VGL.Models.Games.Game;
 
-namespace GameLogBook.Components.Elements.GameElements;
+namespace VGL.Components.Elements.GameElements;
 
 public partial class AddGamePopup
 {

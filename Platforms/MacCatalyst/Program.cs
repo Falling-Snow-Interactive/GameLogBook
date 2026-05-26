@@ -1,6 +1,6 @@
 using UIKit;
 
-namespace GameLogBook;
+namespace VGL;
 
 public static class Program
 {

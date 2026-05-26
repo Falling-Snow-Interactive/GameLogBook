@@ -1,6 +1,8 @@
-namespace GameLogBook.Models.Games.Platform;
+using Platform = VGL.Models.Platforms.Platform;
 
-public class GamePlatform
+namespace VGL.Models.Games.Platforms;
+
+public class GamePlatformRelation
 {
     public int GameID { get; set; }
 
@@ -8,7 +10,7 @@ public class GamePlatform
 
     public int PlatformID { get; set; }
 
-    public Platforms.Platform Platform { get; set; } = null!;
+    public Platform Platform { get; set; } = null!;
     
     public OwnershipType Ownership { get; set; } = OwnershipType.None;
 }
