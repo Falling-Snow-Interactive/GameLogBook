@@ -3,6 +3,7 @@
     flex-direction: column;
     position: relative;
     overflow: hidden;
+    min-width: 0;
     gap: 0.25rem;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
@@ -68,7 +69,7 @@
 .platform-entry-header {
     display: grid;
 
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
     grid-template-rows: minmax(0, 1fr);
 
     width: 100%;
@@ -155,6 +156,7 @@
     font-size: 1.25rem;
     font-weight: 700;
     line-height: 1.2;
+    overflow-wrap: anywhere;
 }
 
 ::deep .platform-entry-release-date,
@@ -184,6 +186,7 @@
     margin-top: auto;
     padding: 0.5rem;
     align-items: stretch;
+    min-width: 0;
 }
 
 .platform-entry-button-playthroughs,
@@ -223,4 +226,27 @@
 .platform-entry-button-remove:hover {
     box-shadow: var(--shadow-sm);
     transform: translateY(-1px);
+}
+
+@media (max-width: 480px) {
+    .platform-entry-header {
+        height: 12rem;
+        padding: 0.75rem;
+        gap: 0.75rem;
+    }
+
+    .platform-entry-content {
+        min-height: 8rem;
+        padding: 0.875rem;
+    }
+
+    .platform-entry-title {
+        font-size: 1.125rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .platform-entry-buttons {
+        flex-direction: column;
+    }
 }

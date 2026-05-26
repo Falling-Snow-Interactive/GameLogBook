@@ -12,7 +12,7 @@ namespace VGL.Migrations
 {
     [DbContext(typeof(GameLogBookDbContext))]
     [Migration("20260523164549_gettingplatformfix")]
-    partial class gettingplatformfix
+    partial class GettingPlatformFix
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

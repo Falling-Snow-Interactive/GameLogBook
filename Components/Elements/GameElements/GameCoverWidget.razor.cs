@@ -6,5 +6,5 @@ namespace VGL.Components.Elements.GameElements;
 public partial class GameCoverWidget : ComponentBase
 {
     [Parameter]
-    public Game Game { get; set; }
+    public Game Game { get; set; } = null!;
 }

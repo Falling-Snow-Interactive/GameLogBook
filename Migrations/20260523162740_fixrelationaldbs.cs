@@ -5,7 +5,7 @@
 namespace VGL.Migrations
 {
     /// <inheritdoc />
-    public partial class fixrelationaldbs : Migration
+    public partial class FixRelationalDbs : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -13,7 +13,7 @@ namespace VGL.Migrations
 {
     [DbContext(typeof(GameLogBookDbContext))]
     [Migration("20260523162740_fixrelationaldbs")]
-    partial class fixrelationaldbs
+    partial class FixRelationalDbs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -1,9 +1,28 @@
 html,
 body {
+    width: 100%;
     min-height: 100%;
+    margin: 0;
     background: var(--color-page);
     color: var(--color-text);
     font-family: var(--font-family-base);
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+img,
+svg,
+video,
+canvas {
+    max-width: 100%;
 }
 
 button,
@@ -11,6 +30,7 @@ input,
 select,
 textarea {
     font: inherit;
+    min-width: 0;
 }
 
 button {

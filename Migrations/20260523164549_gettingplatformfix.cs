@@ -5,7 +5,7 @@
 namespace VGL.Migrations
 {
     /// <inheritdoc />
-    public partial class gettingplatformfix : Migration
+    public partial class GettingPlatformFix : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

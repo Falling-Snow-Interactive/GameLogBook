@@ -89,10 +89,4 @@
         <Content Include="Components\**\*.razor.css" Pack="false" CopyToPublishDirectory="Never" />
     </ItemGroup>
 
-    <ItemGroup>
-      <AdditionalFiles Include="Components\Popups\AddPlaythrough\AddPlaythroughButton.razor" />
-      <AdditionalFiles Include="Components\Popups\AddPlaythrough\AddPlaythroughPopup.razor" />
-      <AdditionalFiles Include="Components\Popups\AddPopup\AddPopupShell.razor" />
-    </ItemGroup>
-
 </Project>

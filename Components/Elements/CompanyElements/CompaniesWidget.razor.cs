@@ -5,10 +5,10 @@ namespace VGL.Components.Elements.CompanyElements;
 public partial class CompaniesWidget : ComponentBase
 {
     [Parameter]
-    public IReadOnlyList<string?> DeveloperNames { get; set; }
+    public IReadOnlyList<string?> DeveloperNames { get; set; } = [];
     
     [Parameter]
-    public IReadOnlyList<string?> PublisherNames { get; set; }
+    public IReadOnlyList<string?> PublisherNames { get; set; } = [];
 
     [Parameter]
     public string LabelClass { get; set; } = string.Empty;

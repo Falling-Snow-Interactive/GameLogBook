@@ -5,7 +5,7 @@
 .details-form {
     display: flex;
     flex-direction: column;
-    /*grid-template-columns: repeat(2, minmax(0, 1fr));*/
+    min-width: 0;
     gap: 0.75rem;
 }
 
@@ -51,15 +51,15 @@
 }
 
 .form-field-sm {
-    width: 15rem;
+    width: min(15rem, 100%);
 }
 
 .form-field-md {
-    width: 30rem;
+    width: min(30rem, 100%);
 }
 
 .form-field-lg {
-    width: 45rem;
+    width: min(45rem, 100%);
 }
 
 .form-field-full {
@@ -347,6 +347,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    gap: 0.75rem;
     margin-top: 0.25rem;
 }
 
@@ -378,17 +379,9 @@
     .game-details-form,
     .platform-details-form,
     .playthrough-details-form,
-    .popup-form {
-        grid-template-columns: 1fr;
-    }
-
-    .game-details-form,
-    .platform-details-form,
-    .playthrough-details-form,
-    .error-message,
-    .search-results {
-        margin-left: 1.25rem;
-        margin-right: 1.25rem;
+    .details-form {
+        margin: 0;
+        padding: 0.875rem;
     }
 
     .popup-form {
@@ -401,7 +394,6 @@
 
     .image-field-preview {
         width: min(12rem, 100%);
-        height: auto;
         flex-basis: auto;
         align-self: flex-start;
     }
@@ -414,6 +406,18 @@
     .image-field-action-button,
     .image-field-reset-button {
         width: 100%;
+    }
+
+    .form-field-sm,
+    .form-field-md,
+    .form-field-lg,
+    .form-field-full {
+        width: 100%;
+    }
+
+    .form-actions {
+        align-items: stretch;
+        justify-content: stretch;
     }
 }
 
@@ -438,12 +442,28 @@
 .form-row {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     
     width: 100%;
+    min-width: 0;
     gap: 0.5rem;
 
     /* Debug */
     /*border: var(--debug-border-size-sm) dashed #ff0000;*/
+}
+
+.form-row > * {
+    min-width: 0;
+}
+
+@media (max-width: 700px) {
+    .form-row {
+        flex-direction: column;
+    }
+
+    .image-group-fields {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Divider & Spacers */

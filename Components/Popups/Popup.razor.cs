@@ -6,7 +6,7 @@ namespace VGL.Components.Popups;
 public partial class Popup : ComponentBase
 {
     [Parameter]
-    public string Title { get; set; }
+    public string Title { get; set; } = string.Empty;
     
     [Parameter]
     public string? Description { get; set; }

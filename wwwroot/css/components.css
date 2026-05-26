@@ -2,10 +2,12 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 main {
     flex: 1;
+    min-width: 0;
 }
 
 .sidebar {
@@ -170,18 +172,21 @@ main {
     min-height: 24rem;
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .game-view-content {
     flex: 1;
     min-height: 0;
+    min-width: 0;
     display: flex;
     gap: 1rem;
     padding: 1rem;
 }
 
-.game-view {
-    width: 12rem;
+.game-view-content .game-cover {
+    flex: 0 0 min(12rem, 35%);
+    width: min(12rem, 35%);
     height: 18rem;
     object-fit: cover;
     border-radius: var(--radius-md);
@@ -212,6 +217,7 @@ main {
 
 .popup-button-container {
     width: 100%;
+    min-width: 0;
     display: flex;
     gap: 1rem;
     padding: 1rem;
@@ -335,8 +341,9 @@ main {
     }
 
     .sidebar {
-        width: 300px;
-        max-width: 300px;
+        flex: 0 0 250px;
+        width: 250px;
+        max-width: 250px;
         height: 100%;
         position: sticky;
         top: 0;
@@ -356,4 +363,25 @@ main {
 
 .date-fix {
     margin-right: 1rem;
+}
+
+@media (max-width: 700px) {
+    .game-view-content,
+    .popup-button-container {
+        flex-direction: column;
+    }
+
+    .game-view-content .game-cover {
+        flex-basis: auto;
+        width: 100%;
+        height: min(18rem, 55vh);
+    }
+
+    .popup-button {
+        width: 100%;
+    }
+
+    .date-fix {
+        margin-right: 0;
+    }
 }

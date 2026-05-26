@@ -8,7 +8,7 @@ public partial class DateOnlyWidget : ComponentBase
     public DateOnly? Date { get; set; }
 
     [Parameter]
-    public string Class { get; set; }
+    public string Class { get; set; } = string.Empty;
 
     public string GetCleanDate()
     {

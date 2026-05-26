@@ -5,7 +5,7 @@
 namespace VGL.Migrations
 {
     /// <inheritdoc />
-    public partial class updatetogameplatform : Migration
+    public partial class UpdateToGamePlatform : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
