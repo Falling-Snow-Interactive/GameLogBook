@@ -23,8 +23,7 @@
     padding: 1.25rem;
 }
 
-.popup-form > .igdb-search,
-.popup-form .form-field-full > .igdb-search {
+.popup-form > .igdb-search {
     margin: 0;
 }
 
@@ -50,20 +49,33 @@
     gap: 0.4rem;
 }
 
-.form-field-sm {
-    width: min(15rem, 100%);
+.form-field-flex {
+    flex-grow: 1;
+    width: auto;
 }
 
-.form-field-md {
-    width: min(30rem, 100%);
+.adaptive-form-grid {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: flex-start;
+    gap: clamp(0.75rem, 1.4vw, 1rem);
 }
 
-.form-field-lg {
-    width: min(45rem, 100%);
+.adaptive-form-grid > * {
+    flex: 1 1 15rem;
+    min-width: min(100%, 13rem);
 }
 
-.form-field-full {
+.adaptive-form-grid > .form-span-wide {
+    flex-grow: 2;
+    flex-basis: 28rem;
+    min-width: min(100%, 22rem);
+}
+
+.adaptive-form-grid > .form-span-all {
+    flex: 1 1 100%;
     width: 100%;
+    min-width: 0;
 }
 
 .form-field-double {
@@ -408,11 +420,9 @@
         width: 100%;
     }
 
-    .form-field-sm,
-    .form-field-md,
-    .form-field-lg,
-    .form-field-full {
-        width: 100%;
+    .adaptive-form-grid > * {
+        flex-basis: 100%;
+        min-width: 0;
     }
 
     .form-actions {

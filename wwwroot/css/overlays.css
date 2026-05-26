@@ -11,7 +11,7 @@
 }
 
 .popup {
-    width: min(50rem, 100%);
+    width: min(75rem, 100%);
     max-inline-size: calc(100vw - 3rem);
     max-block-size: calc(100vh - 3rem);
     
