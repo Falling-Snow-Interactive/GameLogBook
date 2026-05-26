@@ -2,8 +2,8 @@ namespace GameLogBook.Models;
 
 public class ImageRef
 {
-    public string? ImagePath { get; set; }
+    public string? Path { get; set; }
 
     [System.ComponentModel.DataAnnotations.Schema.NotMapped]
-    public string? PendingImageUrl { get; set; }
+    public string? PendingUrl { get; set; }
 }

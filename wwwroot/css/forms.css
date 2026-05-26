@@ -1,10 +1,12 @@
 .game-details-form,
 .platform-details-form,
 .playthrough-details-form,
-.popup-form {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.875rem;
+.popup-form,
+.details-form {
+    display: flex;
+    flex-direction: column;
+    /*grid-template-columns: repeat(2, minmax(0, 1fr));*/
+    gap: 0.75rem;
 }
 
 .game-details-form,
@@ -48,8 +50,24 @@
     gap: 0.4rem;
 }
 
+.form-field-sm {
+    width: 15rem;
+}
+
+.form-field-md {
+    width: 30rem;
+}
+
+.form-field-lg {
+    width: 45rem;
+}
+
 .form-field-full {
-    grid-column: 1 / -1;
+    width: 100%;
+}
+
+.form-field-double {
+    grid-column: 2; /* / -1; */
 }
 
 .form-field span,
@@ -231,6 +249,9 @@
     cursor: pointer;
 }
 
+.text-input,
+.detail-textarea,
+.detail-input,
 .game-name-input,
 .game-detail-input,
 .game-detail-textarea,
@@ -277,6 +298,7 @@
 }
 
 .game-name-input::placeholder,
+.detail-textarea::placeholder,
 .game-detail-input::placeholder,
 .game-detail-textarea::placeholder,
 .playthrough-name-input::placeholder,
@@ -289,6 +311,7 @@
 }
 
 .game-name-input:focus,
+.detail-textarea:focus,
 .game-detail-input:focus,
 .game-detail-textarea:focus,
 .playthrough-name-input:focus,
@@ -303,6 +326,7 @@
     outline: none;
 }
 
+.detail-textarea,
 .game-detail-textarea,
 .playthrough-detail-textarea {
     min-height: 7.5rem;
@@ -396,4 +420,57 @@
     max-width: 100%;
     max-inline-size: 100%;
     display: block;
+}
+
+.image-group-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: row;
+    
+    width: 100%;
+    gap: 0.5rem;
+
+    /* Debug */
+    /*border: var(--debug-border-size-sm) dashed #ff0000;*/
+}
+
+/* Divider & Spacers */
+
+.form-divider {
+    border-radius: var(--radius-sm);
+    background: var(--color-brand-soft);
+}
+
+.form-divider-wide {
+    display: flex;
+    flex-grow: 1;
+    flex-shrink: 0;
+
+    height: var(--divider-sm);
+    width: auto;
+
+    padding: 0 3rem 0;
+    
+    /* Debug */
+    /*border: var(--debug-border-size-sm) dashed #002aff;*/
+}
+
+.form-spacer-wide{
+    height: var(--space-sm);
+    width: 100%;
+
+    /* Debug */
+    /*border: var(--debug-border-size-sm) dashed #002aff;*/
+}
+
+.form-spacer-tall{
+    height: 100%;
+    width: var(--space-sm);
+
+    /* Debug */
+    /*border: var(--debug-border-size-sm) dashed #002aff;*/
 }

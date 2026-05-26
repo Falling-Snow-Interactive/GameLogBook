@@ -32,13 +32,13 @@ public partial class AddGamePopup
     public Game? InitialGame { get; set; }
 
     private List<Company> availableCompanies = [];
-    private List<int> selectedDeveloperCompanyIDs = [];
-    private List<int> selectedPublisherCompanyIDs = [];
+    private List<int> selectedDeveloperIDs = [];
+    private List<int> selectedPublisherIDs = [];
     
     private string developerSearchText = string.Empty;
     private string publisherSearchText = string.Empty;
 
-    private string gameName = string.Empty;
+    private string name = string.Empty;
     private long? igdb;
     private DateOnly? releaseDate;
     
@@ -46,6 +46,11 @@ public partial class AddGamePopup
     private ImageFieldWidget? heroImageField;
     private ImageFieldWidget? logoImageField;
     private ImageFieldWidget? iconImageField;
+
+    private ImageRef? cover;
+    private ImageRef? hero;
+    private ImageRef? logo;
+    private ImageRef? icon;
     
     private string coverImagePath = string.Empty;
     private string heroImagePath = string.Empty;
@@ -60,7 +65,7 @@ public partial class AddGamePopup
     private string? imageErrorMessage;
     private bool isSaving;
     private string summary = string.Empty;
-    private GameType gameType;
+    private GameType type;
 
     private string PopupTitle => InitialGame is null ? "Add Game" : "Edit Game";
 
@@ -156,8 +161,8 @@ public partial class AddGamePopup
                         
                         IGDB = igdb,
                         
-                        Name = gameName.Trim(),
-                        GameType = gameType,
+                        Name = name.Trim(),
+                        GameType = type,
                         ReleaseDate = releaseDate,
                         
                         Summary = string.IsNullOrWhiteSpace(summary) ? null : summary.Trim(),
@@ -167,34 +172,34 @@ public partial class AddGamePopup
                                     ? null
                                     : new ImageRef
                                       {
-                                          ImagePath = coverPath
+                                          Path = coverPath
                                       },
                         
                         Hero = string.IsNullOrWhiteSpace(heroPath) 
                                    ? null 
                                    : new ImageRef
                                      {
-                                         ImagePath = heroPath,
+                                         Path = heroPath,
                                      },
                         
                         Logo = string.IsNullOrWhiteSpace(logoPath) 
                                    ? null 
                                    : new ImageRef
                                      {
-                                         ImagePath = logoPath,
+                                         Path = logoPath,
                                      },
                         
                         Icon = string.IsNullOrWhiteSpace(iconPath) 
                                    ? null 
                                    : new ImageRef
                                      {
-                                         ImagePath = iconPath,
+                                         Path = iconPath,
                                      },
                         #endregion
                     };
         
-        game.AddCompaniesByID(GameCompanyRole.Developer, selectedDeveloperCompanyIDs);
-        game.AddCompaniesByID(GameCompanyRole.Publisher, selectedPublisherCompanyIDs);
+        game.AddCompaniesByID(GameCompanyRole.Developer, selectedDeveloperIDs);
+        game.AddCompaniesByID(GameCompanyRole.Publisher, selectedPublisherIDs);
 
         if (Popup is not null)
         {
@@ -221,40 +226,52 @@ public partial class AddGamePopup
 
     private async Task LoadGame(Game game)
     {
-        igdb = game.IGDB;
-        gameName = game.Name;
-        selectedDeveloperCompanyIDs = ResolveLocalCompanyIds(game.GetDeveloperIDs());
-        selectedPublisherCompanyIDs = ResolveLocalCompanyIds(game.GetPublisherIDs());
-        developerSearchText = string.Empty;
-        publisherSearchText = string.Empty;
+        // Information
+        name = game.Name;
+        summary = game.Summary ?? string.Empty;
+        type = game.GameType;
         releaseDate = game.ReleaseDate;
         
-        coverImagePath = game.Cover?.ImagePath ?? string.Empty;
-        coverImageUrl = game.Cover?.PendingImageUrl ?? string.Empty;
-        
-        heroImagePath = game.Hero?.ImagePath ?? string.Empty;
-        heroImageUrl = game.Hero?.PendingImageUrl ?? string.Empty;
+        // Companies
+        selectedDeveloperIDs = ResolveLocalCompanyIDs(game.GetDeveloperIDs());
+        selectedPublisherIDs = ResolveLocalCompanyIDs(game.GetPublisherIDs());
 
-        logoImagePath = game.Logo?.ImagePath ?? string.Empty;
-        logoImageUrl = game.Logo?.PendingImageUrl ?? string.Empty;
+        // Images
+        cover = game.Cover;
+        hero = game.Hero;
+        logo = game.Logo;
+        icon = game.Icon;
         
-        iconImagePath = game.Icon?.ImagePath ?? string.Empty;
-        iconImageUrl = game.Icon?.PendingImageUrl ?? string.Empty;
+        coverImagePath = game.Cover?.Path ?? string.Empty;
+        coverImageUrl = game.Cover?.PendingUrl ?? string.Empty;
         
+        heroImagePath = game.Hero?.Path ?? string.Empty;
+        heroImageUrl = game.Hero?.PendingUrl ?? string.Empty;
+
+        logoImagePath = game.Logo?.Path ?? string.Empty;
+        logoImageUrl = game.Logo?.PendingUrl ?? string.Empty;
+        
+        iconImagePath = game.Icon?.Path ?? string.Empty;
+        iconImageUrl = game.Icon?.PendingUrl ?? string.Empty;  
+        
+        // IGDB
+        igdb = game.IGDB;
+        
+        // Search
+        developerSearchText = string.Empty;
+        publisherSearchText = string.Empty;
+        
+        // Errors
         imageErrorMessage = null;
-        
-        summary = game.Summary ?? string.Empty;
-        
-        gameType = game.GameType;
     }
 
     private void ResetForm()
     {
-        selectedDeveloperCompanyIDs = [];
-        selectedPublisherCompanyIDs = [];
+        selectedDeveloperIDs = [];
+        selectedPublisherIDs = [];
         developerSearchText = string.Empty;
         publisherSearchText = string.Empty;
-        gameName = string.Empty;
+        name = string.Empty;
         igdb = 0;
         releaseDate = null;
         
@@ -273,7 +290,7 @@ public partial class AddGamePopup
         imageErrorMessage = null;
         isSaving = false;
         summary = string.Empty;
-        gameType = GameType.None;
+        type = GameType.None;
     }
 
     private string? ResolveExistingCoverImagePath()
@@ -296,7 +313,7 @@ public partial class AddGamePopup
         return string.IsNullOrWhiteSpace(iconImagePath) ? null : iconImagePath;
     }
 
-    private List<int> ResolveLocalCompanyIds(IEnumerable<int> companyIds)
+    private List<int> ResolveLocalCompanyIDs(IEnumerable<int> companyIds)
     {
         return companyIds
                .Where(companyId => availableCompanies.Any(company => company.ID == companyId))

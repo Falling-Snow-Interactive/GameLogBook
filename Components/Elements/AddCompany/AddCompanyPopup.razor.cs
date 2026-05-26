@@ -8,13 +8,22 @@ namespace GameLogBook.Components.Elements.AddCompany;
 public partial class AddCompanyPopup
 {
     private Company? previousInitialCompany;
-    private long? companyIgdbId;
-    private string companyName = string.Empty;
+    
+    // Information
+    private string name = string.Empty;
+    private string summary = string.Empty;
+    
+    // Images
     private string companyImagePath = string.Empty;
     private string companyImageUrl = string.Empty;
     private string? companyPreviewSource;
     private IBrowserFile? uploadedCompanyImage;
     private string? imageErrorMessage;
+    
+    // Other APIs
+    private long? igdb;
+    
+    // Saving
     private bool isSaving;
 
     [Inject]
@@ -79,8 +88,8 @@ public partial class AddCompanyPopup
         Company company = new()
                           {
                               ID = InitialCompany?.ID ?? 0,
-                              IGDB = companyIgdbId,
-                              Name = companyName.Trim(),
+                              IGDB = igdb,
+                              Name = name.Trim(),
                               ImagePath = imagePath,
                               LastSyncedAt = DateTimeOffset.UtcNow
                           };
@@ -110,8 +119,8 @@ public partial class AddCompanyPopup
 
     private async Task LoadCompany(Company company)
     {
-        companyIgdbId = company.IGDB;
-        companyName = company.Name;
+        igdb = company.IGDB;
+        name = company.Name;
         companyImagePath = company.ImagePath ?? string.Empty;
         companyImageUrl = company.PendingImageUrl ?? string.Empty;
         uploadedCompanyImage = null;
@@ -123,8 +132,8 @@ public partial class AddCompanyPopup
 
     private void ResetForm()
     {
-        companyIgdbId = null;
-        companyName = string.Empty;
+        igdb = null;
+        name = string.Empty;
         companyImagePath = string.Empty;
         companyImageUrl = string.Empty;
         companyPreviewSource = null;

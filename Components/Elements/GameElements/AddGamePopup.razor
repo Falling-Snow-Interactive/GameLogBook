@@ -12,7 +12,7 @@
         <label class="form-field form-field-full">
             <span>Name</span>
             <input class="game-detail-input"
-                   @bind="gameName"
+                   @bind="name"
                    @bind:event="oninput"
                    placeholder="Game name"/>
         </label>
@@ -21,7 +21,7 @@
             <span>Type</span>
             <EnumDropdown TEnum="GameType"
                           class="game-detail-input"
-                          @bind-Value="gameType" />
+                          @bind-Value="type" />
         </label>
 
         <label class="form-field form-field">
@@ -39,7 +39,7 @@
         <div class="form-field">
             <span>Developer</span>
             <CompanySearch Companies="availableCompanies"
-                           @bind-SelectedCompanyIds="selectedDeveloperCompanyIDs"
+                           @bind-SelectedCompanyIds="selectedDeveloperIDs"
                            @bind-SearchText="developerSearchText"
                            OnCompanyAdded="HandleCompanyAdded"
                            Placeholder="Search companies..." />
@@ -48,7 +48,7 @@
         <div class="form-field">
             <span>Publisher</span>
             <CompanySearch Companies="availableCompanies"
-                           @bind-SelectedCompanyIds="selectedPublisherCompanyIDs"
+                           @bind-SelectedCompanyIds="selectedPublisherIDs"
                            @bind-SearchText="publisherSearchText"
                            OnCompanyAdded="HandleCompanyAdded"
                            Placeholder="Search companies..." />
@@ -81,7 +81,7 @@
                           AspectRatioHeight="3"
                           ImagePath="@coverImagePath"
                           PendingImageUrl="@coverImageUrl"
-                          AltText="@($"{gameName} cover preview")" />
+                          AltText="@($"{name} cover preview")" />
 
         <ImageFieldWidget @ref="heroImageField"
                           class="form-field-full"
@@ -92,7 +92,7 @@
                           AspectRatioHeight="31"
                           ImagePath="@heroImagePath"
                           PendingImageUrl="@heroImageUrl"
-                          AltText="@($"{gameName} hero preview")" />
+                          AltText="@($"{name} hero preview")" />
 
         <ImageFieldWidget @ref="logoImageField"
                           class="form-field-full"
@@ -103,7 +103,7 @@
                           AspectRatioHeight="1"
                           ImagePath="@logoImagePath"
                           PendingImageUrl="@logoImageUrl"
-                          AltText="@($"{gameName} logo preview")" />
+                          AltText="@($"{name} logo preview")" />
         
         <ImageFieldWidget @ref="iconImageField"
                           class="form-field-full"
@@ -114,7 +114,7 @@
                           AspectRatioHeight="1"
                           ImagePath="@iconImagePath"
                           PendingImageUrl="@iconImageUrl"
-                          AltText="@($"{gameName} icon preview")" />
+                          AltText="@($"{name} icon preview")" />
 
         @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
         {
@@ -133,7 +133,7 @@
             <button class="save-button"
                     type="button"
                     @onclick="HandleSaveGame"
-                    disabled="@(isSaving || string.IsNullOrWhiteSpace(gameName))">
+                    disabled="@(isSaving || string.IsNullOrWhiteSpace(name))">
                 @(isSaving ? "Saving image..." : SaveButtonText)
             </button>
         </div>

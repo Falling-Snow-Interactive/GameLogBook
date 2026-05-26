@@ -103,29 +103,29 @@ public partial class GamesPage : CollectionPageBase<Game>
         existingGame.Name = updatedGame.Name.Trim();
         existingGame.ReleaseDate = updatedGame.ReleaseDate;
         existingGame.Summary = string.IsNullOrWhiteSpace(updatedGame.Summary) ? null : updatedGame.Summary.Trim();
-        existingGame.Cover = string.IsNullOrWhiteSpace(updatedGame.Cover?.ImagePath)
+        existingGame.Cover = string.IsNullOrWhiteSpace(updatedGame.Cover?.Path)
                                  ? null
                                  : new ImageRef
                                    {
-                                       ImagePath = updatedGame.Cover.ImagePath.Trim()
+                                       Path = updatedGame.Cover.Path.Trim()
                                    };
-        existingGame.Hero = string.IsNullOrWhiteSpace(updatedGame.Hero?.ImagePath)
+        existingGame.Hero = string.IsNullOrWhiteSpace(updatedGame.Hero?.Path)
                                 ? null
                                 : new ImageRef
                                   {
-                                      ImagePath = updatedGame.Hero.ImagePath.Trim()
+                                      Path = updatedGame.Hero.Path.Trim()
                                   };
-        existingGame.Logo = string.IsNullOrWhiteSpace(updatedGame.Logo?.ImagePath)
+        existingGame.Logo = string.IsNullOrWhiteSpace(updatedGame.Logo?.Path)
                                 ? null
                                 : new ImageRef
                                   {
-                                      ImagePath = updatedGame.Logo.ImagePath.Trim()
+                                      Path = updatedGame.Logo.Path.Trim()
                                   };
-        existingGame.Icon = string.IsNullOrWhiteSpace(updatedGame.Icon?.ImagePath)
+        existingGame.Icon = string.IsNullOrWhiteSpace(updatedGame.Icon?.Path)
                                 ? null
                                 : new ImageRef
                                   {
-                                      ImagePath = updatedGame.Icon.ImagePath.Trim()
+                                      Path = updatedGame.Icon.Path.Trim()
                                   };
         existingGame.GameCompanies = NormalizeCompanyIds(updatedGame.GameCompanies);
 

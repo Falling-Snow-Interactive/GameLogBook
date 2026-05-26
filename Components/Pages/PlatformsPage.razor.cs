@@ -61,29 +61,29 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
         existingPlatform.ReleaseDate = updatedPlatform.ReleaseDate;
         existingPlatform.Summary = string.IsNullOrWhiteSpace(updatedPlatform.Summary) ? null : updatedPlatform.Summary.Trim();
         
-        existingPlatform.Cover = string.IsNullOrWhiteSpace(updatedPlatform.Cover?.ImagePath)
+        existingPlatform.Cover = string.IsNullOrWhiteSpace(updatedPlatform.Cover?.Path)
                                      ? null
                                      : new ImageRef
                                        {
-                                           ImagePath = updatedPlatform.Cover.ImagePath.Trim()
+                                           Path = updatedPlatform.Cover.Path.Trim()
                                        };
-        existingPlatform.Hero = string.IsNullOrWhiteSpace(updatedPlatform.Hero?.ImagePath)
+        existingPlatform.Hero = string.IsNullOrWhiteSpace(updatedPlatform.Hero?.Path)
                                     ? null
                                     : new ImageRef
                                       {
-                                          ImagePath = updatedPlatform.Hero.ImagePath.Trim()
+                                          Path = updatedPlatform.Hero.Path.Trim()
                                       };
-        existingPlatform.Logo = string.IsNullOrWhiteSpace(updatedPlatform.Logo?.ImagePath)
+        existingPlatform.Logo = string.IsNullOrWhiteSpace(updatedPlatform.Logo?.Path)
                                     ? null
                                     : new ImageRef
                                       {
-                                          ImagePath = updatedPlatform.Logo.ImagePath.Trim()
+                                          Path = updatedPlatform.Logo.Path.Trim()
                                       };
-        existingPlatform.Icon = string.IsNullOrWhiteSpace(updatedPlatform.Icon?.ImagePath)
+        existingPlatform.Icon = string.IsNullOrWhiteSpace(updatedPlatform.Icon?.Path)
                                     ? null
                                     : new ImageRef
                                       {
-                                          ImagePath = updatedPlatform.Icon.ImagePath.Trim()
+                                          Path = updatedPlatform.Icon.Path.Trim()
                                       };
         
         // TODO - Turn into relation DB refs

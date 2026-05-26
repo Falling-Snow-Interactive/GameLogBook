@@ -24,7 +24,7 @@
         <div class="@ContentClass">
             @if (ShowSearch)
             {
-                <div class="form-field-full">
+                <div class="form-field-full igdb-search">
                     <IGDBSearch SearchFor="@SearchFor"
                                 Placeholder="@SearchPlaceholder"
                                 LocalCompanies="@LocalCompanies"
@@ -33,7 +33,8 @@
                                 OnCompanySelected="@OnCompanySelected" />
                 </div>
 
-                <hr class="popup-divider form-field-full" />
+                <div class="form-divider form-divider-wide"></div>
+                @* <hr class="popup-divider form-field-full" /> *@
             }
 
             @ChildContent

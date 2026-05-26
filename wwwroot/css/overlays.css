@@ -10,28 +10,29 @@
     backdrop-filter: blur(4px);
 }
 
-.popup,
-.platform-popup,
-.company-popup {
+.popup {
     inline-size: fit-content;
-    min-inline-size: min(100%, var(--popup-min-width, 22rem));
-    max-inline-size: min(var(--popup-max-width, 46rem), calc(100vw - 3rem));
-    max-block-size: min(var(--popup-max-height, 52rem), calc(100vh - 3rem));
+    min-inline-size: min(100%, var(50rem, 22rem));
+    max-inline-size: min(var(50rem, 46rem), calc(100vw - 3rem));
+    max-block-size: min(var(50rem, 52rem), calc(100vh - 3rem));
+    
     display: flex;
     flex-direction: column;
+    
     min-height: 0;
+    max-height: 50vw;
+    
+    min-width: 50rem;
+    
     overflow: hidden;
-    border: 1px solid rgba(229, 231, 235, 0.95);
+    
+    border: var(--border-thickness-md) solid var(--color-border);
     border-radius: var(--radius-dialog);
+    
     background: var(--color-surface);
     color: var(--color-text);
+    
     box-shadow: var(--shadow-dialog);
-}
-
-.platform-popup,
-.company-popup {
-    --popup-max-width: 36rem;
-    --popup-max-height: 44rem;
 }
 
 .popup-header {

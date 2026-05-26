@@ -15,52 +15,17 @@ namespace GameLogBook.Components.Elements.AddPlatform;
 
 public partial class AddPlatformPopup : ComponentBase
 {
+    // Inject
     [Inject]
     protected IGDBClientProvider IgdbClientProvider { get; set; } = null!;
 
     [Inject]
     protected LocalImageService LocalImageService { get; set; } = null!;
 
+    // Parameters
     [CascadingParameter]
     private PopupInstance? Popup { get; set; }
-
-    private PlatformModel? previousInitialPlatform;
     
-    private string platformName = string.Empty;
-    private string? abbreviation = string.Empty;
-    private string? summary = string.Empty;
-    
-    private bool isSaving;
-    private DateOnly? releaseDate;
-    private long? igdbId;
-    
-    private HashSet<int> selectedGameIds = [];
-    private HashSet<int> companyIds = [];
-
-    private string? searchErrorMessage;
-    private string? imageErrorMessage;
-    
-    private ImageFieldWidget? coverImageField;
-    private ImageFieldWidget? heroImageField;
-    private ImageFieldWidget? logoImageField;
-    private ImageFieldWidget? iconImageField;
-    
-    private string coverImagePath = string.Empty;
-    private string heroImagePath = string.Empty;
-    private string logoImagePath = string.Empty;
-    private string iconImagePath = string.Empty;
-    
-    private string coverImageUrl = string.Empty;
-    private string heroImageUrl = string.Empty;
-    private string logoImageUrl = string.Empty;
-    private string iconImageUrl = string.Empty;
-
-    [Parameter]
-    public EventCallback OnClose { get; set; }
-
-    [Parameter]
-    public EventCallback<PlatformModel> OnPlatformSelected { get; set; }
-
     [Parameter]
     public IReadOnlyList<Game> Games { get; set; } = [];
 
@@ -70,12 +35,73 @@ public partial class AddPlatformPopup : ComponentBase
     [Parameter]
     public PlatformModel? InitialPlatform { get; set; }
 
-    private string PopupTitle => InitialPlatform is null ? "Add Platform" : "Edit Platform";
+    [Parameter]
+    public EventCallback OnClose { get; set; }
 
+    [Parameter]
+    public EventCallback<PlatformModel> OnPlatformSelected { get; set; }
+    
+    [Parameter]
+    public Func<Company, Task<Company?>>? OnCompanyAdded { get; set; }
+    
+    private string PopupTitle => InitialPlatform is null ? "Add Platform" : "Edit Platform";
     private string SaveButtonText => InitialPlatform is null ? "Add Platform" : "Save Changes";
 
+    // Previous
+    private PlatformModel? previousInitialPlatform;
+    private IReadOnlyList<Company>? previousCompanies;
+    
+    // Input
+    private bool isSaving;
+    
+    // Information
+    private string name = string.Empty;
+    private string? nameShort = string.Empty;
+    private string? summary = string.Empty;
+    
+    private DateOnly? releaseDate;
+    
+    private HashSet<int> selectedGameIds = [];
+    private List<int> companyIDs = [];
+    
+    // Images
+    private ImageFieldWidget? coverImageField;
+    private ImageFieldWidget? heroImageField;
+    private ImageFieldWidget? logoImageField;
+    private ImageFieldWidget? iconImageField;
+    
+    private string coverPath = string.Empty;
+    private string heroPath = string.Empty;
+    private string logoPath = string.Empty;
+    private string iconImagePath = string.Empty;
+    
+    private string coverUrl = string.Empty;
+    private string heroUrl = string.Empty;
+    private string logoUrl = string.Empty;
+    private string iconImageUrl = string.Empty;
+    
+    // IGDB
+    private long? igdbId;
+
+    // Errors
+    private string? searchErrorMessage;
+    private string? imageErrorMessage;
+
+    // Caches
+    private List<Company>? companyCache;
+
+    private string developerSearchText = string.Empty;
+    
     protected override async Task OnParametersSetAsync()
     {
+        if (ReferenceEquals(previousCompanies, Companies))
+        {
+            previousCompanies = Companies;
+            companyCache = Companies
+                           .OrderBy(company => company.Name)
+                           .ToList();
+        }
+        
         if (ReferenceEquals(previousInitialPlatform, InitialPlatform))
         {
             return;
@@ -96,38 +122,38 @@ public partial class AddPlatformPopup : ComponentBase
     {
         PlatformModel platform = result.Platform;
         igdbId = platform.IgdbId;
-        platformName = platform.Name;
-        abbreviation = platform.Abbreviation;
+        name = platform.Name;
+        nameShort = platform.Abbreviation;
         releaseDate = platform.ReleaseDate;
         summary = platform.Summary;
         
         searchErrorMessage = null;
         
-        coverImagePath = result.Platform.Cover?.ImagePath ?? string.Empty;
-        coverImageUrl = result.Platform.Cover?.PendingImageUrl ?? string.Empty;
+        coverPath = result.Platform.Cover?.Path ?? string.Empty;
+        coverUrl = result.Platform.Cover?.PendingUrl ?? string.Empty;
         
-        heroImagePath = result.Platform.Hero?.ImagePath ?? string.Empty;
-        heroImageUrl = result.Platform.Hero?.PendingImageUrl ?? string.Empty;
+        heroPath = result.Platform.Hero?.Path ?? string.Empty;
+        heroUrl = result.Platform.Hero?.PendingUrl ?? string.Empty;
 
-        logoImagePath = result.Platform.Logo?.ImagePath ?? string.Empty;
-        logoImageUrl = result.Platform.Logo?.PendingImageUrl ?? string.Empty;
+        logoPath = result.Platform.Logo?.Path ?? string.Empty;
+        logoUrl = result.Platform.Logo?.PendingUrl ?? string.Empty;
         
-        iconImagePath = result.Platform.Icon?.ImagePath ?? string.Empty;
-        iconImageUrl = result.Platform.Icon?.PendingImageUrl ?? string.Empty;
+        iconImagePath = result.Platform.Icon?.Path ?? string.Empty;
+        iconImageUrl = result.Platform.Icon?.PendingUrl ?? string.Empty;
 
         await PopulateSelectedGames(platform.IgdbId);
     }
 
     private async Task HandleSavePlatform()
     {
-        var name = platformName.Trim();
-        string? platformSummary = string.IsNullOrWhiteSpace(summary) ? null : summary.Trim();
-
         isSaving = true;
         searchErrorMessage = null;
         imageErrorMessage = null;
+        
+        string name = this.name.Trim();
+        string? platformSummary = string.IsNullOrWhiteSpace(summary) ? null : summary.Trim();
 
-        int[] manufacturerIds = companyIds
+        int[] manufacturerIds = companyIDs
                                 .OrderBy(companyId => companyId)
                                 .ToArray();
         
@@ -184,7 +210,7 @@ public partial class AddPlatformPopup : ComponentBase
                                      ID = InitialPlatform?.ID ?? 0,
 
                                      IgdbId = igdbId,
-                                     Abbreviation = abbreviation,
+                                     Abbreviation = nameShort,
                                      ReleaseDate = releaseDate,
                                      Summary = platformSummary,
                                      
@@ -195,28 +221,28 @@ public partial class AddPlatformPopup : ComponentBase
                                                  ? null
                                                  : new ImageRef
                                                    {
-                                                       ImagePath = coverPath
+                                                       Path = coverPath
                                                    },
                         
                                      Hero = string.IsNullOrWhiteSpace(heroPath) 
                                                 ? null 
                                                 : new ImageRef
                                                   {
-                                                      ImagePath = heroPath,
+                                                      Path = heroPath,
                                                   },
                         
                                      Logo = string.IsNullOrWhiteSpace(logoPath) 
                                                 ? null 
                                                 : new ImageRef
                                                   {
-                                                      ImagePath = logoPath,
+                                                      Path = logoPath,
                                                   },
                                      
                                      Icon = string.IsNullOrWhiteSpace(iconPath) 
                                                 ? null 
                                                 : new ImageRef
                                                   {
-                                                      ImagePath = iconPath,
+                                                      Path = iconPath,
                                                   },
                                      #endregion
                                  };
@@ -244,9 +270,9 @@ public partial class AddPlatformPopup : ComponentBase
         await OnClose.InvokeAsync();
     }
 
-    private Task HandleCompanyIdsChanged(HashSet<int> updatedCompanyIds)
+    private Task HandleCompanyIDsChanged(List<int> updatedCompanyIds)
     {
-        companyIds = updatedCompanyIds;
+        companyIDs = updatedCompanyIds;
         return Task.CompletedTask;
     }
 
@@ -320,75 +346,143 @@ public partial class AddPlatformPopup : ComponentBase
 
     private Task LoadPlatform(PlatformModel platform)
     {
-        igdbId = platform.IgdbId;
-        platformName = platform.Name;
-        abbreviation = platform.Abbreviation;
+        // Information
+        name = platform.Name;
         summary = platform.Summary;
-        
+        nameShort = platform.Abbreviation;
         releaseDate = platform.ReleaseDate;
-        companyIds = (platform.ManufacturerIds ?? []).ToHashSet();
+        
+        // Companies
+        companyIDs = (platform.ManufacturerIds ?? []).ToList();
+        
+        // Images
+        coverPath = platform.Cover?.Path ?? string.Empty;
+        coverUrl = platform.Cover?.PendingUrl ?? string.Empty;
+        
+        heroPath = platform.Hero?.Path ?? string.Empty;
+        heroUrl = platform.Hero?.PendingUrl ?? string.Empty;
+
+        logoPath = platform.Logo?.Path ?? string.Empty;
+        logoUrl = platform.Logo?.PendingUrl ?? string.Empty;
+
+        iconImagePath = platform.Icon?.Path ?? string.Empty;
+        iconImageUrl = platform.Icon?.PendingUrl ?? string.Empty;
+        
+        // IGDB
+        igdbId = platform.IgdbId;
+        
+        // Search
+        developerSearchText = string.Empty;
         searchErrorMessage = null;
-        
-        coverImagePath = platform.Cover?.ImagePath ?? string.Empty;
-        coverImageUrl = platform.Cover?.PendingImageUrl ?? string.Empty;
-        
-        heroImagePath = platform.Hero?.ImagePath ?? string.Empty;
-        heroImageUrl = platform.Hero?.PendingImageUrl ?? string.Empty;
-
-        logoImagePath = platform.Logo?.ImagePath ?? string.Empty;
-        logoImageUrl = platform.Logo?.PendingImageUrl ?? string.Empty;
-
-        iconImagePath = platform.Icon?.ImagePath ?? string.Empty;
-        iconImageUrl = platform.Icon?.PendingImageUrl ?? string.Empty;
         
         return Task.CompletedTask;
     }
 
     private void ResetForm()
     {
-        platformName = string.Empty;
-        abbreviation = string.Empty;
-        summary = string.Empty;
-        
         isSaving = false;
+        
+        // Information
+        name = string.Empty;
+        nameShort = string.Empty;
+        summary = string.Empty;
         releaseDate = null;
-        igdbId = 0;
+        
+        // Games
         selectedGameIds = [];
-        companyIds = [];
-        searchErrorMessage = null;
         
-        coverImagePath = string.Empty;
-        coverImageUrl = string.Empty;
+        // Companies
+        companyIDs = [];
         
-        heroImagePath = string.Empty;
-        heroImageUrl = string.Empty;
+        // Images
+        coverPath = string.Empty;
+        coverUrl = string.Empty;
+        
+        heroPath = string.Empty;
+        heroUrl = string.Empty;
 
-        logoImagePath = string.Empty;
-        logoImageUrl = string.Empty;
+        logoPath = string.Empty;
+        logoUrl = string.Empty;
 
         iconImagePath = string.Empty;
         iconImageUrl = string.Empty;
         
+        // IGDB
+        igdbId = 0;
+        
+        // Errors
         imageErrorMessage = null;
+        searchErrorMessage = null;
     }
     
     private string? ResolveExistingCoverImagePath()
     {
-        return string.IsNullOrWhiteSpace(coverImagePath) ? null : coverImagePath;
+        return string.IsNullOrWhiteSpace(coverPath) ? null : coverPath;
     }
     
     private string? ResolveExistingHeroImagePath()
     {
-        return string.IsNullOrWhiteSpace(heroImagePath) ? null : heroImagePath;
+        return string.IsNullOrWhiteSpace(heroPath) ? null : heroPath;
     }
     
     private string? ResolveExistingLogoImagePath()
     {
-        return string.IsNullOrWhiteSpace(logoImagePath) ? null : logoImagePath;
+        return string.IsNullOrWhiteSpace(logoPath) ? null : logoPath;
     }
     
     private string? ResolveExistingIconImagePath()
     {
         return string.IsNullOrWhiteSpace(iconImagePath) ? null : iconImagePath;
+    }
+
+    private List<int> ResolveLocalCompanyIDs(IEnumerable<int> companyIDs)
+    {
+        return companyIDs
+               .Where(companyID => companyCache != null 
+                                   && companyCache.Any(company => company.ID == companyID))
+               .Distinct()
+               .Order()
+               .ToList();
+    }
+
+    private void AddOrUpdateAvailableCompany(Company company)
+    {
+        if (companyCache == null)
+        {
+            return;
+        }
+
+        int existingIndex = companyCache.FindIndex(existingCompany => existingCompany.ID == company.ID);
+
+        if (existingIndex >= 0)
+        {
+            companyCache[existingIndex] = company;
+        }
+        else
+        {
+            companyCache.Add(company);
+        }
+
+        companyCache = companyCache
+                       .OrderBy(existingCompany => existingCompany.Name, StringComparer.CurrentCultureIgnoreCase)
+                       .ToList();
+    }
+
+    private async Task<Company?> HandleCompanyAdded(Company company)
+    {
+        if (OnCompanyAdded is null)
+        {
+            return null;
+        }
+
+        Company? savedCompany = await OnCompanyAdded.Invoke(company);
+
+        if (savedCompany is not null)
+        {
+            AddOrUpdateAvailableCompany(savedCompany);
+            await InvokeAsync(StateHasChanged);
+        }
+
+        return savedCompany;
     }
 }

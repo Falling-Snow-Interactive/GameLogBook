@@ -6,7 +6,7 @@
      @onclick="HandleClick">
     
     <div class="game-entry-hero">
-        <LocalImage ImagePath="@Game.Hero?.ImagePath"
+        <LocalImage ImagePath="@Game.Hero?.Path"
                     ImageClass="game-entry-hero-image"
                     AltText="@($"{Game.Name} hero")"
                     MaxWidth="480"
@@ -17,14 +17,14 @@
     <div class="game-entry-body">
         <div class="game-entry-header">
             <div class="game-entry-cover">
-                <LocalImage ImagePath="@Game.Cover?.ImagePath"
+                <LocalImage ImagePath="@Game.Cover?.Path"
                             ImageClass="game-entry-cover-image"
                             AltText="@($"{Game.Name} cover")"
                             MaxWidth="160"
                             MaxHeight="240"/>
             </div>
             <div class="game-entry-logo">
-                <LocalImage ImagePath="@Game.Logo?.ImagePath"
+                <LocalImage ImagePath="@Game.Logo?.Path"
                             ImageClass="game-entry-logo-image"
                             AltText="@($"{Game.Name} logo")" />
                             @* MaxWidth="160" *@

@@ -9,53 +9,27 @@
                FormClass="company-form"
                OnClose="HandleClose"
                OnCompanySelected="HandleCompanySelected">
-    <label class="form-field form-field-full">
+    
+    <div class="form-field form-field-full">
         <span>Name</span>
-        <input class="company-input"
-               @bind="companyName"
+        <input class="text-input"
+               @bind="name"
                @bind:event="oninput"
-               placeholder="Company name" />
-    </label>
+               placeholder="Name..."/>
+    </div>
 
-    <label class="form-field form-field-full">
-        <span>Logo image URL</span>
-        <input class="company-input"
-               value="@companyImageUrl"
-               @oninput="HandleCompanyImageUrlChanged"
-               placeholder="Download image from URL" />
-    </label>
-
-    <label class="form-field form-field-full">
-        <span>Or upload logo image</span>
-        <InputFile class="company-input"
-                   OnChange="HandleCompanyImageFileSelected"
-                   accept="image/png,image/jpeg,image/gif,image/webp" />
-    </label>
-
-    @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
-    {
-        <p class="form-hint form-field-full">@imageErrorMessage</p>
-    }
-
-    @if (!string.IsNullOrWhiteSpace(companyPreviewSource))
-    {
-        <div class="form-field form-field-full image-preview-field">
-            <span>Logo preview</span>
-            <img class="image-preview"
-                 src="@companyPreviewSource"
-                 alt="@companyName logo preview" />
-            <button class="collection-remove-button"
-                    type="button"
-                    @onclick="RemoveCompanyImage">
-                Remove image
-            </button>
-        </div>
-    }
+    <div class="form-field form-field-full">
+        <span>Summary</span>
+        <input class="detail-textarea"
+               @bind="summary"
+               @bind:event="oninput"
+               placeholder="Summary..."/>
+    </div>
 
     <div class="form-actions form-field-full">
         <button class="save-button"
                 type="button"
-                disabled="@(isSaving || string.IsNullOrWhiteSpace(companyName))"
+                disabled="@(isSaving || string.IsNullOrWhiteSpace(name))"
                 @onclick="HandleSaveCompany">
             @(isSaving ? "Saving image..." : SaveButtonText)
         </button>

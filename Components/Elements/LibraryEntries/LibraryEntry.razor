@@ -6,7 +6,7 @@
      @onclick="HandleClick">
     
     <div class="library-entry-hero">
-        <LocalImage ImagePath="@Entry.Hero?.ImagePath"
+        <LocalImage ImagePath="@Entry.Hero?.Path"
                     ImageClass="library-entry-hero-image"
                     AltText="@($"{Entry.Name} hero")"
                     MaxWidth="400"
@@ -17,14 +17,14 @@
     <div class="library-entry-content">
         <div class="library-entry-header">
             <div class="library-entry-cover">
-                <LocalImage ImagePath="@Entry.Cover?.ImagePath"
+                <LocalImage ImagePath="@Entry.Cover?.Path"
                             ImageClass="library-entry-cover-image"
                             AltText="@($"{Entry.Name} cover")"
                             MaxWidth="200"
                             MaxHeight="300"/>
             </div>
             <div class="library-entry-logo">
-                <LocalImage ImagePath="@Entry.Logo?.ImagePath"
+                <LocalImage ImagePath="@Entry.Logo?.Path"
                             ImageClass="library-entry-logo-image"
                             AltText="@($"{Entry.Name} logo")"
                             MaxWidth="500"
@@ -98,7 +98,7 @@
             </div>
             
             <div class="library-entry-icon">
-                <LocalImage ImagePath="@Entry.Icon?.ImagePath"
+                <LocalImage ImagePath="@Entry.Icon?.Path"
                             ImageClass="library-entry-icon-image"
                             AltText="@($"{Entry.Name} icon")"
                             MaxWidth="50"

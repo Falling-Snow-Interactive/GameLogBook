@@ -334,3 +334,7 @@ main {
         overflow-y: auto;
     }
 }
+
+.date-fix {
+    margin-right: 1rem;
+}

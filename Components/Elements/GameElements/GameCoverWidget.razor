@@ -1,6 +1,6 @@
-@if (!string.IsNullOrWhiteSpace(@Game.Cover?.ImagePath))
+@if (!string.IsNullOrWhiteSpace(@Game.Cover?.Path))
 {
-    <LocalImage ImagePath="@Game.Cover.ImagePath"
+    <LocalImage ImagePath="@Game.Cover.Path"
                 ImageClass="game-cover"
                 AltText="@($"{@Game.Name} cover")">
         <Placeholder>

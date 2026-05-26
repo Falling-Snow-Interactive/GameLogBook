@@ -84,6 +84,14 @@
     --space-5: 1.25rem;
     --space-6: 1.5rem;
     --space-8: 2rem;
+    
+    --space-sm: 1rem;
+    --space-md: 2rem;
+    --space-lg: 4rem;
+    
+    --divider-sm: 0.5rem;
+    --divider-md: 1rem;
+    --divider-lg: 2rem;
 
     /*----- Image Preview -----*/
     --image-field-preview-width: 6.5rem;

@@ -1,5 +1,5 @@
-@using GameLogBook.Models.Games
 @using GameLogBook.Components.Elements.AddPopup
+@using GameLogBook.Components.Elements.CompanyElements
 
 <AddPopupShell Title="@PopupTitle"
                Description="Keep track of where each game lives."
@@ -7,101 +7,131 @@
                SearchPlaceholder="Search for a platform"
                OnClose="HandleClose"
                OnPlatformSelected="HandleIGDBSearchPlatformSelected">
-    <div class="platform-details-form">
+    
+    <div class="details-form">
         @if (!string.IsNullOrWhiteSpace(searchErrorMessage))
         {
             <p class="platform-form-error form-field-full">@searchErrorMessage</p>
         }
+        
+        <div class="form-row">
+            @* ----- Name ----- *@
+            <div class="form-field form-field-md">
+                <span>Name</span>
+                <input class="detail-input"
+                       @bind="name"
+                       @bind:event="oninput"
+                       placeholder="Platform name"/>
+            </div>
 
-        <label class="form-field form-field-full">
-            <span>Name</span>
-            <input class="platform-input"
-                   @bind="platformName"
-                   @bind:event="oninput"
-                   placeholder="Platform name"/>
-        </label>
+            @* ----- Short Name ----- *@
+            <div class="form-field form-field-sm">
+                <span>Short Name</span>
+                <input class="detail-input"
+                       @bind="nameShort"
+                       @bind:event="oninput"
+                       placeholder="Short name"/>
+            </div>
 
-        <label class="form-field">
-            <span>Abbreviation</span>
-            <input class="platform-input"
-                   @bind="abbreviation"
-                   @bind:event="oninput"
-                   placeholder="Abbreviation"/>
-        </label>
+            @* ----- Release Date ----- *@
+            <div class="form-field form-field-sm date-fix">
+                <span>Release Date</span>
+                <input class="detail-input"
+                       type="date"
+                       @bind="releaseDate"
+                       @bind:event="oninput"/>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-field form-field-md">
+                <CompanySearch Companies="companyCache"
+                               @bind-SelectedCompanyIds="companyIDs"
+                               @bind-SearchText="developerSearchText"
+                               OnCompanyAdded="HandleCompanyAdded"
+                               Placeholder="Search companies..." />
+                @* <CompanyPicker Companies="Companies" *@
+                @*                SelectedCompanyIds="companyIds" *@
+                @*                SelectedCompanyIdsChanged="HandleCompanyIdsChanged"/> *@
+            </div>
+        </div>
 
-        <label class="form-field">
-            <span>Release Date</span>
-            <input class="platform-input"
-                   type="date"
-                   @bind="releaseDate"
-                   @bind:event="oninput"/>
-        </label>
+        
+        <div class="form-row">
+            <div class="form-field-full">
+                <span>Summary</span>
+                <textarea class="detail-textarea"
+                      @bind="summary"
+                      @bind:event="oninput"
+                      placeholder="Summary"></textarea>
+            </div>
+        </div>
+        
+        <div class="form-spacer-sm-w"></div>
+        
+        <div class="form-row">
+            @* ----- Cover ----- *@
+            <ImageFieldWidget @ref="coverImageField"
+                              class="form-field form-field-md"
+                              Label="Cover"
+                              FieldName="cover"
+                              Category="platforms"
+                              AspectRatioWidth="2"
+                              AspectRatioHeight="3"
+                              ImagePath="@coverPath"
+                              PendingImageUrl="@coverUrl"
+                              AltText="@($"{name} cover preview")"/>
 
-        <ImageFieldWidget @ref="coverImageField"
-                          class="form-field-full"
-                          Label="Cover"
-                          FieldName="cover"
-                          Category="platforms"
-                          AspectRatioWidth="2"
-                          AspectRatioHeight="3"
-                          ImagePath="@coverImagePath"
-                          PendingImageUrl="@coverImageUrl"
-                          AltText="@($"{platformName} cover preview")"/>
+            @* ----- Icon ----- *@
+            <ImageFieldWidget @ref="iconImageField"
+                              class="form-field form-field-md"
+                              Label="Icon"
+                              FieldName="icon"
+                              Category="platforms"
+                              AspectRatioWidth="1"
+                              AspectRatioHeight="1"
+                              ImagePath="@iconImagePath"
+                              PendingImageUrl="@iconImageUrl"
+                              AltText="@($"{name} icon preview")"/>
+        </div>
+        
+        <div class="form-row">
+            @* ----- Logo ----- *@
+            <ImageFieldWidget @ref="logoImageField"
+                              class="form-field form-field-md"
+                              Label="Logo"
+                              FieldName="logo"
+                              Category="platforms"
+                              AspectRatioWidth="2"
+                              AspectRatioHeight="1"
+                              ImagePath="@logoPath"
+                              PendingImageUrl="@logoUrl"
+                              AltText="@($"{name} cover preview")"/>
 
-        <ImageFieldWidget @ref="heroImageField"
-                          class="form-field-full"
-                          Label="Hero"
-                          FieldName="hero"
-                          Category="platforms"
-                          AspectRatioWidth="96"
-                          AspectRatioHeight="31"
-                          ImagePath="@heroImagePath"
-                          PendingImageUrl="@heroImageUrl"
-                          AltText="@($"{platformName} hero preview")"/>
-
-        <ImageFieldWidget @ref="logoImageField"
-                          class="form-field-full"
-                          Label="Logo"
-                          FieldName="logo"
-                          Category="platforms"
-                          AspectRatioWidth="2"
-                          AspectRatioHeight="1"
-                          ImagePath="@logoImagePath"
-                          PendingImageUrl="@logoImageUrl"
-                          AltText="@($"{platformName} cover preview")"/>
-
-        <ImageFieldWidget @ref="iconImageField"
-                          class="form-field-full"
-                          Label="Icon"
-                          FieldName="icon"
-                          Category="platforms"
-                          AspectRatioWidth="1"
-                          AspectRatioHeight="1"
-                          ImagePath="@iconImagePath"
-                          PendingImageUrl="@iconImageUrl"
-                          AltText="@($"{platformName} icon preview")"/>
+            @* ----- Hero ----- *@
+            <ImageFieldWidget @ref="heroImageField"
+                              class="form-field form-field-md"
+                              Label="Hero"
+                              FieldName="hero"
+                              Category="platforms"
+                              AspectRatioWidth="96"
+                              AspectRatioHeight="31"
+                              ImagePath="@heroPath"
+                              PendingImageUrl="@heroUrl"
+                              AltText="@($"{name} hero preview")"/>
+        </div>
 
         @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
         {
             <p class="form-hint form-field-full">@imageErrorMessage</p>
         }
 
-        <CompanyPicker Companies="Companies"
-                       SelectedCompanyIds="companyIds"
-                       SelectedCompanyIdsChanged="HandleCompanyIdsChanged"/>
-
-        <label class="form-field form-field-full">
-            <span>Summary</span>
-            <textarea class="game-detail-textarea"
-                      @bind="summary"
-                      @bind:event="oninput"
-                      placeholder="Summary"></textarea>
-        </label>
+        <div class="form-divider form-divider-wide"></div>
 
         <div class="form-actions form-field-full">
             <button class="save-button"
                     type="button"
-                    disabled="@(isSaving || string.IsNullOrWhiteSpace(platformName))"
+                    disabled="@(isSaving || string.IsNullOrWhiteSpace(name))"
                     @onclick="HandleSavePlatform">
                 @(isSaving ? "Saving image..." : SaveButtonText)
             </button>

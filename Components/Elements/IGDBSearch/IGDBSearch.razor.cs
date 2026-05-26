@@ -558,7 +558,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
         return new ImageRef
                {
-                   PendingImageUrl = ToBigCoverUrl(igdbCover.Url)
+                   PendingUrl = ToBigCoverUrl(igdbCover.Url)
                };
     }
 
@@ -588,7 +588,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                                      IgdbId = igdbPlatform.Id,
                                      
                                  };
-        platform.Cover.PendingImageUrl = pendingUrl;
+        platform.Cover.PendingUrl = pendingUrl;
         return new PlatformSearchProjection(platform,
                                             GetManufacturerCompanyIds(versions),
                                             GetManufacturerCompanyNames(versions),
