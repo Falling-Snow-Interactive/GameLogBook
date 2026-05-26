@@ -2,80 +2,98 @@
 
 <AddPopupShell Title="@PopupTitle" SearchFor="@IgdbSearchFor.Games" SearchPlaceholder="Search for a game"
                OnClose="HandleCloseButtonClick" OnGameSelected="HandleGameSelected" LocalCompanies="@Companies">
-    <div class="game-details-form adaptive-form-grid">
-        <label class="form-field form-span-all">
-            <span>Name</span>
-            <input class="game-detail-input" @bind="name"@bind:event="oninput" placeholder="Game name"/>
-        </label>
+    <div class="game-details-form">
+        <section class="form-section">
+            <h4 class="form-section-title">Information</h4>
 
-        <label class="form-field">
-            <span>Type</span>
-            <EnumDropdown TEnum="GameType" class="game-detail-input" @bind-Value="type" />
-        </label>
+            <div class="adaptive-form-grid">
+                <label class="form-field form-span-all">
+                    <span>Name</span>
+                    <input class="game-detail-input" @bind="name"@bind:event="oninput" placeholder="Game name"/>
+                </label>
 
-        <label class="form-field">
-            <span>Ownership</span>
-            <OwnershipInputWidget/>
-        </label>
+                <label class="form-field">
+                    <span>Release Date</span>
+                    <input class="game-detail-input" type="date" @bind="releaseDate" @bind:event="oninput" placeholder="Release date"/>
+                </label>
 
-        <label class="form-field">
-            <span>Release Date</span>
-            <input class="game-detail-input" type="date" @bind="releaseDate" @bind:event="oninput" placeholder="Release date"/>
-        </label>
+                <label class="form-field">
+                    <span>Type</span>
+                    <EnumDropdown TEnum="GameType" class="game-detail-input" @bind-Value="type" />
+                </label>
 
-        <label class="form-field form-span-all">
-            <span>Summary</span>
-            <textarea class="game-detail-textarea" @bind="summary" @bind:event="oninput" placeholder="Summary"></textarea>
-        </label>
+                <label class="form-field">
+                    <span>Ownership</span>
+                    <OwnershipInputWidget/>
+                </label>
 
-        @if (availableCompanies.Count == 0)
-        {
-            <div class="form-field form-span-all">
-                <p class="form-hint">No shared companies exist yet, so this game will save without developer or publisher links.</p>
+                <label class="form-field form-span-all">
+                    <span>Summary</span>
+                    <textarea class="game-detail-textarea" @bind="summary" @bind:event="oninput" placeholder="Summary"></textarea>
+                </label>
+
+                @if (availableCompanies.Count == 0)
+                {
+                    <div class="form-field form-span-all">
+                        <p class="form-hint">No shared companies exist yet, so this game will save without developer or publisher links.</p>
+                    </div>
+                }
+
+                <div class="form-field form-span-wide">
+                    <span>Developer</span>
+                    <CompanySearch Companies="availableCompanies" @bind-SelectedCompanyIds="selectedDeveloperIDs"
+                                   @bind-SearchText="developerSearchText" OnCompanyAdded="HandleCompanyAdded"
+                                   Placeholder="Search companies..." />
+                </div>
+
+                <div class="form-field form-span-wide">
+                    <span>Publisher</span>
+                    <CompanySearch Companies="availableCompanies" @bind-SelectedCompanyIds="selectedPublisherIDs"
+                                   @bind-SearchText="publisherSearchText" OnCompanyAdded="HandleCompanyAdded"
+                                   Placeholder="Search companies..." />
+                </div>
             </div>
-        }
+        </section>
 
-        <div class="form-field form-span-wide">
-            <span>Developer</span>
-            <CompanySearch Companies="availableCompanies" @bind-SelectedCompanyIds="selectedDeveloperIDs"
-                           @bind-SearchText="developerSearchText" OnCompanyAdded="HandleCompanyAdded"
-                           Placeholder="Search companies..." />
-        </div>
+        <section class="form-section">
+            <h4 class="form-section-title">Images</h4>
 
-        <div class="form-field form-span-wide">
-            <span>Publisher</span>
-            <CompanySearch Companies="availableCompanies" @bind-SelectedCompanyIds="selectedPublisherIDs" 
-                           @bind-SearchText="publisherSearchText" OnCompanyAdded="HandleCompanyAdded"
-                           Placeholder="Search companies..." />
-        </div>
+            <div class="adaptive-form-grid">
+                <ImageFieldWidget @ref="coverField" class="form-span-wide"
+                                  Label="Cover" FieldName="cover" Category="games"
+                                  ImageRef="cover" AspectRatio="1" AltText="@($"{name} cover preview")" />
 
-        <ImageFieldWidget @ref="coverField" class="form-span-wide"
-                          Label="Cover" FieldName="cover" Category="games"
-                          ImageRef="cover" AspectRatio="1" AltText="@($"{name} cover preview")" />
+                <ImageFieldWidget @ref="logoField" class="form-span-wide"
+                                  Label="Logo" FieldName="logo" Category="games"
+                                  ImageRef="logo" AspectRatio="1" AltText="@($"{name} logo preview")" />
 
-        <ImageFieldWidget @ref="heroField" class="form-span-wide"
-                          Label="Hero" FieldName="hero" Category="games"
-                          ImageRef="hero" AspectRatio="1" AltText="@($"{name} hero preview")" />
+                <ImageFieldWidget @ref="heroField" class="form-span-wide"
+                                  Label="Hero" FieldName="hero" Category="games"
+                                  ImageRef="hero" AspectRatio="1" AltText="@($"{name} hero preview")" />
 
-        <ImageFieldWidget @ref="logoField" class="form-span-wide"
-                          Label="Logo" FieldName="logo" Category="games"
-                          ImageRef="logo" AspectRatio="1" AltText="@($"{name} logo preview")" />
-        
-        <ImageFieldWidget @ref="iconField" class="form-span-wide"
-                          Label="Icon" FieldName="icon" Category="games"
-                          ImageRef="icon" AspectRatio="1" AltText="@($"{name} icon preview")" />
-
-        <label class="form-field">
-            <span>IGDB ID</span>
-            <input class="game-detail-input" type="number"@bind="igdb"@bind:event="oninput" placeholder="id"/>
-        </label>
+                <ImageFieldWidget @ref="iconField" class="form-span-wide"
+                                  Label="Icon" FieldName="icon" Category="games"
+                                  ImageRef="icon" AspectRatio="1" AltText="@($"{name} icon preview")" />
+            </div>
+        </section>
 
         @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
         {
-            <p class="form-hint form-span-all">@imageErrorMessage</p>
+            <p class="form-hint">@imageErrorMessage</p>
         }
 
-        <div class="form-actions form-span-all">
+        <section class="form-section">
+            <h4 class="form-section-title">APIs</h4>
+
+            <div class="adaptive-form-grid">
+                <label class="form-field">
+                    <span>IGDB ID</span>
+                    <input class="game-detail-input" type="number"@bind="igdb"@bind:event="oninput" placeholder="id"/>
+                </label>
+            </div>
+        </section>
+
+        <div class="form-actions">
             <button class="save-button" type="button" @onclick="HandleSaveButtonClick" 
                     disabled="@(isSaving || string.IsNullOrWhiteSpace(name))">
                 @(isSaving ? "Saving image..." : SaveButtonText)
