@@ -12,8 +12,13 @@ main {
 }
 
 .sidebar {
+    display: flex;
+    flex-direction: column;
     background-image: var(--sidebar-gradient);
     min-width: 0;
+    color: #ffffff;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+    z-index: 10;
 }
 
 @media (min-width: 641px) {

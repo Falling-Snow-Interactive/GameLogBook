@@ -1,98 +1,76 @@
 <AddPopupShell Title="@PopupTitle"
-               Description="Keep track of where each game lives."
                SearchFor="@IgdbSearchFor.Platforms"
                SearchPlaceholder="Search for a platform"
                OnClose="CloseButton_Clicked"
                OnPlatformSelected="IGDBSearch_PlatformSelected">
     
-    <div class="details-form">
+    <div class="platform-details-form">
         @if (!string.IsNullOrWhiteSpace(searchErrorMessage))
         {
             <p class="platform-form-error form-field-full">@searchErrorMessage</p>
         }
         
-        <div class="form-row">
-            @* ----- Name ----- *@
-            <div class="form-field form-field-md">
-                <span>Name</span>
-                <input class="detail-input"
-                       @bind="name"
-                       @bind:event="oninput"
-                       placeholder="Platform name"/>
-            </div>
-
-            @* ----- Short Name ----- *@
-            <div class="form-field form-field-sm">
-                <span>Short Name</span>
-                <input class="detail-input"
-                       @bind="nameShort"
-                       @bind:event="oninput"
-                       placeholder="Short name"/>
-            </div>
-
-            @* ----- Release Date ----- *@
-            <div class="form-field form-field-sm date-fix">
-                <span>Release Date</span>
-                <input class="detail-input"
-                       type="date"
-                       @bind="releaseDate"
-                       @bind:event="oninput"/>
-            </div>
-        </div>
+        <label class="form-field form-field-full">
+            <span>Name</span>
+            <input class="game-detail-input"
+                   @bind="name"
+                   @bind:event="oninput"
+                   placeholder="Platform name"/>
+        </label>
         
-        <div class="form-row">
-            <div class="form-field form-field-md">
-                <CompanySearch Companies="companyCache"
-                               @bind-SelectedCompanyIds="companyIDs"
-                               @bind-SearchText="companySearchText"
-                               OnCompanyAdded="HandleCompanyAdded"
-                               Placeholder="Search companies..." />
-            </div>
+        <label class="form-field">
+            <span>Short Name</span>
+            <input class="game-detail-input"
+                   @bind="nameShort"
+                   @bind:event="oninput"
+                   placeholder="Short name"/>
+        </label>
+
+        <label class="form-field">
+            <span>Release Date</span>
+            <input class="game-detail-input"
+                   type="date"
+                   @bind="releaseDate"
+                   @bind:event="oninput"/>
+        </label>
+
+        <div class="form-field">
+            <span>Manufacturer</span>
+            <CompanySearch Companies="companyCache"
+                           @bind-SelectedCompanyIds="companyIDs"
+                           @bind-SearchText="companySearchText"
+                           OnCompanyAdded="HandleCompanyAdded"
+                           Placeholder="Search companies..." />
         </div>
 
-        
-        <div class="form-row">
-            <div class="form-field-full">
-                <span>Summary</span>
-                <textarea class="detail-textarea"
-                      @bind="summary"
-                      @bind:event="oninput"
-                      placeholder="Summary"></textarea>
-            </div>
-        </div>
-        
-        <div class="form-spacer-sm-w"></div>
-        
-        <div class="form-row">
-            @* ----- Cover ----- *@
-            <ImageFieldWidget @ref="coverField" class="form-field form-field-md"
-                              Label="Cover" FieldName="cover" Category="platforms"
-                              ImageRef="cover" AspectRatio="1" AltText="@($"{name} cover preview")"/>
+        <ImageFieldWidget @ref="coverField" class="form-field-full"
+                          Label="Cover" FieldName="cover" Category="platforms"
+                          ImageRef="cover" AspectRatio="1" AltText="@($"{name} cover preview")"/>
 
-            @* ----- Icon ----- *@
-            <ImageFieldWidget @ref="iconField" class="form-field form-field-md"
-                              Label="Icon" FieldName="icon" Category="platforms"
-                              ImageRef="icon" AspectRatio="1" AltText="@($"{name} icon preview")"/>
-        </div>
-        
-        <div class="form-row">
-            @* ----- Logo ----- *@
-            <ImageFieldWidget @ref="logoField" class="form-field form-field-md"
-                              Label="Logo" FieldName="logo" Category="platforms"
-                              ImageRef="logo" AspectRatio="1" AltText="@($"{name} cover preview")"/>
+        <ImageFieldWidget @ref="heroField" class="form-field-full"
+                          Label="Hero" FieldName="hero" Category="platforms"
+                          ImageRef="hero" AspectRatio="1" AltText="@($"{name} hero preview")"/>
 
-            @* ----- Hero ----- *@
-            <ImageFieldWidget @ref="heroField" class="form-field form-field-md"
-                              Label="Hero" FieldName="hero" Category="platforms"
-                              ImageRef="hero" AspectRatio="1" AltText="@($"{name} hero preview")"/>
-        </div>
+        <ImageFieldWidget @ref="logoField" class="form-field-full"
+                          Label="Logo" FieldName="logo" Category="platforms"
+                          ImageRef="logo" AspectRatio="1" AltText="@($"{name} logo preview")"/>
+
+        <ImageFieldWidget @ref="iconField" class="form-field-full"
+                          Label="Icon" FieldName="icon" Category="platforms"
+                          ImageRef="icon" AspectRatio="1" AltText="@($"{name} icon preview")"/>
 
         @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
         {
             <p class="form-hint form-field-full">@imageErrorMessage</p>
         }
 
-        <div class="form-divider form-divider-wide"></div>
+        <label class="form-field form-field-full">
+            <span>Summary</span>
+            <textarea class="game-detail-textarea"
+                      @bind="summary"
+                      @bind:event="oninput"
+                      placeholder="Summary"></textarea>
+        </label>
 
         <div class="form-actions form-field-full">
             <button class="save-button"

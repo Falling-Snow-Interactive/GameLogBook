@@ -99,7 +99,7 @@ public partial class AddPlatformPopup : ComponentBase
     
     protected override async Task OnParametersSetAsync()
     {
-        if (ReferenceEquals(previousCompanies, Companies))
+        if (!ReferenceEquals(previousCompanies, Companies))
         {
             previousCompanies = Companies;
             companyCache = Companies

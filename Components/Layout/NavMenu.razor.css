@@ -1,89 +1,214 @@
-.bi {
-    font-size: 1.25rem;
-    margin-right: 0.75rem;
-    line-height: 1;
+.nav-menu {
+    min-width: 0;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    color: #f8fafc;
 }
 
-.navbar-toggler {
-    appearance: none;
-    cursor: pointer;
-    width: 3.5rem;
-    height: 2.5rem;
-    color: white;
+.navbar-toggle-input {
     position: absolute;
-    top: 0.5rem;
-    right: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") no-repeat center/1.75rem rgba(255, 255, 255, 0.1);
-}
-
-.navbar-toggler:checked {
-    background-color: rgba(255, 255, 255, 0.5);
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .navbar-header {
-    min-height: 3.5rem;
-    background-color: rgba(0,0,0,0.4);
-
-    /*border: var(--debug-border-size-sm) dashed #00ff15;*/
+    min-height: 8rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1rem 0.85rem 1.25rem;
+    background: rgba(0, 0, 0, 0.22);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.navbar-brand {
-    font-size: 1.1rem;
+.navbar-logo-link {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.navbar-logo {
+    display: block;
+    width: 100%;
+    max-width: 12rem;
+    max-height: 12rem;
+    aspect-ratio: 1;
+    
+    object-fit: contain;
+}
+
+.navbar-toggler {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 2.75rem;
+    height: 2.75rem;
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    cursor: pointer;
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.navbar-toggler:hover {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
+}
+
+.navbar-toggle-input:focus-visible + .navbar-header .navbar-toggler {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.22);
+}
+
+.navbar-toggler-icon,
+.navbar-toggler-icon::before,
+.navbar-toggler-icon::after {
+    display: block;
+    width: 1.25rem;
+    height: 2px;
+    border-radius: var(--radius-pill);
+    background: currentColor;
+}
+
+.navbar-toggler-icon {
+    position: relative;
+}
+
+.navbar-toggler-icon::before,
+.navbar-toggler-icon::after {
+    content: "";
+    position: absolute;
+    left: 0;
+}
+
+.navbar-toggler-icon::before {
+    top: -0.42rem;
+}
+
+.navbar-toggler-icon::after {
+    top: 0.42rem;
+}
+
+.navbar-body {
+    min-width: 0;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 1rem 0.75rem;
 }
 
 .nav-item {
-    color: #d7d7d7;
+    min-width: 0;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+}
+
+.nav-item ::deep .nav-link,
+.navbar-section,
+.navbar-profile {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: var(--radius-md);
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.nav-item ::deep .nav-link {
+    min-height: 2.85rem;
+    padding: 0.75rem 0.85rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+    transition:
+        background var(--transition-fast),
+        color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.nav-item ::deep .nav-link:hover,
+.nav-item ::deep .nav-link:focus-visible {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    outline: none;
+}
+
+.nav-item ::deep .nav-link.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.72);
+}
+
+.nav-item ::deep .nav-link span:last-child,
+.navbar-section span:last-child,
+.navbar-profile span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bi {
+    flex: 0 0 1.25rem;
+    margin: 0;
+    color: currentColor;
+    font-size: 1.2rem;
+    line-height: 1;
+    text-align: center;
+}
+
+.nav-spacer {
+    height: 0.85rem;
+    flex: 0 0 auto;
+}
+
+.navbar-section {
+    padding: 0.65rem 0.85rem;
+    color: rgba(255, 255, 255, 0.66);
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.navbar-footer {
+    display: flex;
+    flex: 0 0 auto;
+    padding: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navbar-profile {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.7rem 0.85rem;
+    background: rgba(0, 0, 0, 0.16);
+    color: rgba(255, 255, 255, 0.78);
     font-size: 0.9rem;
-    padding-bottom: 0.5rem;
+    font-weight: 700;
 }
 
-    .nav-item:first-of-type {
-        padding-top: 1rem;
-    }
-
-    .nav-item:last-of-type {
-        padding-bottom: 1rem;
-    }
-
-    .nav-item ::deep .nav-link {
-        background: none;
-        border: none;
-        border-radius: var(--radius-md);
-        height: 3rem;
-        display: flex;
-        align-items: center;
-        line-height: 3rem;
-        width: 100%;
-    }
-
-.nav-item ::deep a.active {
-    background-color: rgba(255,255,255,0.37);
-    color: white;
-}
-
-.nav-item ::deep .nav-link:hover {
-    background-color: rgba(255,255,255,0.1);
-    color: white;
-}
-
-.navbar-body {  
-    display: flex;
-    flex-grow: 1;
-    flex-shrink: 0;
-    flex-direction: column;
-    
-    /*border: var(--debug-border-size-sm) dashed #fffb00;*/
-}
-
-.navbar-toggler:not(:checked) ~ .navbar-body,
-.navbar-toggler:not(:checked) ~ .navbar-footer {
+.navbar-toggle-input:not(:checked) ~ .navbar-body,
+.navbar-toggle-input:not(:checked) ~ .navbar-footer {
     display: none;
-}
-
-.navbar-toggler:checked ~ .navbar-body,
-.navbar-toggler:checked ~ .navbar-footer {
-    display: flex;
 }
 
 @media (min-width: 641px) {
@@ -93,105 +218,31 @@
 
     .navbar-body,
     .navbar-footer {
-        display: flex;
+        display: flex !important;
     }
 }
 
-.nav-spacer {
-    height: 1rem;
-}
-
-.nav-item-bottom {
-    margin-top: auto;
-    padding-top: 1rem;
-}
-
-.navbar-logo {
-    width: 100%;
-    height: auto;
-    max-height: 10rem;
-    
-    object-fit: contain;
-    flex-shrink: 0;
-}
-
-.navbar-footer {
-    display: flex;
-    flex: 0;
-    flex-direction: row;
-    
-    width: 100%;
-    height: 3rem;
-    
-    /*border: var(--debug-border-size-sm) dashed #00ffbc;*/
-}
-
-.navbar-settings {
-    color: #d7d7d7;
-    
-    flex-grow: 1;
-    flex-shrink: 0;
-
-    aspect-ratio: 1;
-    height: 100%;
-    width: auto;
-    
-    /*border: var(--debug-border-size-sm) dashed #ff0000;*/
-}
-
-.navbar-profile {
-    color: var(--color-surface);
-    
-    height: 100%;
-    width: auto;
-    
-    flex-grow: 1;
-    flex-shrink: 0;
-    
-    align-items: center;
-    align-content: center;
-    justify-items: center;
-    text-align: center;
-    text-justify: distribute;
-    
-    font-size: var(--font-size-title);
-    
-    /*border: var(--debug-border-size-sm) dashed #0015ff;*/
-}
-
 @media (max-width: 640px) {
+    .nav-menu {
+        min-height: 0;
+    }
+
     .navbar-header {
-        display: flex;
-        align-items: center;
-        padding-right: 5rem;
+        min-height: 4rem;
+        padding: 0.65rem 0.75rem 0.65rem 1rem;
     }
 
     .navbar-logo {
         width: auto;
-        max-width: min(16rem, calc(100vw - 6rem));
+        max-width: min(13rem, calc(100vw - 5.5rem));
         max-height: 3rem;
     }
 
     .navbar-body {
-        padding: 0.5rem 0;
+        padding: 0.75rem;
     }
 
     .navbar-footer {
-        height: auto;
-        padding: 0.75rem 1rem 1rem;
-    }
-
-    .navbar-profile {
-        min-width: 0;
-        font-size: 1rem;
-        text-align: left;
-    }
-
-    .navbar-profile .bi {
-        display: inline-flex;
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        padding: 0 0.75rem 0.75rem;
     }
 }
