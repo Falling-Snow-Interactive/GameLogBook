@@ -5,13 +5,16 @@ using VGL.Components.Popups;
 using VGL.Models.Companies;
 using VGL.Models.Games;
 using VGL.Services;
+using Platform = VGL.Models.Platforms.Platform;
 
 namespace VGL.Components.Pages;
 
 public partial class CompaniesPage : CollectionPageBase<Company>
 {
     private List<Game> games = [];
+    private List<Platform> platforms = [];
     private Dictionary<int, List<string>> gameNamesByCompanyId = [];
+    private Dictionary<int, List<string>> platformNamesByCompanyId = [];
     private Dictionary<int, HashSet<string>> rolesByCompanyId = [];
 
     [Inject]
@@ -29,6 +32,7 @@ public partial class CompaniesPage : CollectionPageBase<Company>
         await base.OnInitializedAsync();
 
         await LoadGameCompanySummaries();
+        await LoadPlatformCompanySummaries();
     }
 
     private async Task AddCompany(Company newCompany)
@@ -58,11 +62,13 @@ public partial class CompaniesPage : CollectionPageBase<Company>
             await DbContext.SaveChangesAsync();
             await LoadItemsAsync();
             await LoadGameCompanySummaries();
+            await LoadPlatformCompanySummaries();
             return;
         }
 
         await AddItemAsync(newCompany);
         await LoadGameCompanySummaries();
+        await LoadPlatformCompanySummaries();
     }
 
     private async Task UpdateCompany(Company updatedCompany)
@@ -84,17 +90,19 @@ public partial class CompaniesPage : CollectionPageBase<Company>
 
         await UpdateItemAsync();
         await LoadGameCompanySummaries();
+        await LoadPlatformCompanySummaries();
     }
 
     private async Task HandleRemove(Company company)
     {
-        if (CompanyHasLinkedGames(company))
+        if (CompanyHasLinks(company))
         {
             return;
         }
 
         await RemoveItemAsync(company);
         await LoadGameCompanySummaries();
+        await LoadPlatformCompanySummaries();
     }
 
     private IReadOnlyList<string> GetGameNames(Company company)
@@ -121,6 +129,17 @@ public partial class CompaniesPage : CollectionPageBase<Company>
     private bool CompanyHasLinkedGames(Company company)
     {
         return gameNamesByCompanyId.ContainsKey(company.ID);
+    }
+
+    private bool CompanyHasLinkedPlatforms(Company company)
+    {
+        return platformNamesByCompanyId.ContainsKey(company.ID);
+    }
+
+    private bool CompanyHasLinks(Company company)
+    {
+        return CompanyHasLinkedGames(company)
+               || CompanyHasLinkedPlatforms(company);
     }
 
     public bool TryGetLocalCompany(long? igdbId, out Company? company)
@@ -174,6 +193,40 @@ public partial class CompaniesPage : CollectionPageBase<Company>
                            .GroupBy(item => item.CompanyId)
                            .ToDictionary(group => group.Key,
                                          group => group.Select(item => item.Role).ToHashSet());
+    }
+
+    private async Task LoadPlatformCompanySummaries()
+    {
+        platforms = await DbContext.Platforms
+                                   .Include(platform => platform.PlatformCompanies)
+                                   .OrderBy(platform => platform.Name)
+                                   .ToListAsync();
+
+        platformNamesByCompanyId = platforms
+                                   .SelectMany(platform => platform.GetDeveloperIDs()
+                                                                   .Distinct()
+                                                                   .Select(companyId => new
+                                                                                        {
+                                                                                            platform.Name,
+                                                                                            CompanyId = companyId
+                                                                                        }))
+                                   .GroupBy(item => item.CompanyId)
+                                   .ToDictionary(group => group.Key,
+                                                 group => group.Select(item => item.Name)
+                                                               .Distinct(StringComparer.OrdinalIgnoreCase)
+                                                               .OrderBy(name => name)
+                                                               .ToList());
+
+        foreach ((int companyId, List<string> _) in platformNamesByCompanyId)
+        {
+            if (!rolesByCompanyId.TryGetValue(companyId, out HashSet<string>? roles))
+            {
+                roles = [];
+                rolesByCompanyId[companyId] = roles;
+            }
+
+            roles.Add("Platform Developer");
+        }
     }
 
     protected override async Task OpenAddPopup()

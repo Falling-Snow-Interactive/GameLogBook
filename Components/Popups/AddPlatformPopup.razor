@@ -35,9 +35,9 @@
         </label>
 
         <div class="form-field">
-            <span>Manufacturer</span>
+            <span>Developers</span>
             <CompanySearch Companies="companyCache"
-                           @bind-SelectedCompanyIds="companyIDs"
+                           @bind-SelectedCompanyIds="developerIDs"
                            @bind-SearchText="companySearchText"
                            OnCompanyAdded="HandleCompanyAdded"
                            Placeholder="Search companies..." />

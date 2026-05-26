@@ -1,4 +1,5 @@
 using VGL.Models.Libraries.Entries;
+using VGL.Models.Platforms.Company;
 
 namespace VGL.Models.Companies;
 
@@ -18,6 +19,9 @@ public class Company : ILibraryEntry
     public ImageRef? Icon { get; set; }
 
     public string? ImagePath { get; set; }
+
+    // Relations
+    public List<PlatformCompany> PlatformCompanies { get; set; } = [];
     
     // Online API IDs
     public long? IGDB { get; set; }

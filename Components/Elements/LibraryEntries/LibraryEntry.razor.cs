@@ -81,11 +81,7 @@ public partial class LibraryEntry : ComponentBase
                {
                    Game game when role is GameCompanyRole.Developer => game.GetDeveloperIDs(),
                    Game game when role is GameCompanyRole.Publisher => game.GetPublisherIDs(),
-                   PlatformModel platform when role is GameCompanyRole.Developer => (platform.ManufacturerIds ?? [])
-                                                                                    .Where(companyId => companyId > 0)
-                                                                                    .Distinct()
-                                                                                    .Order()
-                                                                                    .ToList(),
+                   PlatformModel platform when role is GameCompanyRole.Developer => platform.GetDeveloperIDs(),
                    _ => [],
                };
     }

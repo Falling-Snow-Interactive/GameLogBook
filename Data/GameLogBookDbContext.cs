@@ -4,6 +4,7 @@ using VGL.Models.Companies;
 using VGL.Models.Games;
 using VGL.Models.Games.Company;
 using VGL.Models.Games.Platforms;
+using VGL.Models.Platforms.Company;
 using Platform = VGL.Models.Platforms.Platform;
 
 namespace VGL.Data;
@@ -19,6 +20,7 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
     
     // Relational DBs
     public DbSet<GameCompany> GameCompanies => Set<GameCompany>();
+    public DbSet<PlatformCompany> PlatformCompanies => Set<PlatformCompany>();
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -63,6 +65,7 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
     {
         SetupGameCompanyRelationalDb(modelBuilder);
         SetupGamePlatformRelationalDb(modelBuilder);
+        SetupPlatformCompanyRelationalDb(modelBuilder);
     }
 
     private void SetupGameCompanyRelationalDb(ModelBuilder modelBuilder)
@@ -96,6 +99,7 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
     private void SetupGamePlatformRelationalDb(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<GamePlatformRelation>()
+                    .ToTable("GamePlatform")
                     .HasKey(gpr => new
                                    {
                                        GameId = gpr.GameID,
@@ -119,5 +123,28 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
                     .HasIndex(platform => platform.ID)
                     .IsUnique()
                     .HasFilter($"{nameof(Platform.ID)} IS NOT NULL");
+    }
+
+    private void SetupPlatformCompanyRelationalDb(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<PlatformCompany>()
+                    .HasKey(platformCompany => new
+                                               {
+                                                   PlatformId = platformCompany.PlatformID,
+                                                   CompanyId = platformCompany.CompanyID,
+                                                   platformCompany.Role,
+                                               });
+
+        modelBuilder.Entity<PlatformCompany>()
+                    .HasOne(platformCompany => platformCompany.Platform)
+                    .WithMany(platform => platform.PlatformCompanies)
+                    .HasForeignKey(platformCompany => platformCompany.PlatformID)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<PlatformCompany>()
+                    .HasOne(platformCompany => platformCompany.Company)
+                    .WithMany(company => company.PlatformCompanies)
+                    .HasForeignKey(platformCompany => platformCompany.CompanyID)
+                    .OnDelete(DeleteBehavior.Restrict);
     }
 }

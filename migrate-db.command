@@ -19,7 +19,7 @@ LOG_FILE="$(make_temp_file "gamelogbook-db-migration")" || {
     echo "Could not create a temporary log file."
     exit 1
 }
-TOOL_SNAPSHOT_FILE="tools/GameLogBook.DbTool/GameLogBook/Migrations/GameLogBookDbContextModelSnapshot.cs"
+TOOL_SNAPSHOT_FILE="tools/GameLogBook.DbTool/VGL/Migrations/GameLogBookDbContextModelSnapshot.cs"
 APP_SNAPSHOT_FILE="Migrations/GameLogBookDbContextModelSnapshot.cs"
 
 cd "$SCRIPT_DIR" || exit 1
@@ -179,7 +179,7 @@ sync_generated_snapshot() {
 
         cp "$TOOL_SNAPSHOT_FILE" "$APP_SNAPSHOT_FILE"
         rm -f "$TOOL_SNAPSHOT_FILE"
-        rmdir -p "tools/GameLogBook.DbTool/GameLogBook/Migrations" 2>/dev/null || true
+        rmdir -p "tools/GameLogBook.DbTool/VGL/Migrations" 2>/dev/null || true
     fi
 }
 

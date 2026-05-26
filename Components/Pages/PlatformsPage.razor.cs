@@ -5,6 +5,7 @@ using VGL.Components.Popups;
 using VGL.Models;
 using VGL.Models.Companies;
 using VGL.Models.Games;
+using VGL.Models.Platforms.Company;
 using VGL.Services;
 using PlatformModel = VGL.Models.Platforms.Platform;
 
@@ -27,30 +28,76 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
         return item.Name;
     }
 
+    protected override IQueryable<PlatformModel> BuildQuery()
+    {
+        return EntitySet.Include(platform => platform.PlatformCompanies)
+                        .ThenInclude(platformCompany => platformCompany.Company);
+    }
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        games = await DbContext.Games
-                               .AsNoTracking()
-                               .OrderBy(game => game.Name)
-                               .ToListAsync();
-
-        companies = await DbContext.Companies
-                                   .AsNoTracking()
-                                   .OrderBy(company => company.Name)
-                                   .ToListAsync();
+        await LoadGamesAsync();
+        await LoadCompaniesAsync();
     }
 
     private async Task AddPlatform(PlatformModel platform)
     {
+        platform.PlatformCompanies = NormalizeCompanyIds(platform.PlatformCompanies);
+
         await AddItemAsync(platform);
+        await LoadItemsAsync();
+    }
+
+    private async Task<Company?> AddCompanyFromSearch(Company newCompany)
+    {
+        Company? existingCompany = null;
+
+        if (newCompany.IGDB.HasValue)
+        {
+            existingCompany = await DbContext.Companies.FirstOrDefaultAsync(company => company.IGDB == newCompany.IGDB.Value);
+        }
+
+        if (existingCompany is null && !string.IsNullOrWhiteSpace(newCompany.Name))
+        {
+            string trimmedName = newCompany.Name.Trim();
+
+            existingCompany = await DbContext.Companies
+                                             .FirstOrDefaultAsync(company => company.IGDB == null
+                                                                             && company.Name == trimmedName);
+        }
+
+        if (existingCompany is not null)
+        {
+            existingCompany.Name = newCompany.Name.Trim();
+            existingCompany.ImagePath = string.IsNullOrWhiteSpace(newCompany.ImagePath)
+                                            ? existingCompany.ImagePath
+                                            : newCompany.ImagePath.Trim();
+            existingCompany.LastSyncedAt = DateTimeOffset.UtcNow;
+
+            await DbContext.SaveChangesAsync();
+            await LoadCompaniesAsync();
+            return existingCompany;
+        }
+
+        newCompany.Name = newCompany.Name.Trim();
+        newCompany.ImagePath = string.IsNullOrWhiteSpace(newCompany.ImagePath)
+                                   ? null
+                                   : newCompany.ImagePath.Trim();
+        newCompany.LastSyncedAt = DateTimeOffset.UtcNow;
+
+        DbContext.Companies.Add(newCompany);
+        await DbContext.SaveChangesAsync();
+        await LoadCompaniesAsync();
+
+        return newCompany;
     }
 
     private async Task UpdatePlatform(PlatformModel updatedPlatform)
     {
-        PlatformModel? existingPlatform = await DbContext.Platforms
-                                                         .FirstOrDefaultAsync(platform => platform.ID == updatedPlatform.ID);
+        PlatformModel? existingPlatform = await BuildQuery()
+                                                 .FirstOrDefaultAsync(platform => platform.ID == updatedPlatform.ID);
 
         if (existingPlatform is null)
         {
@@ -87,8 +134,7 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
                                           Path = updatedPlatform.Icon.Path.Trim()
                                       };
         
-        // TODO - Turn into relation DB refs
-        existingPlatform.ManufacturerIds = updatedPlatform.ManufacturerIds ?? [];
+        existingPlatform.AddCompaniesByID(PlatformCompanyRole.Developer, updatedPlatform.GetDeveloperIDs());
         
         // IGDB
         existingPlatform.IGDB = updatedPlatform.IGDB;
@@ -106,7 +152,8 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
         PlatformModel? platform = await PopupService.ShowAsync<AddPlatformPopup, PlatformModel>(new Dictionary<string, object?>
                                                                                                 {
                                                                                                     [nameof(AddPlatformPopup.Games)] = games,
-                                                                                                    [nameof(AddPlatformPopup.Companies)] = companies
+                                                                                                    [nameof(AddPlatformPopup.Companies)] = companies,
+                                                                                                    [nameof(AddPlatformPopup.OnCompanyAdded)] = new Func<Company, Task<Company?>>(AddCompanyFromSearch)
                                                                                                 });
 
         if (platform is not null)
@@ -124,7 +171,8 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
                                                                 [nameof(AddPlatformPopup.InitialPlatform)] 
                                                                     = new PlatformModel(platform),
                                                                 [nameof(AddPlatformPopup.Games)] = games,
-                                                                [nameof(AddPlatformPopup.Companies)] = companies
+                                                                [nameof(AddPlatformPopup.Companies)] = companies,
+                                                                [nameof(AddPlatformPopup.OnCompanyAdded)] = new Func<Company, Task<Company?>>(AddCompanyFromSearch)
                                                             });
 
         if (updatedPlatform is not null)
@@ -140,7 +188,7 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
 
     private List<Company> GetRelatedCompanies(PlatformModel platform)
     {
-        HashSet<int> companyIds = (platform.ManufacturerIds ?? []).ToHashSet();
+        HashSet<int> companyIds = platform.GetAllCompanyIDs().ToHashSet();
 
         return companies
                .Where(company => companyIds.Contains(company.ID))
@@ -155,25 +203,52 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
     
     private async Task LoadGamePlatformSummaries()
     {
-        games = await DbContext.Games
-                               .Include(game => game.GamePlatforms)
-                               .OrderBy(game => game.Name)
-                               .ToListAsync();
+        await LoadGamesAsync();
 
         gameNamesByPlatformID = games
-                                .SelectMany(game => game.GetDeveloperIDs()
-                                                        .Concat(game.GetPublisherIDs())
+                                .SelectMany(game => game.GamePlatforms
+                                                        .Select(gamePlatform => gamePlatform.PlatformID)
                                                         .Distinct()
-                                                        .Select(companyId => new
+                                                        .Select(platformId => new
                                                                              {
                                                                                  game.Name,
-                                                                                 CompanyId = companyId
+                                                                                 PlatformId = platformId
                                                                              }))
-                                .GroupBy(item => item.CompanyId)
+                                .GroupBy(item => item.PlatformId)
                                 .ToDictionary(group => group.Key,
                                               group => group.Select(item => item.Name)
                                                             .Distinct(StringComparer.OrdinalIgnoreCase)
                                                             .OrderBy(name => name)
                                                             .ToList());
+    }
+
+    private async Task LoadGamesAsync()
+    {
+        games = await DbContext.Games
+                               .Include(game => game.GamePlatforms)
+                               .OrderBy(game => game.Name)
+                               .ToListAsync();
+    }
+
+    private async Task LoadCompaniesAsync()
+    {
+        companies = await DbContext.Companies
+                                   .OrderBy(company => company.Name)
+                                   .ToListAsync();
+    }
+
+    private static List<PlatformCompany> NormalizeCompanyIds(IEnumerable<PlatformCompany> companies)
+    {
+        return companies
+               .Where(company => company.CompanyID > 0)
+               .GroupBy(company => new
+                                   {
+                                       company.CompanyID,
+                                       company.Role,
+                                   })
+               .Select(group => group.First())
+               .OrderBy(company => company.Role)
+               .ThenBy(company => company.CompanyID)
+               .ToList();
     }
 }

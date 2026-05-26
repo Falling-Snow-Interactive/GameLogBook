@@ -5,6 +5,7 @@ using VGL.Components.Elements.ImageField;
 using VGL.Models;
 using VGL.Models.Companies;
 using VGL.Models.Games;
+using VGL.Models.Platforms.Company;
 using VGL.Services;
 using IGDBGame = IGDB.Models.Game;
 using Platform = VGL.Models.Platforms.Platform;
@@ -63,7 +64,7 @@ public partial class AddPlatformPopup : ComponentBase
     private DateOnly? releaseDate;
     
     private HashSet<int> selectedGameIDs = [];
-    private List<int> companyIDs = [];
+    private List<int> developerIDs = [];
     
     // Images
     private ImageFieldWidget? coverField;
@@ -145,6 +146,9 @@ public partial class AddPlatformPopup : ComponentBase
         
         // APIs
         igdb = platform.IGDB;
+
+        // Companies
+        developerIDs = GetMatchingCompanyIds(result.ManufacturerNames);
         
         // Errors
         searchErrorMessage = null;
@@ -282,7 +286,6 @@ public partial class AddPlatformPopup : ComponentBase
                                     ShortName = nameShort,
                                     ReleaseDate = releaseDate,
                                     Summary = summary?.Trim(),
-                                    ManufacturerIds = companyIDs.OrderBy(companyId => companyId).ToArray(),
                                          
                                     // Images
                                     Cover = coverRef,
@@ -293,6 +296,8 @@ public partial class AddPlatformPopup : ComponentBase
                                     // IGDB
                                     IGDB = igdb,
                                 };
+
+            platform.AddCompaniesByID(PlatformCompanyRole.Developer, developerIDs);
             
             if (Popup is not null)
             {
@@ -320,7 +325,7 @@ public partial class AddPlatformPopup : ComponentBase
         releaseDate = platform.ReleaseDate;
         
         // Companies
-        companyIDs = (platform.ManufacturerIds ?? []).ToList();
+        developerIDs = platform.GetDeveloperIDs();
         
         // Images
         cover = platform.Cover;
@@ -353,7 +358,7 @@ public partial class AddPlatformPopup : ComponentBase
         selectedGameIDs = [];
         
         // Companies
-        companyIDs = [];
+        developerIDs = [];
         
         // Images
         cover = null;
@@ -412,6 +417,25 @@ public partial class AddPlatformPopup : ComponentBase
         }
 
         return savedCompany;
+    }
+
+    private List<int> GetMatchingCompanyIds(IEnumerable<string> companyNames)
+    {
+        if (companyCache is null)
+        {
+            return [];
+        }
+
+        HashSet<string> normalizedCompanyNames = companyNames
+                                                 .Where(name => !string.IsNullOrWhiteSpace(name))
+                                                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        return companyCache
+               .Where(company => normalizedCompanyNames.Contains(company.Name))
+               .Select(company => company.ID)
+               .Distinct()
+               .Order()
+               .ToList();
     }
     
     #endregion
