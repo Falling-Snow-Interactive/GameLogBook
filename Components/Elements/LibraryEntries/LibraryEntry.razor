@@ -1,3 +1,5 @@
+@using VGL.Models.Companies
+
 <div class="library-entry-card"
      role="button"
      tabindex="0"
@@ -36,41 +38,72 @@
                 <DateOnlyWidget Date="Entry.Date" 
                                 Class="library-entry-release-date" />
 
-                <div class="library-entry-companies">
-                    @if (RelatedCompanies is { Count: > 0 })
-                    { 
-                        <span class="library-entry-games-label">Related games:</span> 
-                        @* <div class="game-chip-list"> *@
-                        @* @foreach (Company company in RelatedCompanies) *@
-                        @* { *@
-                        @*     <LocalImage ImageClass="entry-icon" *@
-                        @*                 ImagePath="@company.Icon?.ImagePath" *@
-                        @*                 AltText="@company.Name    icon" *@
-                        @*                 MaxHeight="50" MaxWidth="50"/> *@
-                        @* } *@
-                        @* </div> *@
-                    }
-                </div>
+                @if (HasCompanyIcons)
+                {
+                    <div class="library-entry-company-icons">
+                        @if (DeveloperCompanies.Count > 0)
+                        {
+                            <div class="library-entry-company-group" aria-label="Developers">
+                                @* <span class="library-entry-company-role">Dev</span> *@
+                                <div class="library-entry-company-icon-row">
+                                    @foreach (Company company in DeveloperCompanies)
+                                    {
+                                        <div class="library-entry-company-icon"
+                                             title="@company.Name"
+                                             aria-label="@company.Name">
+                                            @if (!string.IsNullOrWhiteSpace(GetCompanyImagePath(company)))
+                                            {
+                                                <LocalImage ImagePath="@GetCompanyImagePath(company)"
+                                                            ImageClass="library-entry-company-icon-image"
+                                                            AltText="@($"{company.Name} icon")"
+                                                            MaxWidth="40"
+                                                            MaxHeight="40"/>
+                                            }
+                                            else
+                                            {
+                                                <span class="library-entry-company-icon-fallback">@GetCompanyInitials(company)</span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        
+                        @if (DeveloperCompanies.Count > 0
+                             && PublisherCompanies.Count > 0)
+                        {
+                            <label> | </label>
+                        }
 
-                <div class="library-entry-games">
-                    @if (RelatedGames is { Count: > 0 })
-                    {
-                        <span class="library-entry-games-label">Related games:</span>
-                        @* <div class="game-chip-list"> *@
-                        @*     @foreach (Game game in RelatedGames) *@
-                        @*     { *@
-                        @*         <LocalImage ImageClass="entry-icon" *@
-                        @*                     ImagePath="@game.Icon?.ImagePath" *@
-                        @*                     AltText="@game.Name  icon" *@
-                        @*                     MaxHeight="50" MaxWidth="50"/> *@
-                        @*     } *@
-                        @* </div> *@
-                    }
-                </div>
-                
-                @* <CompaniesWidget DeveloperNames="DeveloperNames" *@
-                @*                  PublisherNames="PublisherNames" *@
-                @*                  LabelClass="library-entry-company" /> *@
+                        @if (PublisherCompanies.Count > 0)
+                        {
+                            <div class="library-entry-company-group" aria-label="Publishers">
+                                @* <span class="library-entry-company-role">Pub</span> *@
+                                <div class="library-entry-company-icon-row">
+                                    @foreach (Company company in PublisherCompanies)
+                                    {
+                                        <div class="library-entry-company-icon"
+                                             title="@company.Name"
+                                             aria-label="@company.Name">
+                                            @if (!string.IsNullOrWhiteSpace(GetCompanyImagePath(company)))
+                                            {
+                                                <LocalImage ImagePath="@GetCompanyImagePath(company)"
+                                                            ImageClass="library-entry-company-icon-image"
+                                                            AltText="@($"{company.Name} icon")"
+                                                            MaxWidth="40"
+                                                            MaxHeight="40"/>
+                                            }
+                                            else
+                                            {
+                                                <span class="library-entry-company-icon-fallback">@GetCompanyInitials(company)</span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
             </div>
         
             @if (!string.IsNullOrWhiteSpace(Entry.Summary))

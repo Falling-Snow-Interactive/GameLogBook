@@ -29,7 +29,8 @@ public partial class GamesPage : CollectionPageBase<Game>
 
     protected override IQueryable<Game> BuildQuery()
     {
-        return EntitySet.Include(game => game.GameCompanies);
+        return EntitySet.Include(game => game.GameCompanies)
+                        .ThenInclude(gameCompany => gameCompany.Company);
     }
 
     protected override async Task OnInitializedAsync()
@@ -136,6 +137,16 @@ public partial class GamesPage : CollectionPageBase<Game>
     private async Task RemoveGame(Game game)
     {
         await RemoveItemAsync(game);
+    }
+
+    private List<Company> GetRelatedCompanies(Game game)
+    {
+        HashSet<int> companyIds = game.GetAllCompanyIDs().ToHashSet();
+
+        return companies
+               .Where(company => companyIds.Contains(company.ID))
+               .OrderBy(company => company.Name)
+               .ToList();
     }
 
     private async Task LoadCompaniesAsync()
