@@ -1,7 +1,10 @@
 @using VGL.Models.Companies
 @using VGL.Models.Games
-<div class="igdb-search">
-    <span class="igdb-search-label">@Label</span>
+<div class="@RootClass">
+    @if (!Inline)
+    {
+        <span class="igdb-search-label">@Label</span>
+    }
 
     <div class="igdb-search-anchor">
         <div class="igdb-search-row">
@@ -12,17 +15,21 @@
                    @oninput="HandleSearchInput"
                    @onkeydown="HandleSearchKeyDown" />
 
-            <span class="igdb-search-status"
-                  aria-hidden="true">
+            <button class="igdb-search-button"
+                    type="button"
+                    title="Search IGDB"
+                    aria-label="Search IGDB"
+                    @onclick="HandleSearchButtonClick"
+                    disabled="@isSearching">
                 @if (isSearching)
                 {
                     <span class="igdb-search-spinner"></span>
                 }
                 else
                 {
-                    <span class="bi bi-search"></span>
+                    <span class="bi bi-search" aria-hidden="true"></span>
                 }
-            </span>
+            </button>
         </div>
 
         @if (ShouldShowDropdown)

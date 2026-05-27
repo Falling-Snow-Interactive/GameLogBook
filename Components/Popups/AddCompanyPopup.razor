@@ -2,19 +2,20 @@
 
 <AddPopup Title="@PopupTitle"
           Description="Search the shared catalog, import from IGDB, or save a local fallback for offline use."
-          SearchFor="@IgdbSearchFor.Companies"
-          SearchPlaceholder="Search for a company"
+          ShowSearch="false"
           PopupClass="popup company-popup"
           FormClass="company-form"
           OnClose="HandleClose"
           OnCompanySelected="HandleCompanySelected">
 
     <AddPopupSection Title="Information">
-        <EntryField Label="Name" Class="form-span-all">
-            <input class="text-input"
-                   @bind="name"
-                   @bind:event="oninput"
-                   placeholder="Name..."/>
+        <EntryField Label="Name" Class="form-span-all" UseLabel="false">
+            <IGDBSearch Label="Name"
+                        SearchFor="@IgdbSearchFor.Companies"
+                        Placeholder="Name..."
+                        Inline="true"
+                        @bind-Value="name"
+                        OnCompanySelected="HandleCompanySelected" />
         </EntryField>
 
         <EntryField Label="Founded Date">

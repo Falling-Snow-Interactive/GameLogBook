@@ -1,6 +1,5 @@
 <AddPopup Title="@PopupTitle"
-          SearchFor="@IgdbSearchFor.Platforms"
-          SearchPlaceholder="Search for a platform"
+          ShowSearch="false"
           OnClose="CloseButton_Clicked"
           OnPlatformSelected="IGDBSearch_PlatformSelected">
     
@@ -10,13 +9,15 @@
             <p class="platform-form-error">@searchErrorMessage</p>
         }
         
-        <label class="form-field">
+        <div class="form-field">
             <span>Name</span>
-            <input class="game-detail-input"
-                   @bind="name"
-                   @bind:event="oninput"
-                   placeholder="Platform name"/>
-        </label>
+            <IGDBSearch Label="Name"
+                        SearchFor="@IgdbSearchFor.Platforms"
+                        Placeholder="Platform name"
+                        Inline="true"
+                        @bind-Value="name"
+                        OnPlatformSelected="IGDBSearch_PlatformSelected" />
+        </div>
         
         <label class="form-field">
             <span>Short Name</span>

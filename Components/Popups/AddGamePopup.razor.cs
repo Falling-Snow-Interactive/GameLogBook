@@ -153,7 +153,7 @@ public partial class AddGamePopup
             Game game = new(name.Trim())
                         {
                             // Database
-                            ID = InitialGame?.ID ?? -1,
+                            ID = InitialGame?.ID ?? 0,
                         
                             // Information
                             Name = name.Trim(),

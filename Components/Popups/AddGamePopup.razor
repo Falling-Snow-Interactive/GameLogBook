@@ -1,15 +1,20 @@
 @using VGL.Models.Games
 
 <AddPopup Title="@PopupTitle"
-          SearchFor="@IgdbSearchFor.Games"
-          SearchPlaceholder="Search for a game"
+          ShowSearch="false"
           OnClose="HandleCloseButtonClick"
           OnGameSelected="HandleGameSelected"
           LocalCompanies="@Companies">
     <div class="game-details-form">
         <AddPopupSection Title="Information">
-            <EntryField Label="Name" Class="form-span-all">
-                <input class="game-detail-input" @bind="name" @bind:event="oninput" placeholder="Game name" />
+            <EntryField Label="Name" Class="form-span-all" UseLabel="false">
+                <IGDBSearch Label="Name"
+                            SearchFor="@IgdbSearchFor.Games"
+                            Placeholder="Game name"
+                            Inline="true"
+                            @bind-Value="name"
+                            LocalCompanies="@availableCompanies"
+                            OnGameSelected="HandleGameSelected" />
             </EntryField>
 
             <EntryField Label="Release Date">

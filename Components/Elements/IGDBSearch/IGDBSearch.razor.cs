@@ -52,6 +52,12 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     public string Value { get; set; } = string.Empty;
 
     [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    [Parameter]
+    public bool Inline { get; set; }
+
+    [Parameter]
     public IgdbSearchFor SearchFor { get; set; } = IgdbSearchFor.Games;
 
     [Parameter]
@@ -86,11 +92,13 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                                        || !string.IsNullOrWhiteSpace(searchErrorMessage)
                                        || HasResults;
 
+    private string RootClass => Inline ? "igdb-search igdb-search-inline" : "igdb-search";
+
     protected override void OnParametersSet()
     {
-        if (!string.IsNullOrWhiteSpace(Value) && searchInput != Value)
+        if (searchInput != Value)
         {
-            searchInput = Value;
+            searchInput = Value ?? string.Empty;
         }
     }
 
@@ -103,16 +111,17 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     private async Task HandleSearchInput(ChangeEventArgs args)
     {
         searchInput = args.Value?.ToString() ?? string.Empty;
-        searchOffset = 0;
-        canLoadMore = false;
-        hasSearched = false;
-        searchErrorMessage = null;
-        activeSearchText = searchInput.Trim();
-        ClearResults();
+        await ValueChanged.InvokeAsync(searchInput);
 
         searchCancellationTokenSource?.Cancel();
         searchCancellationTokenSource?.Dispose();
-        searchCancellationTokenSource = new CancellationTokenSource();
+        CancellationTokenSource currentSearchCancellationTokenSource = new();
+        searchCancellationTokenSource = currentSearchCancellationTokenSource;
+
+        ResetSearchResults();
+        isSearching = false;
+        isLoadingMore = false;
+        activeSearchText = searchInput.Trim();
 
         if (activeSearchText.Length < MinSearchLength)
         {
@@ -121,8 +130,8 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
         try
         {
-            await Task.Delay(DebounceDelayMilliseconds, searchCancellationTokenSource.Token);
-            await SearchAsync(activeSearchText, searchCancellationTokenSource.Token, appendResults: false);
+            await Task.Delay(DebounceDelayMilliseconds, currentSearchCancellationTokenSource.Token);
+            await SearchAsync(activeSearchText, currentSearchCancellationTokenSource.Token, appendResults: false);
         }
         catch (OperationCanceledException)
         {
@@ -136,12 +145,12 @@ public partial class IGDBSearch : ComponentBase, IDisposable
             return;
         }
 
-        await searchCancellationTokenSource?.CancelAsync()!;
-        searchOffset = 0;
-        canLoadMore = false;
-        ClearResults();
+        await SearchCurrentInputAsync();
+    }
 
-        await SearchAsync(searchInput.Trim(), CancellationToken.None, appendResults: false);
+    private async Task HandleSearchButtonClick()
+    {
+        await SearchCurrentInputAsync();
     }
 
     private async Task HandleLoadMore()
@@ -151,8 +160,37 @@ public partial class IGDBSearch : ComponentBase, IDisposable
             return;
         }
 
-        await searchCancellationTokenSource?.CancelAsync()!;
+        await CancelPendingSearch();
         await SearchAsync(activeSearchText, CancellationToken.None, appendResults: true);
+    }
+
+    private async Task SearchCurrentInputAsync()
+    {
+        await CancelPendingSearch();
+
+        ResetSearchResults();
+        activeSearchText = searchInput.Trim();
+
+        if (activeSearchText.Length < MinSearchLength)
+        {
+            return;
+        }
+
+        await SearchAsync(activeSearchText, CancellationToken.None, appendResults: false);
+    }
+
+    private async Task CancelPendingSearch()
+    {
+        if (searchCancellationTokenSource is null)
+        {
+            return;
+        }
+
+        await searchCancellationTokenSource.CancelAsync();
+        searchCancellationTokenSource.Dispose();
+        searchCancellationTokenSource = null;
+        isSearching = false;
+        isLoadingMore = false;
     }
 
     private async Task SearchAsync(string trimmedSearchInput, CancellationToken cancellationToken, bool appendResults)
@@ -192,7 +230,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
         {
             int resultCount = SearchFor switch
                               {
-                                  IgdbSearchFor.Games => await SearchGames(trimmedSearchInput, appendResults),
+                                  IgdbSearchFor.Games => await SearchGames(trimmedSearchInput, appendResults, cancellationToken),
                                   IgdbSearchFor.Platforms => await SearchPlatforms(trimmedSearchInput, appendResults, cancellationToken),
                                   IgdbSearchFor.Companies => await SearchCompanies(trimmedSearchInput, appendResults, cancellationToken),
                                   _ => 0
@@ -229,7 +267,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
         }
     }
 
-    private async Task<int> SearchGames(string trimmedSearchInput, bool appendResults)
+    private async Task<int> SearchGames(string trimmedSearchInput, bool appendResults, CancellationToken cancellationToken)
     {
         string escapedSearchInput = EscapeSearchInput(trimmedSearchInput);
 
@@ -248,6 +286,11 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                                                                      limit {MaxResults};
                                                                      offset {searchOffset};
                                                                      """);
+
+        if (cancellationToken.IsCancellationRequested)
+        {
+            return 0;
+        }
 
         List<LocalGame> newResults = igdbResults
                                      .Select(ToLocalGame)
@@ -426,26 +469,27 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
     private async Task SelectGame(LocalGame game)
     {
-        SetSelectedSearchInput(game.Name);
+        await SetSelectedSearchInput(game.Name);
         await OnGameSelected.InvokeAsync(game);
     }
 
     private async Task SelectPlatform(IGDBSearchPlatformResult result)
     {
-        SetSelectedSearchInput(result.Platform.Name);
+        await SetSelectedSearchInput(result.Platform.Name);
         await OnPlatformSelected.InvokeAsync(result);
     }
 
     private async Task SelectCompany(LocalCompany company)
     {
-        SetSelectedSearchInput(company.Name);
+        await SetSelectedSearchInput(company.Name);
         await OnCompanySelected.InvokeAsync(company);
     }
 
-    private void SetSelectedSearchInput(string name)
+    private async Task SetSelectedSearchInput(string name)
     {
         searchCancellationTokenSource?.Cancel();
         searchInput = name;
+        await ValueChanged.InvokeAsync(searchInput);
         activeSearchText = name;
         searchErrorMessage = null;
         canLoadMore = false;
@@ -459,6 +503,15 @@ public partial class IGDBSearch : ComponentBase, IDisposable
         platformResults.Clear();
         companyResults.Clear();
         companyResultCandidates.Clear();
+    }
+
+    private void ResetSearchResults()
+    {
+        searchOffset = 0;
+        canLoadMore = false;
+        hasSearched = false;
+        searchErrorMessage = null;
+        ClearResults();
     }
 
     private bool CanLoadMoreResults(int resultCount)
