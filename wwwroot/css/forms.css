@@ -211,6 +211,7 @@
 .image-field-action-row {
     min-width: 0;
     display: flex;
+    align-items: stretch;
     gap: 0.65rem;
 }
 
@@ -290,6 +291,18 @@
     inset: 0;
     opacity: 0;
     cursor: pointer;
+}
+
+.image-field-steamgriddb-button {
+    flex: 0 0 var(--image-field-row-height);
+    width: var(--image-field-row-height);
+    min-width: var(--image-field-row-height);
+    min-height: var(--image-field-row-height);
+    font-size: 1rem;
+}
+
+.image-field-action-row .image-field-reset-button {
+    flex: 1 1 auto;
 }
 
 .text-input,

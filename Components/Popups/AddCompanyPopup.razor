@@ -36,19 +36,31 @@
     <AddPopupSection Title="Images">
         <ImageFieldWidget @ref="coverField" class="form-span-wide"
                           Label="Cover" FieldName="cover" Category="companies"
-                          ImageRef="cover" AspectRatio="1" AltText="@($"{name} cover preview")" />
+                          ImageRef="cover" AspectRatio="1" AltText="@($"{name} cover preview")"
+                          SteamGridDbSearchEnabled="true"
+                          SteamGridDbImageType="@SteamGridDbImageType.Cover"
+                          SteamGridDbSearchTerm="@name" />
 
         <ImageFieldWidget @ref="logoField" class="form-span-wide"
                           Label="Logo" FieldName="logo" Category="companies"
-                          ImageRef="logo" AspectRatio="1" AltText="@($"{name} logo preview")" />
+                          ImageRef="logo" AspectRatio="1" AltText="@($"{name} logo preview")"
+                          SteamGridDbSearchEnabled="true"
+                          SteamGridDbImageType="@SteamGridDbImageType.Logo"
+                          SteamGridDbSearchTerm="@name" />
 
         <ImageFieldWidget @ref="heroField" class="form-span-wide"
                           Label="Hero" FieldName="hero" Category="companies"
-                          ImageRef="hero" AspectRatio="1" AltText="@($"{name} hero preview")" />
+                          ImageRef="hero" AspectRatio="1" AltText="@($"{name} hero preview")"
+                          SteamGridDbSearchEnabled="true"
+                          SteamGridDbImageType="@SteamGridDbImageType.Hero"
+                          SteamGridDbSearchTerm="@name" />
 
         <ImageFieldWidget @ref="iconField" class="form-span-wide"
                           Label="Icon" FieldName="icon" Category="companies"
-                          ImageRef="icon" AspectRatio="1" AltText="@($"{name} icon preview")" />
+                          ImageRef="icon" AspectRatio="1" AltText="@($"{name} icon preview")"
+                          SteamGridDbSearchEnabled="true"
+                          SteamGridDbImageType="@SteamGridDbImageType.Icon"
+                          SteamGridDbSearchTerm="@name" />
     </AddPopupSection>
 
     @if (!string.IsNullOrWhiteSpace(imageErrorMessage))

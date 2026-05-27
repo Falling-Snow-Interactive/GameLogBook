@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 using VGL.Models;
+using VGL.Components.Popups;
 using VGL.Services;
 
 namespace VGL.Components.Elements.ImageField;
@@ -42,6 +43,9 @@ public partial class ImageFieldWidget : IAsyncDisposable
     private LocalImageService LocalImageService { get; set; } = null!;
 
     [Inject]
+    private PopupService PopupService { get; set; } = null!;
+
+    [Inject]
     private IJSRuntime JsRuntime { get; set; } = null!;
 
     // Parameters
@@ -71,6 +75,15 @@ public partial class ImageFieldWidget : IAsyncDisposable
     
     [Parameter, EditorRequired]
     public double AspectRatio { get; set; }
+
+    [Parameter]
+    public bool SteamGridDbSearchEnabled { get; set; }
+
+    [Parameter]
+    public SteamGridDbImageType? SteamGridDbImageType { get; set; }
+
+    [Parameter]
+    public string? SteamGridDbSearchTerm { get; set; }
 
     [Parameter(CaptureUnmatchedValues = true)]
     public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
@@ -206,6 +219,29 @@ public partial class ImageFieldWidget : IAsyncDisposable
         urlInput = string.Empty;
 
         await ReplaceTempImage(async () => await LocalImageService.SaveUploadedTempImageAsync(file));
+    }
+
+    private async Task OpenSteamGridDbSearch()
+    {
+        if (SteamGridDbImageType is null)
+        {
+            return;
+        }
+
+        string? selectedImageUrl = await PopupService.ShowAsync<SteamGridDbImageSearchPopup, string>(
+            new Dictionary<string, object?>
+            {
+                [nameof(SteamGridDbImageSearchPopup.InitialSearchTerm)] = SteamGridDbSearchTerm ?? string.Empty,
+                [nameof(SteamGridDbImageSearchPopup.ImageType)] = SteamGridDbImageType.Value
+            });
+
+        if (string.IsNullOrWhiteSpace(selectedImageUrl))
+        {
+            return;
+        }
+
+        urlInput = selectedImageUrl;
+        await ReplaceTempImage(async () => await LocalImageService.DownloadTempImageAsync(selectedImageUrl));
     }
 
     private async Task ResetImage()

@@ -1,0 +1,115 @@
+.steamgriddb-popup {
+    width: min(68rem, 100%);
+}
+
+.steamgriddb-popup-content {
+    gap: 1rem;
+}
+
+.steamgriddb-search-panel {
+    display: grid;
+    gap: 0.8rem;
+}
+
+.steamgriddb-search-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.steamgriddb-search-row .game-detail-input {
+    width: 100%;
+    padding-right: 3rem;
+}
+
+.steamgriddb-search-button {
+    position: absolute;
+}
+
+.steamgriddb-game-picker {
+    display: grid;
+    gap: 0.4rem;
+}
+
+.steamgriddb-game-picker span {
+    color: var(--color-text-soft);
+    font-size: 0.8125rem;
+    font-weight: 700;
+}
+
+.steamgriddb-message {
+    margin: 0;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-muted);
+    color: var(--color-text-muted);
+    font-weight: 650;
+    line-height: 1.4;
+}
+
+.steamgriddb-message-error {
+    border-color: #fecaca;
+    background: #fef2f2;
+    color: var(--color-danger-ink);
+}
+
+.steamgriddb-image-results {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+    gap: 0.85rem;
+}
+
+.steamgriddb-image-result {
+    display: grid;
+    gap: 0.5rem;
+    min-width: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 0.5rem;
+    background: var(--color-surface);
+    color: var(--color-text);
+    cursor: pointer;
+    text-align: left;
+    transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        border-color var(--transition-fast),
+        background var(--transition-fast);
+}
+
+.steamgriddb-image-result:hover {
+    border-color: var(--color-primary);
+    background: var(--color-primary-soft);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+}
+
+.steamgriddb-image-result:focus-visible {
+    outline: 3px solid rgba(103, 80, 164, 0.22);
+    outline-offset: 2px;
+}
+
+.steamgriddb-image-result img {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm);
+    background: var(--checker-board);
+    object-fit: contain;
+}
+
+.steamgriddb-image-result span {
+    overflow: hidden;
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+    .steamgriddb-image-results {
+        grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+    }
+}

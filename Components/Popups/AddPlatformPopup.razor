@@ -46,19 +46,31 @@
 
         <ImageFieldWidget @ref="coverField"
                           Label="Cover" FieldName="cover" Category="platforms"
-                          ImageRef="cover" AspectRatio="1" AltText="@($"{name} cover preview")"/>
+                          ImageRef="cover" AspectRatio="1" AltText="@($"{name} cover preview")"
+                          SteamGridDbSearchEnabled="true"
+                          SteamGridDbImageType="@SteamGridDbImageType.Cover"
+                          SteamGridDbSearchTerm="@name"/>
 
         <ImageFieldWidget @ref="heroField"
                           Label="Hero" FieldName="hero" Category="platforms"
-                          ImageRef="hero" AspectRatio="1" AltText="@($"{name} hero preview")"/>
+                          ImageRef="hero" AspectRatio="1" AltText="@($"{name} hero preview")"
+                          SteamGridDbSearchEnabled="true"
+                          SteamGridDbImageType="@SteamGridDbImageType.Hero"
+                          SteamGridDbSearchTerm="@name"/>
 
         <ImageFieldWidget @ref="logoField"
                           Label="Logo" FieldName="logo" Category="platforms"
-                          ImageRef="logo" AspectRatio="1" AltText="@($"{name} logo preview")"/>
+                          ImageRef="logo" AspectRatio="1" AltText="@($"{name} logo preview")"
+                          SteamGridDbSearchEnabled="true"
+                          SteamGridDbImageType="@SteamGridDbImageType.Logo"
+                          SteamGridDbSearchTerm="@name"/>
 
         <ImageFieldWidget @ref="iconField"
                           Label="Icon" FieldName="icon" Category="platforms"
-                          ImageRef="icon" AspectRatio="1" AltText="@($"{name} icon preview")"/>
+                          ImageRef="icon" AspectRatio="1" AltText="@($"{name} icon preview")"
+                          SteamGridDbSearchEnabled="true"
+                          SteamGridDbImageType="@SteamGridDbImageType.Icon"
+                          SteamGridDbSearchTerm="@name"/>
 
         @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
         {

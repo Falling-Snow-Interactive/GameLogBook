@@ -30,8 +30,11 @@ public static class MauiProgram
         #endif
 
         builder.Services.Configure<IgdbSettings>(builder.Configuration.GetSection("Igdb"));
+        builder.Services.Configure<SteamGridDbSettings>(builder.Configuration.GetSection("SteamGridDb"));
         builder.Services.AddSingleton<HttpClient>();
         builder.Services.AddSingleton<IGDBClientProvider>();
+        builder.Services.AddSingleton<SteamGridDbClientProvider>();
+        builder.Services.AddSingleton<SteamGridDbArtworkService>();
         builder.Services.AddSingleton<LocalImageService>();
         builder.Services.AddScoped<PopupService>();
         builder.Services.AddScoped<UserProfileSession>();

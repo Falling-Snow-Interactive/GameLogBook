@@ -1,0 +1,93 @@
+@using VGL.Components.Popups.AddPopup
+
+<AddPopup Title="@PopupTitle"
+          Description="@PopupDescription"
+          ShowSearch="false"
+          PopupClass="popup steamgriddb-popup"
+          FormClass="steamgriddb-popup-content"
+          OnClose="HandleClose">
+    <div class="steamgriddb-search-panel">
+        <div class="steamgriddb-search-row">
+            <input class="game-detail-input"
+                   value="@searchInput"
+                   placeholder="Search SteamGridDB"
+                   aria-label="Search SteamGridDB"
+                   @oninput="HandleSearchInputChanged"
+                   @onkeydown="HandleSearchKeyDown" />
+
+            <button class="igdb-search-button steamgriddb-search-button"
+                    type="button"
+                    title="Search SteamGridDB"
+                    aria-label="Search SteamGridDB"
+                    disabled="@isSearchingGames"
+                    @onclick="SearchGames">
+                @if (isSearchingGames)
+                {
+                    <span class="igdb-search-spinner"></span>
+                }
+                else
+                {
+                    <span class="bi bi-search" aria-hidden="true"></span>
+                }
+            </button>
+        </div>
+
+        @if (gameResults.Count > 0)
+        {
+            <label class="steamgriddb-game-picker">
+                <span>Search result</span>
+                <select class="game-detail-input"
+                        value="@selectedGameId"
+                        @onchange="HandleSelectedGameChanged">
+                    @foreach (SteamGridDbGameSearchResult game in gameResults)
+                    {
+                        <option value="@game.Id">@GetGameLabel(game)</option>
+                    }
+                </select>
+            </label>
+        }
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(errorMessage))
+    {
+        <p class="steamgriddb-message steamgriddb-message-error">@errorMessage</p>
+    }
+    else if (!SteamGridDbArtworkService.IsConfigured)
+    {
+        <p class="steamgriddb-message">SteamGridDB search is unavailable because the API key is not configured.</p>
+    }
+    else if (isSearchingGames)
+    {
+        <p class="steamgriddb-message">Searching SteamGridDB...</p>
+    }
+    else if (hasSearchedGames && gameResults.Count == 0)
+    {
+        <p class="steamgriddb-message">No SteamGridDB entries found. Try another search.</p>
+    }
+    else if (isLoadingImages)
+    {
+        <p class="steamgriddb-message">Loading @ImageTypeLabel.ToLowerInvariant() artwork...</p>
+    }
+    else if (selectedGameId is not null && hasLoadedImages && imageResults.Count == 0)
+    {
+        <p class="steamgriddb-message">No @ImageTypeLabel.ToLowerInvariant() artwork found for this entry.</p>
+    }
+
+    @if (imageResults.Count > 0)
+    {
+        <div class="steamgriddb-image-results" aria-label="SteamGridDB image results">
+            @foreach (SteamGridDbImageSearchResult image in imageResults)
+            {
+                <button class="steamgriddb-image-result"
+                        type="button"
+                        title="Use this image"
+                        @onclick="() => SelectImage(image)">
+                    <img src="@image.ThumbnailImageUrl"
+                         alt="@($"{ImageTypeLabel} result {image.Id}")" />
+
+                    <span>@GetImageSummary(image)</span>
+                </button>
+            }
+        </div>
+    }
+</AddPopup>

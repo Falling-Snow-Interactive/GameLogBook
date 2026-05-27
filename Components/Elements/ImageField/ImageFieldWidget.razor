@@ -36,12 +36,26 @@
                 <span>Upload</span>
             </label>
 
-            <button class="image-field-reset-button"
-                    type="button"
-                    disabled="@isBusy"
-                    @onclick="ResetImage">
-                Reset
-            </button>
+            <div class="image-field-action-row">
+                @if (SteamGridDbSearchEnabled && SteamGridDbImageType is not null)
+                {
+                    <button class="button-dot button-colors-info image-field-steamgriddb-button"
+                            type="button"
+                            title="Search SteamGridDB"
+                            aria-label="@($"Search SteamGridDB for {Label}")"
+                            disabled="@isBusy"
+                            @onclick="OpenSteamGridDbSearch">
+                        <span class="bi bi-search" aria-hidden="true"></span>
+                    </button>
+                }
+
+                <button class="image-field-reset-button"
+                        type="button"
+                        disabled="@isBusy"
+                        @onclick="ResetImage">
+                    Reset
+                </button>
+            </div>
         </div>
     </div>
 
