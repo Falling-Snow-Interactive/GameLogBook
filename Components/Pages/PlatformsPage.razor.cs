@@ -70,22 +70,14 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
 
         if (existingCompany is not null)
         {
-            existingCompany.Name = newCompany.Name.Trim();
-            existingCompany.ImagePath = string.IsNullOrWhiteSpace(newCompany.ImagePath)
-                                            ? existingCompany.ImagePath
-                                            : newCompany.ImagePath.Trim();
-            existingCompany.LastSyncedAt = DateTimeOffset.UtcNow;
+            ApplyCompanyDetails(existingCompany, newCompany);
 
             await DbContext.SaveChangesAsync();
             await LoadCompaniesAsync();
             return existingCompany;
         }
 
-        newCompany.Name = newCompany.Name.Trim();
-        newCompany.ImagePath = string.IsNullOrWhiteSpace(newCompany.ImagePath)
-                                   ? null
-                                   : newCompany.ImagePath.Trim();
-        newCompany.LastSyncedAt = DateTimeOffset.UtcNow;
+        NormalizeCompanyDetails(newCompany);
 
         DbContext.Companies.Add(newCompany);
         await DbContext.SaveChangesAsync();
@@ -250,5 +242,41 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
                .OrderBy(company => company.Role)
                .ThenBy(company => company.CompanyID)
                .ToList();
+    }
+
+    private static void ApplyCompanyDetails(Company target, Company source)
+    {
+        target.IGDB = source.IGDB ?? target.IGDB;
+        target.Name = source.Name.Trim();
+        target.Summary = string.IsNullOrWhiteSpace(source.Summary) ? target.Summary : source.Summary.Trim();
+        target.FoundedDate = source.FoundedDate ?? target.FoundedDate;
+        target.Cover = CopyImageRef(source.Cover) ?? target.Cover;
+        target.Hero = CopyImageRef(source.Hero) ?? target.Hero;
+        target.Logo = CopyImageRef(source.Logo) ?? target.Logo;
+        target.Icon = CopyImageRef(source.Icon) ?? target.Icon;
+        target.ImagePath = string.IsNullOrWhiteSpace(source.ImagePath)
+                               ? target.ImagePath
+                               : source.ImagePath.Trim();
+        target.LastSyncedAt = DateTimeOffset.UtcNow;
+    }
+
+    private static void NormalizeCompanyDetails(Company company)
+    {
+        company.Name = company.Name.Trim();
+        company.Summary = string.IsNullOrWhiteSpace(company.Summary) ? null : company.Summary.Trim();
+        company.ImagePath = string.IsNullOrWhiteSpace(company.ImagePath)
+                                ? null
+                                : company.ImagePath.Trim();
+        company.LastSyncedAt = DateTimeOffset.UtcNow;
+    }
+
+    private static ImageRef? CopyImageRef(ImageRef? image)
+    {
+        return string.IsNullOrWhiteSpace(image?.Path)
+                   ? null
+                   : new ImageRef
+                     {
+                         Path = image.Path.Trim()
+                     };
     }
 }

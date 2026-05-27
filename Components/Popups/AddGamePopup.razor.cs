@@ -47,6 +47,7 @@ public partial class AddGamePopup
 
     private string name = string.Empty;
     private GameType type;
+    private int rating;
     private DateOnly? releaseDate;
     private string summary = string.Empty;
     
@@ -151,6 +152,7 @@ public partial class AddGamePopup
                             // Information
                             Name = name.Trim(),
                             GameType = type,
+                            Rating = Math.Clamp(rating, 0, Game.MaxRating),
                             ReleaseDate = releaseDate,
                             Summary = string.IsNullOrWhiteSpace(summary) ? null : summary.Trim(),
                         
@@ -191,6 +193,7 @@ public partial class AddGamePopup
         name = game.Name;
         summary = game.Summary ?? string.Empty;
         type = game.GameType;
+        rating = Math.Clamp(game.Rating, 0, Game.MaxRating);
         releaseDate = game.ReleaseDate;
         
         // Companies
@@ -242,6 +245,7 @@ public partial class AddGamePopup
         name = string.Empty;     
         summary = string.Empty;
         type = GameType.None;
+        rating = 0;
         releaseDate = null;
         
         // Developers

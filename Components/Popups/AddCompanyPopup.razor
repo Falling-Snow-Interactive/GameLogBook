@@ -8,20 +8,62 @@
           FormClass="company-form"
           OnClose="HandleClose"
           OnCompanySelected="HandleCompanySelected">
-    
-    <EntryField Label="Name">
-        <input class="text-input"
-               @bind="name"
-               @bind:event="oninput"
-               placeholder="Name..."/>
-    </EntryField>
 
-    <EntryField Label="Summary">
-        <input class="detail-textarea"
-               @bind="summary"
-               @bind:event="oninput"
-               placeholder="Summary..."/>
-    </EntryField>
+    <AddPopupSection Title="Information">
+        <EntryField Label="Name" Class="form-span-all">
+            <input class="text-input"
+                   @bind="name"
+                   @bind:event="oninput"
+                   placeholder="Name..."/>
+        </EntryField>
+
+        <EntryField Label="Founded Date">
+            <input class="text-input"
+                   type="date"
+                   @bind="foundedDate"
+                   @bind:event="oninput"/>
+        </EntryField>
+
+        <EntryField Label="Summary" Class="form-span-all">
+            <textarea class="detail-textarea"
+                      @bind="summary"
+                      @bind:event="oninput"
+                      placeholder="Summary..."></textarea>
+        </EntryField>
+    </AddPopupSection>
+
+    <AddPopupSection Title="Images">
+        <ImageFieldWidget @ref="coverField" class="form-span-wide"
+                          Label="Cover" FieldName="cover" Category="companies"
+                          ImageRef="cover" AspectRatio="1" AltText="@($"{name} cover preview")" />
+
+        <ImageFieldWidget @ref="logoField" class="form-span-wide"
+                          Label="Logo" FieldName="logo" Category="companies"
+                          ImageRef="logo" AspectRatio="1" AltText="@($"{name} logo preview")" />
+
+        <ImageFieldWidget @ref="heroField" class="form-span-wide"
+                          Label="Hero" FieldName="hero" Category="companies"
+                          ImageRef="hero" AspectRatio="1" AltText="@($"{name} hero preview")" />
+
+        <ImageFieldWidget @ref="iconField" class="form-span-wide"
+                          Label="Icon" FieldName="icon" Category="companies"
+                          ImageRef="icon" AspectRatio="1" AltText="@($"{name} icon preview")" />
+    </AddPopupSection>
+
+    @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
+    {
+        <p class="form-hint">@imageErrorMessage</p>
+    }
+
+    <AddPopupSection Title="APIs">
+        <EntryField Label="IGDB ID">
+            <input class="text-input"
+                   type="number"
+                   @bind="igdb"
+                   @bind:event="oninput"
+                   placeholder="id" />
+        </EntryField>
+    </AddPopupSection>
 
     <AddPopupActions>
         <button class="save-button"

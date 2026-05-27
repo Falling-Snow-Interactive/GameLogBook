@@ -145,11 +145,9 @@ public partial class ImageFieldWidget : IAsyncDisposable
         {
             resetRequested = false;
 
-            if (existingImageRef is not null && tempImagePath is not null)
-            {
-                string finalImagePath = await LocalImageService.MoveTempImageAsync(tempImagePath, Category);
-                existingImageRef.Path = finalImagePath;
-            }
+            existingImageRef ??= new ImageRef();
+            string finalImagePath = await LocalImageService.MoveTempImageAsync(tempImagePath, Category);
+            existingImageRef.Path = finalImagePath;
             
             tempImagePath = null;
             return existingImageRef;
@@ -169,11 +167,9 @@ public partial class ImageFieldWidget : IAsyncDisposable
         {
             resetRequested = false;
 
-            if (existingImageRef is not null && tempImagePath is not null)
-            {
-                string finalImagePath = await LocalImageService.MoveTempImageAsync(tempImagePath, Category);
-                existingImageRef.Path = finalImagePath;
-            }
+            existingImageRef ??= new ImageRef();
+            string finalImagePath = await LocalImageService.MoveTempImageAsync(tempImagePath, Category);
+            existingImageRef.Path = finalImagePath;
             
             tempImagePath = null;
             return existingImageRef?.Path;

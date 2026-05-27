@@ -20,6 +20,16 @@
                 <EnumDropdown TEnum="GameType" class="game-detail-input" @bind-Value="type" />
             </EntryField>
 
+            <EntryField Label="Rating">
+                <input class="game-detail-input"
+                       type="number"
+                       min="0"
+                       max="@Game.MaxRating"
+                       @bind="rating"
+                       @bind:event="oninput"
+                       placeholder="0-@Game.MaxRating" />
+            </EntryField>
+
             <EntryField Label="Ownership">
                 <OwnershipInputWidget />
             </EntryField>

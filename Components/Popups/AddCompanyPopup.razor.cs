@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
+using VGL.Components.Elements.ImageField;
+using VGL.Models;
 using VGL.Models.Companies;
 using VGL.Services;
 
@@ -12,12 +13,18 @@ public partial class AddCompanyPopup
     // Information
     private string name = string.Empty;
     private string summary = string.Empty;
+    private DateOnly? foundedDate;
     
     // Images
-    private string companyImagePath = string.Empty;
-    private string companyImageUrl = string.Empty;
-    private string? companyPreviewSource;
-    private IBrowserFile? uploadedCompanyImage;
+    private ImageFieldWidget? coverField;
+    private ImageFieldWidget? heroField;
+    private ImageFieldWidget? logoField;
+    private ImageFieldWidget? iconField;
+
+    private ImageRef? cover;
+    private ImageRef? hero;
+    private ImageRef? logo;
+    private ImageRef? icon;
     private string? imageErrorMessage;
     
     // Other APIs
@@ -25,9 +32,6 @@ public partial class AddCompanyPopup
     
     // Saving
     private bool isSaving;
-
-    [Inject]
-    private LocalImageService LocalImageService { get; set; } = null!;
 
     [CascadingParameter]
     private PopupInstance? Popup { get; set; }
@@ -73,37 +77,49 @@ public partial class AddCompanyPopup
         isSaving = true;
         imageErrorMessage = null;
 
-        string? imagePath;
         try
         {
-            imagePath = await ResolveCompanyImagePath();
+            ImageRef? coverRef = await coverField?.CommitAsync()!;
+            ImageRef? heroRef = await heroField?.CommitAsync()!;
+            ImageRef? logoRef = await logoField?.CommitAsync()!;
+            ImageRef? iconRef = await iconField?.CommitAsync()!;
+
+            string? legacyImagePath = logoRef?.Path
+                                      ?? iconRef?.Path
+                                      ?? coverRef?.Path
+                                      ?? heroRef?.Path;
+
+            Company company = new()
+                              {
+                                  ID = InitialCompany?.ID ?? 0,
+                                  IGDB = igdb,
+                                  Name = name.Trim(),
+                                  Summary = string.IsNullOrWhiteSpace(summary) ? null : summary.Trim(),
+                                  FoundedDate = foundedDate,
+                                  Cover = coverRef,
+                                  Hero = heroRef,
+                                  Logo = logoRef,
+                                  Icon = iconRef,
+                                  ImagePath = legacyImagePath,
+                                  LastSyncedAt = DateTimeOffset.UtcNow
+                              };
+
+            if (Popup is not null)
+            {
+                await Popup.CloseAsync(company);
+            }
+            else
+            {
+                await OnCompanySaved.InvokeAsync(company);
+            }
+
+            isSaving = false;
         }
         catch (Exception exception)
         {
             imageErrorMessage = exception.Message;
             isSaving = false;
-            return;
         }
-
-        Company company = new()
-                          {
-                              ID = InitialCompany?.ID ?? 0,
-                              IGDB = igdb,
-                              Name = name.Trim(),
-                              ImagePath = imagePath,
-                              LastSyncedAt = DateTimeOffset.UtcNow
-                          };
-
-        if (Popup is not null)
-        {
-            await Popup.CloseAsync(company);
-        }
-        else
-        {
-            await OnCompanySaved.InvokeAsync(company);
-        }
-
-        isSaving = false;
     }
 
     private async Task HandleClose()
@@ -117,80 +133,57 @@ public partial class AddCompanyPopup
         await OnClose.InvokeAsync();
     }
 
-    private async Task LoadCompany(Company company)
+    private Task LoadCompany(Company company)
     {
         igdb = company.IGDB;
         name = company.Name;
-        companyImagePath = company.ImagePath ?? string.Empty;
-        companyImageUrl = company.PendingImageUrl ?? string.Empty;
-        uploadedCompanyImage = null;
+        summary = company.Summary ?? string.Empty;
+        foundedDate = company.FoundedDate;
+
+        cover = company.Cover;
+        hero = company.Hero;
+        logo = GetLogoImageRef(company);
+        icon = company.Icon;
+
         imageErrorMessage = null;
-        companyPreviewSource = !string.IsNullOrWhiteSpace(companyImageUrl)
-                                   ? companyImageUrl
-                                   : await LocalImageService.GetImageSourceAsync(companyImagePath);
+
+        return Task.CompletedTask;
     }
 
     private void ResetForm()
     {
         igdb = null;
         name = string.Empty;
-        companyImagePath = string.Empty;
-        companyImageUrl = string.Empty;
-        companyPreviewSource = null;
-        uploadedCompanyImage = null;
+        summary = string.Empty;
+        foundedDate = null;
+
+        cover = null;
+        hero = null;
+        logo = null;
+        icon = null;
+
         imageErrorMessage = null;
         isSaving = false;
     }
 
-    private async Task HandleCompanyImageUrlChanged(ChangeEventArgs args)
+    private static ImageRef? GetLogoImageRef(Company company)
     {
-        companyImageUrl = args.Value?.ToString() ?? string.Empty;
-        uploadedCompanyImage = null;
-        imageErrorMessage = null;
-        companyPreviewSource = !string.IsNullOrWhiteSpace(companyImageUrl)
-                                   ? companyImageUrl
-                                   : await LocalImageService.GetImageSourceAsync(companyImagePath);
-    }
-
-    private async Task HandleCompanyImageFileSelected(InputFileChangeEventArgs args)
-    {
-        uploadedCompanyImage = args.File;
-        companyImageUrl = string.Empty;
-        imageErrorMessage = null;
-
-        try
+        if (company.Logo is not null)
         {
-            companyPreviewSource = await LocalImageService.GetUploadPreviewSourceAsync(uploadedCompanyImage);
-        }
-        catch (Exception exception)
-        {
-            uploadedCompanyImage = null;
-            companyPreviewSource = await LocalImageService.GetImageSourceAsync(companyImagePath);
-            imageErrorMessage = exception.Message;
-        }
-    }
-
-    private void RemoveCompanyImage()
-    {
-        companyImagePath = string.Empty;
-        companyImageUrl = string.Empty;
-        companyPreviewSource = null;
-        uploadedCompanyImage = null;
-        imageErrorMessage = null;
-    }
-
-    private async Task<string?> ResolveCompanyImagePath()
-    {
-        if (uploadedCompanyImage is not null)
-        {
-            return await LocalImageService.SaveUploadedImageAsync(uploadedCompanyImage, "companies");
+            company.Logo.PendingUrl = company.PendingImageUrl;
+            return company.Logo;
         }
 
-        if (!string.IsNullOrWhiteSpace(companyImageUrl))
+        if (string.IsNullOrWhiteSpace(company.ImagePath)
+            && string.IsNullOrWhiteSpace(company.PendingImageUrl))
         {
-            return await LocalImageService.DownloadImageAsync(companyImageUrl, "companies");
+            return null;
         }
 
-        return string.IsNullOrWhiteSpace(companyImagePath) ? null : companyImagePath;
+        return new ImageRef
+               {
+                   Path = company.ImagePath,
+                   PendingUrl = company.PendingImageUrl
+               };
     }
 }

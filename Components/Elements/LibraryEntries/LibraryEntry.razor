@@ -56,6 +56,7 @@
                                                 <LocalImage ImagePath="@GetCompanyImagePath(company)"
                                                             ImageClass="library-entry-company-icon-image"
                                                             AltText="@($"{company.Name} icon")"
+                                                            MissingText="@company.Name"
                                                             MaxWidth="40"
                                                             MaxHeight="40"/>
                                             }

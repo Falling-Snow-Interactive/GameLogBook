@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using VGL.Components.Elements.CompanyElements;
 using VGL.Components.Popups;
+using VGL.Models;
 using VGL.Models.Companies;
 using VGL.Models.Games;
 using VGL.Services;
@@ -54,11 +55,7 @@ public partial class CompaniesPage : CollectionPageBase<Company>
 
         if (existingCompany is not null)
         {
-            existingCompany.Name = newCompany.Name.Trim();
-            existingCompany.ImagePath = string.IsNullOrWhiteSpace(newCompany.ImagePath)
-                                            ? existingCompany.ImagePath
-                                            : newCompany.ImagePath.Trim();
-            existingCompany.LastSyncedAt = DateTimeOffset.UtcNow;
+            ApplyCompanyDetails(existingCompany, newCompany, preserveExistingEmptyValues: true);
             await DbContext.SaveChangesAsync();
             await LoadItemsAsync();
             await LoadGameCompanySummaries();
@@ -82,11 +79,7 @@ public partial class CompaniesPage : CollectionPageBase<Company>
         }
 
         existingCompany.IGDB = updatedCompany.IGDB;
-        existingCompany.Name = updatedCompany.Name.Trim();
-        existingCompany.ImagePath = string.IsNullOrWhiteSpace(updatedCompany.ImagePath)
-                                        ? null
-                                        : updatedCompany.ImagePath.Trim();
-        existingCompany.LastSyncedAt = DateTimeOffset.UtcNow;
+        ApplyCompanyDetails(existingCompany, updatedCompany, preserveExistingEmptyValues: false);
 
         await UpdateItemAsync();
         await LoadGameCompanySummaries();
@@ -246,6 +239,12 @@ public partial class CompaniesPage : CollectionPageBase<Company>
                                       ID = company.ID,
                                       IGDB = company.IGDB,
                                       Name = company.Name,
+                                      Summary = company.Summary,
+                                      FoundedDate = company.FoundedDate,
+                                      Cover = CopyImageRef(company.Cover),
+                                      Hero = CopyImageRef(company.Hero),
+                                      Logo = CopyImageRef(company.Logo),
+                                      Icon = CopyImageRef(company.Icon),
                                       ImagePath = company.ImagePath,
                                       LastSyncedAt = company.LastSyncedAt
                                   };
@@ -260,5 +259,43 @@ public partial class CompaniesPage : CollectionPageBase<Company>
         {
             await UpdateCompany(updatedCompany);
         }
+    }
+
+    private static void ApplyCompanyDetails(
+        Company target,
+        Company source,
+        bool preserveExistingEmptyValues)
+    {
+        target.IGDB = preserveExistingEmptyValues
+                          ? source.IGDB ?? target.IGDB
+                          : source.IGDB;
+        target.Name = source.Name.Trim();
+        target.Summary = NormalizeOptionalText(source.Summary, preserveExistingEmptyValues ? target.Summary : null);
+        target.FoundedDate = preserveExistingEmptyValues
+                                 ? source.FoundedDate ?? target.FoundedDate
+                                 : source.FoundedDate;
+        target.Cover = CopyImageRef(source.Cover) ?? (preserveExistingEmptyValues ? target.Cover : null);
+        target.Hero = CopyImageRef(source.Hero) ?? (preserveExistingEmptyValues ? target.Hero : null);
+        target.Logo = CopyImageRef(source.Logo) ?? (preserveExistingEmptyValues ? target.Logo : null);
+        target.Icon = CopyImageRef(source.Icon) ?? (preserveExistingEmptyValues ? target.Icon : null);
+        target.ImagePath = NormalizeOptionalText(source.ImagePath, preserveExistingEmptyValues ? target.ImagePath : null);
+        target.LastSyncedAt = DateTimeOffset.UtcNow;
+    }
+
+    private static string? NormalizeOptionalText(string? value, string? fallback)
+    {
+        return string.IsNullOrWhiteSpace(value)
+                   ? fallback
+                   : value.Trim();
+    }
+
+    private static ImageRef? CopyImageRef(ImageRef? image)
+    {
+        return string.IsNullOrWhiteSpace(image?.Path)
+                   ? null
+                   : new ImageRef
+                     {
+                         Path = image.Path.Trim()
+                     };
     }
 }
