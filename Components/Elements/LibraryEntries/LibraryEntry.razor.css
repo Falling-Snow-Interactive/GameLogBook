@@ -199,6 +199,10 @@
     line-height: 1.35;
 }
 
+::deep .library-entry-rating {
+    margin-top: 0.1rem;
+}
+
 .library-entry-company-icons {
     display: flex;
     flex-wrap: wrap;

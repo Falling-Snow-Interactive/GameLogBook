@@ -1,0 +1,127 @@
+@using VGL.Models.Games
+
+<div class="@RootClass"
+     role="group"
+     aria-label="@AccessibleLabel"
+     @attributes="AttributesWithoutClass">
+    @for (int star = 1; star <= StarCount; star++)
+    {
+        int halfValue = (star * 2) - 1;
+        int fullValue = star * 2;
+
+        <span class="star-rating-star">
+            <i class="bi @GetIconClass(star) star-rating-icon" aria-hidden="true"></i>
+
+            @if (!ReadOnly)
+            {
+                <button class="star-rating-hit star-rating-hit-half"
+                        type="button"
+                        title="@GetValueLabel(halfValue)"
+                        aria-label="@GetValueLabel(halfValue)"
+                        @onclick="() => SetValue(halfValue)"></button>
+                <button class="star-rating-hit star-rating-hit-full"
+                        type="button"
+                        title="@GetValueLabel(fullValue)"
+                        aria-label="@GetValueLabel(fullValue)"
+                        @onclick="() => SetValue(fullValue)"></button>
+            }
+        </span>
+    }
+
+    @if (!ReadOnly)
+    {
+        <button class="star-rating-clear"
+                type="button"
+                title="Clear rating"
+                aria-label="Clear rating"
+                disabled="@(Value <= 0)"
+                @onclick="() => SetValue(0)">
+            <i class="bi bi-x-circle star-rating-clear-icon" aria-hidden="true"></i>
+        </button>
+    }
+
+    <span class="visually-hidden">@CurrentValueLabel</span>
+</div>
+
+@code {
+    private const int StarCount = 5;
+
+    [Parameter]
+    public int Value { get; set; }
+
+    [Parameter]
+    public EventCallback<int> ValueChanged { get; set; }
+
+    [Parameter]
+    public bool ReadOnly { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public string? AriaLabel { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private int ClampedValue => Math.Clamp(Value, 0, Game.MaxRating);
+
+    private string AccessibleLabel => AriaLabel ?? CurrentValueLabel;
+
+    private string CurrentValueLabel => $"Rating {FormatStars(ClampedValue)} out of {StarCount} stars";
+
+    private string RootClass => string.Join(' ',
+                                           new[]
+                                           {
+                                               "star-rating",
+                                               ReadOnly ? "star-rating-readonly" : "star-rating-editable",
+                                               Class,
+                                               CapturedClass
+                                           }.Where(className => !string.IsNullOrWhiteSpace(className)));
+
+    private string? CapturedClass => AdditionalAttributes?.TryGetValue("class", out object? value) == true
+                                         ? value?.ToString()
+                                         : null;
+
+    private Dictionary<string, object> AttributesWithoutClass =>
+        AdditionalAttributes?
+            .Where(attribute => attribute.Key != "class")
+            .ToDictionary(attribute => attribute.Key, attribute => attribute.Value)
+        ?? [];
+
+    private string GetIconClass(int star)
+    {
+        int fullThreshold = star * 2;
+        int halfThreshold = fullThreshold - 1;
+
+        if (ClampedValue >= fullThreshold)
+        {
+            return "bi-star-fill";
+        }
+
+        if (ClampedValue == halfThreshold)
+        {
+            return "bi-star-half";
+        }
+
+        return "bi-star";
+    }
+
+    private async Task SetValue(int value)
+    {
+        await ValueChanged.InvokeAsync(Math.Clamp(value, 0, Game.MaxRating));
+    }
+
+    private static string GetValueLabel(int value)
+    {
+        return $"{FormatStars(value)} stars";
+    }
+
+    private static string FormatStars(int value)
+    {
+        decimal stars = Math.Clamp(value, 0, Game.MaxRating) / 2m;
+        return stars % 1m == 0m
+                   ? ((int)stars).ToString()
+                   : stars.ToString("0.0");
+    }
+}

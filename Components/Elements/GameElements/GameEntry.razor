@@ -36,6 +36,10 @@
             <div class="game-entry-information">
                 <label class="game-entry-title">@Game.Name</label>
                 <DateOnlyWidget Date="Game.ReleaseDate" Class="game-entry-release-date"/>
+                <StarRating Value="Game.Rating"
+                            ReadOnly="true"
+                            Class="game-entry-rating"
+                            AriaLabel="@($"{Game.Name} rating")" />
                 <CompaniesWidget DeveloperNames="DeveloperNames"
                                  PublisherNames="PublisherNames"
                                  LabelClass="game-entry-company" />

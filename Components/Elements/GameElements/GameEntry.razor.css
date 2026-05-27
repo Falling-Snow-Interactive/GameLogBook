@@ -167,6 +167,10 @@
     line-height: 1.35;
 }
 
+::deep .game-entry-rating {
+    margin-top: 0.1rem;
+}
+
 .game-entry-summary {
     display: -webkit-box;
     margin: 0.5rem 0 0;

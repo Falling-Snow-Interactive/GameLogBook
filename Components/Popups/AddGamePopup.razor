@@ -20,14 +20,8 @@
                 <EnumDropdown TEnum="GameType" class="game-detail-input" @bind-Value="type" />
             </EntryField>
 
-            <EntryField Label="Rating">
-                <input class="game-detail-input"
-                       type="number"
-                       min="0"
-                       max="@Game.MaxRating"
-                       @bind="rating"
-                       @bind:event="oninput"
-                       placeholder="0-@Game.MaxRating" />
+            <EntryField Label="Rating" UseLabel="false">
+                <StarRating @bind-Value="rating" AriaLabel="Game rating" />
             </EntryField>
 
             <EntryField Label="Ownership">
