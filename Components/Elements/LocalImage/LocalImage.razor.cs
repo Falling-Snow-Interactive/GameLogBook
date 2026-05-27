@@ -22,9 +22,9 @@ public partial class LocalImage
 
     [Parameter]
     public string AltText { get; set; } = string.Empty;
-    
+
     [Parameter]
-    public string MissingText { get; set; }
+    public string MissingText { get; set; } = "No image";
 
     [Parameter]
     public int? MaxWidth { get; set; }
