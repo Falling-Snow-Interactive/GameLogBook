@@ -149,8 +149,20 @@ public partial class CompaniesPage : CollectionPageBase<Company>
 
     private async Task LoadGameCompanySummaries()
     {
-        games = await DbContext.Games
-                               .Include(game => game.GameCompanies)
+        if (UserSession.CurrentUserID is null)
+        {
+            games = [];
+            gameNamesByCompanyId = [];
+            rolesByCompanyId = [];
+            return;
+        }
+
+        games = await DbContext.UserGameCollections
+                               .AsNoTracking()
+                               .Where(userGame => userGame.UserProfileID == UserSession.CurrentUserID.Value)
+                               .Include(userGame => userGame.Game)
+                               .ThenInclude(game => game.GameCompanies)
+                               .Select(userGame => userGame.Game)
                                .OrderBy(game => game.Name)
                                .ToListAsync();
 
@@ -190,8 +202,19 @@ public partial class CompaniesPage : CollectionPageBase<Company>
 
     private async Task LoadPlatformCompanySummaries()
     {
-        platforms = await DbContext.Platforms
-                                   .Include(platform => platform.PlatformCompanies)
+        if (UserSession.CurrentUserID is null)
+        {
+            platforms = [];
+            platformNamesByCompanyId = [];
+            return;
+        }
+
+        platforms = await DbContext.UserPlatformCollections
+                                   .AsNoTracking()
+                                   .Where(userPlatform => userPlatform.UserProfileID == UserSession.CurrentUserID.Value)
+                                   .Include(userPlatform => userPlatform.Platform)
+                                   .ThenInclude(platform => platform.PlatformCompanies)
+                                   .Select(userPlatform => userPlatform.Platform)
                                    .OrderBy(platform => platform.Name)
                                    .ToListAsync();
 

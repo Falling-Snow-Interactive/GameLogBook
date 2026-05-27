@@ -24,20 +24,39 @@ public partial class PlaythroughsPage : CollectionPageBase<Playthrough>
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        Games = await DbContext.Games
-                               .OrderBy(game => game.Name)
+        await LoadGamesAsync();
+    }
+
+    protected override async Task LoadItemsAsync()
+    {
+        if (UserSession.CurrentUserID is null)
+        {
+            Items = [];
+            return;
+        }
+
+        Items = await DbContext.Playthroughs
+                               .Where(playthrough => playthrough.UserProfileID == UserSession.CurrentUserID.Value)
+                               .OrderBy(playthrough => playthrough.Name)
                                .ToListAsync();
     }
 
     private async Task AddPlaythrough(Playthrough playthrough)
     {
+        if (UserSession.CurrentUserID is null)
+        {
+            return;
+        }
+
+        playthrough.UserProfileID = UserSession.CurrentUserID.Value;
         await AddItemAsync(playthrough);
     }
 
     private async Task UpdatePlaythrough(Playthrough updatedPlaythrough)
     {
         Playthrough? existingPlaythrough = await DbContext.Playthroughs
-                                                          .FirstOrDefaultAsync(playthrough => playthrough.ID == updatedPlaythrough.ID);
+                                                          .FirstOrDefaultAsync(playthrough => playthrough.ID == updatedPlaythrough.ID
+                                                                                              && playthrough.UserProfileID == UserSession.CurrentUserID);
 
         if (existingPlaythrough is null)
         {
@@ -99,5 +118,22 @@ public partial class PlaythroughsPage : CollectionPageBase<Playthrough>
             1 => "1 linked game",
             _ => $"{playthrough.GameIds.Length} linked games"
         };
+    }
+
+    private async Task LoadGamesAsync()
+    {
+        if (UserSession.CurrentUserID is null)
+        {
+            Games = [];
+            return;
+        }
+
+        Games = await DbContext.UserGameCollections
+                               .AsNoTracking()
+                               .Where(userGame => userGame.UserProfileID == UserSession.CurrentUserID.Value)
+                               .Include(userGame => userGame.Game)
+                               .Select(userGame => userGame.Game)
+                               .OrderBy(game => game.Name)
+                               .ToListAsync();
     }
 }

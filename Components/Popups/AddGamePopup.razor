@@ -25,7 +25,8 @@
             </EntryField>
 
             <EntryField Label="Ownership">
-                <OwnershipInputWidget />
+                <OwnershipInputWidget Platforms="Platforms"
+                                      @bind-Ownerships="selectedPlatformOwnerships" />
             </EntryField>
 
             <EntryField Label="Summary" Class="form-span-all">

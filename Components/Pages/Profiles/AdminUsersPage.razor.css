@@ -1,0 +1,124 @@
+.profile-page {
+    min-height: calc(100vh - 4rem);
+    min-width: 0;
+    padding-bottom: 2rem;
+}
+
+.profile-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.profile-header h3 {
+    margin: 0 0 0.25rem;
+    color: var(--color-text);
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.profile-header p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.975rem;
+    font-weight: 500;
+}
+
+.profile-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    padding: 1.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-sm);
+}
+
+.profile-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--color-text-soft);
+    font-size: 0.92rem;
+    font-weight: 700;
+}
+
+.profile-form > .form-span-all,
+.profile-toggle-inline,
+.profile-actions {
+    grid-column: 1 / -1;
+}
+
+.profile-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.settings-cancel-button {
+    min-height: 2.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    padding: 0.55rem 0.85rem;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.admin-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-sm);
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 52rem;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 0.85rem;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+    text-align: left;
+    vertical-align: middle;
+}
+
+.admin-table th {
+    color: var(--color-text-soft);
+    font-size: 0.78rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+@media (max-width: 700px) {
+    .profile-header,
+    .profile-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .profile-form {
+        grid-template-columns: 1fr;
+    }
+}

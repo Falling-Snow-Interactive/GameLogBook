@@ -1,4 +1,11 @@
-﻿<nav class="nav-menu" aria-label="Main navigation">
+﻿@implements IDisposable
+@implements IAsyncDisposable
+@using Microsoft.JSInterop
+@inject UserProfileSession UserSession
+@inject NavigationManager Navigation
+@inject IJSRuntime JsRuntime
+
+<nav class="nav-menu" aria-label="Main navigation">
     <input id="nav-menu-toggle"
            type="checkbox"
            title="Navigation menu"
@@ -20,7 +27,7 @@
 
     <div class="navbar-body">
         <div class="nav-item">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+            <NavLink class="nav-link" href="home">
                 <span class="bi bi-house-door-fill" aria-hidden="true"></span>
                 <span>Home</span>
             </NavLink>
@@ -79,9 +86,141 @@
     </div>
 
     <div class="navbar-footer">
-        <div class="navbar-profile">
-            <span class="bi bi-person" aria-hidden="true"></span>
-            <span>KiraAfterDark</span>
+        <div class="navbar-profile-wrap" @ref="profileMenuElement">
+            @if (isProfileMenuOpen)
+            {
+                <div class="navbar-profile-menu">
+                    <button type="button" @onclick="GoToProfile">
+                        <span class="bi bi-person" aria-hidden="true"></span>
+                        <span>Profile</span>
+                    </button>
+
+                    <button type="button" @onclick="ChangeUser">
+                        <span class="bi bi-arrow-left-right" aria-hidden="true"></span>
+                        <span>Change User</span>
+                    </button>
+
+                    <button type="button" @onclick="GoToSettings">
+                        <span class="bi bi-gear" aria-hidden="true"></span>
+                        <span>Settings</span>
+                    </button>
+
+                    @if (UserSession.IsAdmin)
+                    {
+                        <button type="button" @onclick="GoToAdmin">
+                            <span class="bi bi-shield-lock" aria-hidden="true"></span>
+                            <span>Admin</span>
+                        </button>
+                    }
+                </div>
+            }
+
+            <button class="navbar-profile"
+                    type="button"
+                    aria-haspopup="menu"
+                    aria-expanded="@isProfileMenuOpen"
+                    @onclick="ToggleProfileMenu">
+                <span class="bi bi-person" aria-hidden="true"></span>
+                <span>@(UserSession.CurrentUser?.DisplayName ?? UserSession.CurrentUser?.Name ?? "Profile")</span>
+                <span class="bi bi-chevron-up navbar-profile-caret" aria-hidden="true"></span>
+            </button>
         </div>
     </div>
 </nav>
+
+@code {
+    private bool isProfileMenuOpen;
+    private ElementReference profileMenuElement;
+    private DotNetObjectReference<NavMenu>? dotNetReference;
+    private bool clickAwayConnected;
+
+    protected override void OnInitialized()
+    {
+        UserSession.Changed += HandleUserSessionChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        dotNetReference = DotNetObjectReference.Create(this);
+        await JsRuntime.InvokeVoidAsync("gameLogBookProfileMenu.observeClickAway", profileMenuElement, dotNetReference);
+        clickAwayConnected = true;
+    }
+
+    private void ToggleProfileMenu()
+    {
+        isProfileMenuOpen = !isProfileMenuOpen;
+    }
+
+    [JSInvokable]
+    public Task CloseProfileMenu()
+    {
+        if (!isProfileMenuOpen)
+        {
+            return Task.CompletedTask;
+        }
+
+        isProfileMenuOpen = false;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private void GoToProfile()
+    {
+        NavigateAndClose("/profile");
+    }
+
+    private void ChangeUser()
+    {
+        UserSession.SignOut();
+        NavigateAndClose("/profiles");
+    }
+
+    private void GoToSettings()
+    {
+        NavigateAndClose("/settings");
+    }
+
+    private void GoToAdmin()
+    {
+        NavigateAndClose("/admin/users");
+    }
+
+    private void NavigateAndClose(string uri)
+    {
+        isProfileMenuOpen = false;
+        Navigation.NavigateTo(uri);
+    }
+
+    private void HandleUserSessionChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        UserSession.Changed -= HandleUserSessionChanged;
+        dotNetReference?.Dispose();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (clickAwayConnected)
+        {
+            try
+            {
+                await JsRuntime.InvokeVoidAsync("gameLogBookProfileMenu.cleanup", profileMenuElement);
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+            catch (InvalidOperationException)
+            {
+            }
+        }
+    }
+}

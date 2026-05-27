@@ -2,6 +2,8 @@
 @using Microsoft.EntityFrameworkCore
 @using VGL.Data
 @inject GameLogBookDbContext DbContext
+@inject UserProfileSession UserSession
+@inject NavigationManager Navigation
 
 <PageTitle>Settings</PageTitle>
 
@@ -69,6 +71,14 @@
         ? "settings-status settings-status-success"
         : "settings-status settings-status-error";
 
+    protected override async Task OnInitializedAsync()
+    {
+        if (!UserSession.IsSignedIn && !await UserSession.TryAutoSignInAsync())
+        {
+            Navigation.NavigateTo("/profiles");
+        }
+    }
+
     private void BeginClearDatabase()
     {
         isConfirmingClear = true;
@@ -90,10 +100,13 @@
             DbContext.ChangeTracker.Clear();
             await DbContext.Database.EnsureDeletedAsync();
             await DbContext.Database.MigrateAsync();
+            UserSession.ClearAutoSignIn();
+            UserSession.SignOut();
 
             lastActionSucceeded = true;
             statusMessage = "The database was cleared and rebuilt successfully.";
             isConfirmingClear = false;
+            Navigation.NavigateTo("/profiles");
         }
         catch (Exception)
         {

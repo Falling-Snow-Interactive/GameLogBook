@@ -1,5 +1,33 @@
-<h3>OwnershipInputWidget</h3>
+@using VGL.Models.Games.Platforms
 
-@code {
-    
-}
+<div class="ownership-input-widget">
+    @if (Platforms.Count == 0)
+    {
+        <p class="form-hint">Add a platform before setting ownership.</p>
+    }
+    else
+    {
+        @foreach (var platform in Platforms)
+        {
+            bool isSelected = IsSelected(platform.ID);
+
+            <div class="ownership-row" @key="platform.ID">
+                <label>
+                    <input type="checkbox"
+                           checked="@isSelected"
+                           @onchange="args => TogglePlatform(platform.ID, args.Value is true)" />
+                    <span>@platform.Name</span>
+                </label>
+
+                <select class="game-detail-input"
+                        disabled="@(!isSelected)"
+                        value="@GetOwnershipType(platform.ID)"
+                        @onchange="args => ChangeOwnershipType(platform.ID, args.Value?.ToString())">
+                    <option value="@OwnershipType.Digital">Digital</option>
+                    <option value="@OwnershipType.Physical">Physical</option>
+                    <option value="@OwnershipType.Subscription">Subscription</option>
+                </select>
+            </div>
+        }
+    }
+</div>

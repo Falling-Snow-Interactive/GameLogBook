@@ -1,0 +1,315 @@
+@page "/admin/users"
+@using Microsoft.EntityFrameworkCore
+@using VGL.Data
+@inject GameLogBookDbContext DbContext
+@inject UserProfileSession UserSession
+@inject NavigationManager Navigation
+
+<PageTitle>Admin</PageTitle>
+
+<div class="profile-page">
+    <div class="profile-header">
+        <div>
+            <h3>Admin</h3>
+            <p>Manage user profiles and permissions.</p>
+        </div>
+
+        <button class="collection-add-button" type="button" @onclick="BeginAdd">
+            Add User
+        </button>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(statusMessage))
+    {
+        <div class="collection-empty-state">
+            <p>@statusMessage</p>
+        </div>
+    }
+
+    @if (isEditing)
+    {
+        <EditForm Model="form" OnValidSubmit="SaveUser">
+            <DataAnnotationsValidator />
+
+            <div class="profile-form admin-form">
+                <EntryField Label="Name">
+                    <InputText class="game-detail-input" @bind-Value="form.Name" />
+                </EntryField>
+
+                <EntryField Label="Display Name">
+                    <InputText class="game-detail-input" @bind-Value="form.DisplayName" />
+                </EntryField>
+
+                <EntryField Label="Email">
+                    <InputText class="game-detail-input" type="email" @bind-Value="form.Email" />
+                </EntryField>
+
+                <ImageFieldWidget @ref="profilePictureField"
+                                  class="form-span-all"
+                                  Label="Profile Picture"
+                                  FieldName="@($"admin-profile-picture-{editingUserId?.ToString() ?? "new"}")"
+                                  Category="profiles"
+                                  ImageRef="form.ProfilePicture"
+                                  AspectRatio="1"
+                                  AltText="Profile picture preview" />
+
+                <EntryField Label="Permission">
+                    <InputSelect class="game-detail-input" @bind-Value="form.Role">
+                        <option value="@UserRole.User">User</option>
+                        <option value="@UserRole.Admin">Admin</option>
+                    </InputSelect>
+                </EntryField>
+
+                <label class="profile-toggle profile-toggle-inline">
+                    <InputCheckbox @bind-Value="form.IsHidden" />
+                    <span>Hide user from profile selection</span>
+                </label>
+
+                <div class="profile-actions">
+                    <button class="save-button" type="submit" disabled="@isSaving">
+                        @(isSaving ? "Saving..." : "Save User")
+                    </button>
+
+                    <button class="settings-cancel-button" type="button" @onclick="CancelEdit">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    }
+
+    <div class="admin-table-wrap">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Display Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Hidden</th>
+                    <th>Updated</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (UserProfile profile in users)
+                {
+                    <tr>
+                        <td>@profile.Name</td>
+                        <td>@profile.DisplayName</td>
+                        <td>@profile.Email</td>
+                        <td>@profile.Role</td>
+                        <td>@(profile.IsHidden ? "Yes" : "No")</td>
+                        <td>@profile.UpdatedAt.LocalDateTime.ToString("g")</td>
+                        <td>
+                            <div class="admin-actions">
+                                <button type="button" class="settings-cancel-button" @onclick="() => BeginEdit(profile)">
+                                    Edit
+                                </button>
+
+                                <button type="button" class="settings-cancel-button" @onclick="() => ToggleHidden(profile)">
+                                    @(profile.IsHidden ? "Unhide" : "Hide")
+                                </button>
+
+                                <button type="button"
+                                        class="collection-remove-button"
+                                        disabled="@IsCurrentUser(profile)"
+                                        @onclick="() => DeleteUser(profile)">
+                                    Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    private readonly ProfileForm form = new();
+    private ImageFieldWidget? profilePictureField;
+    private List<UserProfile> users = [];
+    private bool isEditing;
+    private bool isSaving;
+    private int? editingUserId;
+    private string? statusMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!UserSession.IsSignedIn && !await UserSession.TryAutoSignInAsync())
+        {
+            Navigation.NavigateTo("/profiles");
+            return;
+        }
+
+        if (!UserSession.IsAdmin)
+        {
+            Navigation.NavigateTo("/home");
+            return;
+        }
+
+        await LoadUsers();
+    }
+
+    private async Task LoadUsers()
+    {
+        users = await DbContext.UserProfiles
+                               .AsNoTracking()
+                               .OrderBy(profile => profile.DisplayName)
+                               .ToListAsync();
+    }
+
+    private void BeginAdd()
+    {
+        editingUserId = null;
+        form.Reset();
+        isEditing = true;
+        statusMessage = null;
+    }
+
+    private void BeginEdit(UserProfile profile)
+    {
+        editingUserId = profile.ID;
+        form.Name = profile.Name;
+        form.DisplayName = profile.DisplayName;
+        form.Email = profile.Email;
+        form.ProfilePicture = CopyImageRef(profile.ProfilePicture);
+        form.Role = profile.Role;
+        form.IsHidden = profile.IsHidden;
+        isEditing = true;
+        statusMessage = null;
+    }
+
+    private void CancelEdit()
+    {
+        isEditing = false;
+        editingUserId = null;
+        form.Reset();
+    }
+
+    private async Task SaveUser()
+    {
+        statusMessage = null;
+
+        if (string.IsNullOrWhiteSpace(form.Name))
+        {
+            statusMessage = "Name is required.";
+            return;
+        }
+
+        isSaving = true;
+
+        UserProfile? profile = editingUserId is null
+                                   ? null
+                                   : await DbContext.UserProfiles.FirstOrDefaultAsync(user => user.ID == editingUserId.Value);
+
+        if (profile is null)
+        {
+            profile = new UserProfile
+                      {
+                          CreatedAt = DateTimeOffset.UtcNow
+                      };
+            DbContext.UserProfiles.Add(profile);
+        }
+
+        profile.Name = form.Name.Trim();
+        profile.DisplayName = string.IsNullOrWhiteSpace(form.DisplayName) ? profile.Name : form.DisplayName.Trim();
+        profile.Email = form.Email?.Trim() ?? string.Empty;
+        profile.ProfilePicture = await profilePictureField?.CommitAsync()!;
+        profile.Role = form.Role;
+        profile.IsHidden = form.IsHidden;
+        profile.UpdatedAt = DateTimeOffset.UtcNow;
+
+        await DbContext.SaveChangesAsync();
+
+        if (profile.ID == UserSession.CurrentUserID)
+        {
+            await UserSession.RefreshCurrentUserAsync();
+        }
+
+        CancelEdit();
+        await LoadUsers();
+        isSaving = false;
+    }
+
+    private async Task ToggleHidden(UserProfile profile)
+    {
+        UserProfile? user = await DbContext.UserProfiles.FirstOrDefaultAsync(user => user.ID == profile.ID);
+
+        if (user is null)
+        {
+            return;
+        }
+
+        user.IsHidden = !user.IsHidden;
+        user.UpdatedAt = DateTimeOffset.UtcNow;
+        await DbContext.SaveChangesAsync();
+        await LoadUsers();
+    }
+
+    private async Task DeleteUser(UserProfile profile)
+    {
+        if (IsCurrentUser(profile))
+        {
+            return;
+        }
+
+        UserProfile? user = await DbContext.UserProfiles.FirstOrDefaultAsync(user => user.ID == profile.ID);
+
+        if (user is null)
+        {
+            return;
+        }
+
+        DbContext.UserProfiles.Remove(user);
+        await DbContext.SaveChangesAsync();
+
+        if (UserSession.AutoSignInProfileID == profile.ID)
+        {
+            UserSession.ClearAutoSignIn();
+        }
+
+        await LoadUsers();
+    }
+
+    private bool IsCurrentUser(UserProfile profile)
+    {
+        return profile.ID == UserSession.CurrentUserID;
+    }
+
+    private sealed class ProfileForm
+    {
+        public string Name { get; set; } = string.Empty;
+
+        public string DisplayName { get; set; } = string.Empty;
+
+        public string? Email { get; set; }
+
+        public ImageRef? ProfilePicture { get; set; }
+
+        public UserRole Role { get; set; } = UserRole.User;
+
+        public bool IsHidden { get; set; }
+
+        public void Reset()
+        {
+            Name = string.Empty;
+            DisplayName = string.Empty;
+            Email = string.Empty;
+            ProfilePicture = null;
+            Role = UserRole.User;
+            IsHidden = false;
+        }
+    }
+
+    private static ImageRef? CopyImageRef(ImageRef? image)
+    {
+        return string.IsNullOrWhiteSpace(image?.Path)
+                   ? null
+                   : new ImageRef
+                     {
+                         Path = image.Path.Trim()
+                     };
+    }
+}

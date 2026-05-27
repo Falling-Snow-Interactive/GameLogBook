@@ -190,20 +190,78 @@
 }
 
 .navbar-footer {
+    position: relative;
     display: flex;
     flex: 0 0 auto;
     padding: 0.75rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.navbar-profile-wrap {
+    position: relative;
+    width: 100%;
+}
+
 .navbar-profile {
     width: 100%;
     min-height: 2.75rem;
+    border: none;
     padding: 0.7rem 0.85rem;
     background: rgba(0, 0, 0, 0.16);
     color: rgba(255, 255, 255, 0.78);
     font-size: 0.9rem;
     font-weight: 700;
+    cursor: pointer;
+    text-align: left;
+}
+
+.navbar-profile:hover,
+.navbar-profile:focus-visible {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    outline: none;
+}
+
+.navbar-profile-caret {
+    margin-left: auto;
+}
+
+.navbar-profile-menu {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 0.5rem);
+    left: 0;
+    z-index: 20;
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.4rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: var(--radius-md);
+    background: #242936;
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.28);
+}
+
+.navbar-profile-menu button {
+    width: 100%;
+    min-height: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0.55rem 0.65rem;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.87rem;
+    font-weight: 700;
+    text-align: left;
+}
+
+.navbar-profile-menu button:hover,
+.navbar-profile-menu button:focus-visible {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    outline: none;
 }
 
 .navbar-toggle-input:not(:checked) ~ .navbar-body,

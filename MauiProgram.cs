@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using VGL.Data;
 using VGL.Models.Configuration;
 using VGL.Services;
+using VGL.Services.UserProfiles;
 
 namespace VGL;
 
@@ -33,6 +34,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<IGDBClientProvider>();
         builder.Services.AddSingleton<LocalImageService>();
         builder.Services.AddScoped<PopupService>();
+        builder.Services.AddScoped<UserProfileSession>();
 
         string databasePath = DatabasePathResolver.GetRuntimeDatabasePath();
 

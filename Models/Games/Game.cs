@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using VGL.Models.Games.Company;
 using VGL.Models.Games.Platforms;
 using VGL.Models.Libraries.Entries;
@@ -28,10 +29,12 @@ public class Game : ILibraryEntry
     public ImageRef? Icon { get; set; }
     
     // User Set Information
+    [NotMapped]
     public int Rating { get; set; }
 
     // Relations
     public List<GameCompany> GameCompanies { get; set; }
+    [NotMapped]
     public List<GamePlatformRelation> GamePlatforms { get; set; }
     
     // Online APIs

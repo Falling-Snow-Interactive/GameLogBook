@@ -1,6 +1,15 @@
 @page "/books"
+@inject UserProfileSession UserSession
+@inject NavigationManager Navigation
+
 <h3>Books</h3>
 
 @code {
-    
+    protected override async Task OnInitializedAsync()
+    {
+        if (!UserSession.IsSignedIn && !await UserSession.TryAutoSignInAsync())
+        {
+            Navigation.NavigateTo("/profiles");
+        }
+    }
 }

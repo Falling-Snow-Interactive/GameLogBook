@@ -1,9 +1,14 @@
 ﻿@inherits LayoutComponentBase
+@implements IDisposable
+@inject UserProfileSession UserSession
 
 <div class="page">
-    <div class="sidebar">
-        <NavMenu/>
-    </div>
+    @if (UserSession.IsSignedIn)
+    {
+        <div class="sidebar">
+            <NavMenu/>
+        </div>
+    }
 
     <main>
         <article class="content px-4">
@@ -19,3 +24,20 @@
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        UserSession.Changed += HandleUserSessionChanged;
+    }
+
+    private void HandleUserSessionChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        UserSession.Changed -= HandleUserSessionChanged;
+    }
+}

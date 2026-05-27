@@ -8,11 +8,11 @@ using VGL.Data;
 
 #nullable disable
 
-namespace VGL.Migrations
+namespace GameLogBook.Migrations
 {
     [DbContext(typeof(GameLogBookDbContext))]
-    [Migration("20260526202012_AddPlatformCompanyRelationships")]
-    partial class AddPlatformCompanyRelationships
+    [Migration("20260527172418_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -88,9 +88,6 @@ namespace VGL.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Rating")
-                        .HasColumnType("INTEGER");
-
                     b.Property<DateOnly?>("ReleaseDate")
                         .HasColumnType("TEXT");
 
@@ -100,24 +97,6 @@ namespace VGL.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("Games");
-                });
-
-            modelBuilder.Entity("VGL.Models.Games.Platforms.GamePlatformRelation", b =>
-                {
-                    b.Property<int>("GameID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("PlatformID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Ownership")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("GameID", "PlatformID", "Ownership");
-
-                    b.HasIndex("PlatformID");
-
-                    b.ToTable("GamePlatform", (string)null);
                 });
 
             modelBuilder.Entity("VGL.Models.Platforms.Company.PlatformCompany", b =>
@@ -183,9 +162,111 @@ namespace VGL.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("UserProfileID")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("ID");
 
+                    b.HasIndex("UserProfileID");
+
                     b.ToTable("Playthroughs");
+                });
+
+            modelBuilder.Entity("VGL.Models.Users.UserGameCollection", b =>
+                {
+                    b.Property<int>("UserProfileID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("GameID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("AddedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("UserProfileID", "GameID");
+
+                    b.HasIndex("GameID");
+
+                    b.ToTable("UserGameCollections");
+                });
+
+            modelBuilder.Entity("VGL.Models.Users.UserGamePlatformOwnership", b =>
+                {
+                    b.Property<int>("UserProfileID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("GameID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PlatformID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Ownership")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("UserProfileID", "GameID", "PlatformID", "Ownership");
+
+                    b.HasIndex("GameID");
+
+                    b.HasIndex("PlatformID");
+
+                    b.ToTable("UserGamePlatformOwnerships");
+                });
+
+            modelBuilder.Entity("VGL.Models.Users.UserPlatformCollection", b =>
+                {
+                    b.Property<int>("UserProfileID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PlatformID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("AddedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserProfileID", "PlatformID");
+
+                    b.HasIndex("PlatformID");
+
+                    b.ToTable("UserPlatformCollections");
+                });
+
+            modelBuilder.Entity("VGL.Models.Users.UserProfile", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("UserProfiles");
                 });
 
             modelBuilder.Entity("VGL.Models.Companies.Company", b =>
@@ -357,25 +438,6 @@ namespace VGL.Migrations
                     b.Navigation("Logo");
                 });
 
-            modelBuilder.Entity("VGL.Models.Games.Platforms.GamePlatformRelation", b =>
-                {
-                    b.HasOne("VGL.Models.Games.Game", "Game")
-                        .WithMany("GamePlatforms")
-                        .HasForeignKey("GameID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("VGL.Models.Platforms.Platform", "Platform")
-                        .WithMany()
-                        .HasForeignKey("PlatformID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Game");
-
-                    b.Navigation("Platform");
-                });
-
             modelBuilder.Entity("VGL.Models.Platforms.Company.PlatformCompany", b =>
                 {
                     b.HasOne("VGL.Models.Companies.Company", "Company")
@@ -470,6 +532,103 @@ namespace VGL.Migrations
                     b.Navigation("Logo");
                 });
 
+            modelBuilder.Entity("VGL.Models.Playthrough", b =>
+                {
+                    b.HasOne("VGL.Models.Users.UserProfile", "UserProfile")
+                        .WithMany()
+                        .HasForeignKey("UserProfileID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserProfile");
+                });
+
+            modelBuilder.Entity("VGL.Models.Users.UserGameCollection", b =>
+                {
+                    b.HasOne("VGL.Models.Games.Game", "Game")
+                        .WithMany()
+                        .HasForeignKey("GameID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VGL.Models.Users.UserProfile", "UserProfile")
+                        .WithMany("Games")
+                        .HasForeignKey("UserProfileID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Game");
+
+                    b.Navigation("UserProfile");
+                });
+
+            modelBuilder.Entity("VGL.Models.Users.UserGamePlatformOwnership", b =>
+                {
+                    b.HasOne("VGL.Models.Games.Game", "Game")
+                        .WithMany()
+                        .HasForeignKey("GameID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VGL.Models.Platforms.Platform", "Platform")
+                        .WithMany()
+                        .HasForeignKey("PlatformID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VGL.Models.Users.UserProfile", "UserProfile")
+                        .WithMany("GamePlatformOwnerships")
+                        .HasForeignKey("UserProfileID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Game");
+
+                    b.Navigation("Platform");
+
+                    b.Navigation("UserProfile");
+                });
+
+            modelBuilder.Entity("VGL.Models.Users.UserPlatformCollection", b =>
+                {
+                    b.HasOne("VGL.Models.Platforms.Platform", "Platform")
+                        .WithMany()
+                        .HasForeignKey("PlatformID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VGL.Models.Users.UserProfile", "UserProfile")
+                        .WithMany("Platforms")
+                        .HasForeignKey("UserProfileID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Platform");
+
+                    b.Navigation("UserProfile");
+                });
+
+            modelBuilder.Entity("VGL.Models.Users.UserProfile", b =>
+                {
+                    b.OwnsOne("VGL.Models.ImageRef", "ProfilePicture", b1 =>
+                        {
+                            b1.Property<int>("UserProfileID")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<string>("Path")
+                                .HasColumnType("TEXT");
+
+                            b1.HasKey("UserProfileID");
+
+                            b1.ToTable("UserProfiles");
+
+                            b1.WithOwner()
+                                .HasForeignKey("UserProfileID");
+                        });
+
+                    b.Navigation("ProfilePicture");
+                });
+
             modelBuilder.Entity("VGL.Models.Companies.Company", b =>
                 {
                     b.Navigation("PlatformCompanies");
@@ -478,13 +637,20 @@ namespace VGL.Migrations
             modelBuilder.Entity("VGL.Models.Games.Game", b =>
                 {
                     b.Navigation("GameCompanies");
-
-                    b.Navigation("GamePlatforms");
                 });
 
             modelBuilder.Entity("VGL.Models.Platforms.Platform", b =>
                 {
                     b.Navigation("PlatformCompanies");
+                });
+
+            modelBuilder.Entity("VGL.Models.Users.UserProfile", b =>
+                {
+                    b.Navigation("GamePlatformOwnerships");
+
+                    b.Navigation("Games");
+
+                    b.Navigation("Platforms");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,0 +1,160 @@
+@page "/profile"
+@using Microsoft.EntityFrameworkCore
+@using VGL.Data
+@inject GameLogBookDbContext DbContext
+@inject UserProfileSession UserSession
+@inject NavigationManager Navigation
+
+<PageTitle>Profile</PageTitle>
+
+<div class="profile-page">
+    <div class="profile-header">
+        <div>
+            <h3>Profile</h3>
+            <p>View and edit your profile information.</p>
+        </div>
+    </div>
+
+    @if (!isLoaded)
+    {
+        <div class="collection-empty-state">
+            <h4>Loading profile</h4>
+            <p>Getting your profile details.</p>
+        </div>
+    }
+    else
+    {
+        <EditForm Model="form" OnValidSubmit="SaveProfile">
+            <DataAnnotationsValidator />
+
+            <div class="profile-form">
+                <EntryField Label="Name">
+                    <InputText class="game-detail-input" @bind-Value="form.Name" />
+                </EntryField>
+
+                <EntryField Label="Display Name">
+                    <InputText class="game-detail-input" @bind-Value="form.DisplayName" />
+                </EntryField>
+
+                <EntryField Label="Email">
+                    <InputText class="game-detail-input" type="email" @bind-Value="form.Email" />
+                </EntryField>
+
+                <ImageFieldWidget @ref="profilePictureField"
+                                  class="form-span-all"
+                                  Label="Profile Picture"
+                                  FieldName="profile-picture"
+                                  Category="profiles"
+                                  ImageRef="form.ProfilePicture"
+                                  AspectRatio="1"
+                                  AltText="Profile picture preview" />
+
+                @if (!string.IsNullOrWhiteSpace(statusMessage))
+                {
+                    <p class="form-hint">@statusMessage</p>
+                }
+
+                <div class="profile-actions">
+                    <button class="save-button" type="submit" disabled="@isSaving">
+                        @(isSaving ? "Saving..." : "Save Changes")
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private readonly ProfileForm form = new();
+    private ImageFieldWidget? profilePictureField;
+    private bool isLoaded;
+    private bool isSaving;
+    private string? statusMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!UserSession.IsSignedIn && !await UserSession.TryAutoSignInAsync())
+        {
+            Navigation.NavigateTo("/profiles");
+            return;
+        }
+
+        await LoadProfile();
+    }
+
+    private async Task LoadProfile()
+    {
+        UserProfile? profile = await DbContext.UserProfiles
+                                              .AsNoTracking()
+                                              .FirstOrDefaultAsync(user => user.ID == UserSession.CurrentUserID);
+
+        if (profile is null)
+        {
+            UserSession.SignOut();
+            Navigation.NavigateTo("/profiles");
+            return;
+        }
+
+        form.Name = profile.Name;
+        form.DisplayName = profile.DisplayName;
+        form.Email = profile.Email;
+        form.ProfilePicture = CopyImageRef(profile.ProfilePicture);
+        isLoaded = true;
+    }
+
+    private async Task SaveProfile()
+    {
+        statusMessage = null;
+
+        if (string.IsNullOrWhiteSpace(form.Name))
+        {
+            statusMessage = "Name is required.";
+            return;
+        }
+
+        isSaving = true;
+
+        UserProfile? profile = await DbContext.UserProfiles
+                                              .FirstOrDefaultAsync(user => user.ID == UserSession.CurrentUserID);
+
+        if (profile is null)
+        {
+            UserSession.SignOut();
+            Navigation.NavigateTo("/profiles");
+            return;
+        }
+
+        profile.Name = form.Name.Trim();
+        profile.DisplayName = string.IsNullOrWhiteSpace(form.DisplayName) ? profile.Name : form.DisplayName.Trim();
+        profile.Email = form.Email?.Trim() ?? string.Empty;
+        profile.ProfilePicture = await profilePictureField?.CommitAsync()!;
+        profile.UpdatedAt = DateTimeOffset.UtcNow;
+
+        await DbContext.SaveChangesAsync();
+        await UserSession.RefreshCurrentUserAsync();
+
+        statusMessage = "Profile saved.";
+        isSaving = false;
+    }
+
+    private sealed class ProfileForm
+    {
+        public string Name { get; set; } = string.Empty;
+
+        public string DisplayName { get; set; } = string.Empty;
+
+        public string? Email { get; set; }
+
+        public ImageRef? ProfilePicture { get; set; }
+    }
+
+    private static ImageRef? CopyImageRef(ImageRef? image)
+    {
+        return string.IsNullOrWhiteSpace(image?.Path)
+                   ? null
+                   : new ImageRef
+                     {
+                         Path = image.Path.Trim()
+                     };
+    }
+}

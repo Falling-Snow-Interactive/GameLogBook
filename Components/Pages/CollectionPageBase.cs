@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using VGL.Data;
+using VGL.Services.UserProfiles;
 
 namespace VGL.Components.Pages;
 
@@ -10,7 +11,13 @@ public abstract class CollectionPageBase<TEntity> : ComponentBase
     [Inject]
     protected GameLogBookDbContext DbContext { get; set; } = null!;
 
-    protected List<TEntity> Items { get; private set; } = [];
+    [Inject]
+    protected UserProfileSession UserSession { get; set; } = null!;
+
+    [Inject]
+    protected NavigationManager Navigation { get; set; } = null!;
+
+    protected List<TEntity> Items { get; set; } = [];
 
     protected abstract DbSet<TEntity> EntitySet { get; }
 
@@ -23,14 +30,30 @@ public abstract class CollectionPageBase<TEntity> : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
+        if (!await EnsureSignedInAsync())
+        {
+            return;
+        }
+
         await LoadItemsAsync();
     }
 
-    protected async Task LoadItemsAsync()
+    protected virtual async Task LoadItemsAsync()
     {
         Items = (await BuildQuery().ToListAsync())
                 .OrderBy(GetSortKey, StringComparer.OrdinalIgnoreCase)
                 .ToList();
+    }
+
+    protected async Task<bool> EnsureSignedInAsync()
+    {
+        if (UserSession.IsSignedIn || await UserSession.TryAutoSignInAsync())
+        {
+            return true;
+        }
+
+        Navigation.NavigateTo("/profiles");
+        return false;
     }
 
     protected virtual Task OpenAddPopup()

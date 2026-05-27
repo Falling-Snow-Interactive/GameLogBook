@@ -1,7 +1,29 @@
 ﻿@page "/home"
+@inject UserProfileSession UserSession
+@inject NavigationManager Navigation
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="collection-page">
+    <div class="collection-header">
+        <div>
+            <h3>Home</h3>
+            <p>Welcome back, @(UserSession.CurrentUser?.DisplayName ?? UserSession.CurrentUser?.Name ?? "player").</p>
+        </div>
+    </div>
 
-Welcome to your new app.
+    <div class="collection-empty-state">
+        <h4>Your logbook is ready</h4>
+        <p>Pick a library from the sidebar to keep building your collection.</p>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        if (!UserSession.IsSignedIn && !await UserSession.TryAutoSignInAsync())
+        {
+            Navigation.NavigateTo("/profiles");
+        }
+    }
+}

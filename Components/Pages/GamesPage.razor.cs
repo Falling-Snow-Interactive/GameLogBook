@@ -1,14 +1,17 @@
 using System.Diagnostics.CodeAnalysis;
-using VGL.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using VGL.Components.Elements.GameElements;
 using VGL.Components.Popups;
+using VGL.Models;
 using VGL.Models.Games;
 using VGL.Models.Games.Company;
+using VGL.Models.Games.Platforms;
+using VGL.Models.Users;
 using VGL.Services;
 using Company = VGL.Models.Companies.Company;
 using GameView = VGL.Components.Elements.GameElements.GameView;
+using PlatformModel = VGL.Models.Platforms.Platform;
 
 namespace VGL.Components.Pages;
 
@@ -16,6 +19,7 @@ namespace VGL.Components.Pages;
 public partial class GamesPage : CollectionPageBase<Game>
 {
     private List<Company> companies = [];
+    private List<PlatformModel> platforms = [];
 
     [Inject]
     private PopupService PopupService { get; set; } = null!;
@@ -37,13 +41,74 @@ public partial class GamesPage : CollectionPageBase<Game>
     {
         await base.OnInitializedAsync();
         await LoadCompaniesAsync();
+        await LoadPlatformsAsync();
+    }
+
+    protected override async Task LoadItemsAsync()
+    {
+        if (UserSession.CurrentUserID is null)
+        {
+            Items = [];
+            return;
+        }
+
+        int userProfileId = UserSession.CurrentUserID.Value;
+        List<UserGameCollection> userGames = await DbContext.UserGameCollections
+                                                            .AsNoTracking()
+                                                            .Where(userGame => userGame.UserProfileID == userProfileId)
+                                                            .Include(userGame => userGame.Game)
+                                                            .ThenInclude(game => game.GameCompanies)
+                                                            .ThenInclude(gameCompany => gameCompany.Company)
+                                                            .ToListAsync();
+
+        List<UserGamePlatformOwnership> ownerships = await DbContext.UserGamePlatformOwnerships
+                                                                    .AsNoTracking()
+                                                                    .Where(ownership => ownership.UserProfileID == userProfileId)
+                                                                    .ToListAsync();
+
+        Items = userGames
+                .Select(userGame =>
+                        {
+                            userGame.Game.Rating = userGame.Rating;
+                            userGame.Game.GamePlatforms = ownerships
+                                                          .Where(ownership => ownership.GameID == userGame.GameID)
+                                                          .Select(ownership => new GamePlatformRelation
+                                                                               {
+                                                                                   GameID = ownership.GameID,
+                                                                                   PlatformID = ownership.PlatformID,
+                                                                                   Ownership = ownership.Ownership
+                                                                               })
+                                                          .ToList();
+
+                            return userGame.Game;
+                        })
+                .OrderBy(GetSortKey, StringComparer.OrdinalIgnoreCase)
+                .ToList();
     }
 
     private async Task AddGame(Game game)
     {
-        game.GameCompanies = NormalizeCompanyIds(game.GameCompanies);
+        if (UserSession.CurrentUserID is null)
+        {
+            return;
+        }
 
-        await AddItemAsync(game);
+        game.GameCompanies = NormalizeCompanyIds(game.GameCompanies);
+        List<GamePlatformRelation> ownerships = NormalizePlatformOwnerships(game.GamePlatforms);
+
+        DbContext.Games.Add(game);
+        await DbContext.SaveChangesAsync();
+
+        int userProfileId = UserSession.CurrentUserID.Value;
+        DbContext.UserGameCollections.Add(new UserGameCollection
+                                          {
+                                              UserProfileID = userProfileId,
+                                              GameID = game.ID,
+                                              Rating = Math.Clamp(game.Rating, 0, Game.MaxRating)
+                                          });
+        AddOwnerships(userProfileId, game.ID, ownerships);
+
+        await DbContext.SaveChangesAsync();
         await LoadItemsAsync();
     }
 
@@ -96,41 +161,43 @@ public partial class GamesPage : CollectionPageBase<Game>
         existingGame.IGDB = updatedGame.IGDB;
         existingGame.Name = updatedGame.Name.Trim();
         existingGame.GameType = updatedGame.GameType;
-        existingGame.Rating = Math.Clamp(updatedGame.Rating, 0, Game.MaxRating);
         existingGame.ReleaseDate = updatedGame.ReleaseDate;
         existingGame.Summary = string.IsNullOrWhiteSpace(updatedGame.Summary) ? null : updatedGame.Summary.Trim();
-        existingGame.Cover = string.IsNullOrWhiteSpace(updatedGame.Cover?.Path)
-                                 ? null
-                                 : new ImageRef
-                                   {
-                                       Path = updatedGame.Cover.Path.Trim()
-                                   };
-        existingGame.Hero = string.IsNullOrWhiteSpace(updatedGame.Hero?.Path)
-                                ? null
-                                : new ImageRef
-                                  {
-                                      Path = updatedGame.Hero.Path.Trim()
-                                  };
-        existingGame.Logo = string.IsNullOrWhiteSpace(updatedGame.Logo?.Path)
-                                ? null
-                                : new ImageRef
-                                  {
-                                      Path = updatedGame.Logo.Path.Trim()
-                                  };
-        existingGame.Icon = string.IsNullOrWhiteSpace(updatedGame.Icon?.Path)
-                                ? null
-                                : new ImageRef
-                                  {
-                                      Path = updatedGame.Icon.Path.Trim()
-                                  };
+        existingGame.Cover = CopyImageRef(updatedGame.Cover);
+        existingGame.Hero = CopyImageRef(updatedGame.Hero);
+        existingGame.Logo = CopyImageRef(updatedGame.Logo);
+        existingGame.Icon = CopyImageRef(updatedGame.Icon);
         existingGame.GameCompanies = NormalizeCompanyIds(updatedGame.GameCompanies);
 
+        await UpdateUserGameDetails(updatedGame);
         await UpdateItemAsync();
     }
 
     private async Task RemoveGame(Game game)
     {
-        await RemoveItemAsync(game);
+        if (UserSession.CurrentUserID is null)
+        {
+            return;
+        }
+
+        int userProfileId = UserSession.CurrentUserID.Value;
+        UserGameCollection? userGame = await DbContext.UserGameCollections
+                                                      .FirstOrDefaultAsync(item => item.UserProfileID == userProfileId
+                                                                                   && item.GameID == game.ID);
+
+        if (userGame is not null)
+        {
+            DbContext.UserGameCollections.Remove(userGame);
+        }
+
+        List<UserGamePlatformOwnership> ownerships = await DbContext.UserGamePlatformOwnerships
+                                                                    .Where(ownership => ownership.UserProfileID == userProfileId
+                                                                                        && ownership.GameID == game.ID)
+                                                                    .ToListAsync();
+        DbContext.UserGamePlatformOwnerships.RemoveRange(ownerships);
+
+        await DbContext.SaveChangesAsync();
+        await LoadItemsAsync();
     }
 
     private List<Company> GetRelatedCompanies(Game game)
@@ -150,14 +217,22 @@ public partial class GamesPage : CollectionPageBase<Game>
                                    .ToListAsync();
     }
 
+    private async Task LoadPlatformsAsync()
+    {
+        platforms = await DbContext.Platforms
+                                   .OrderBy(platform => platform.Name)
+                                   .ToListAsync();
+    }
+
     protected override async Task OpenAddPopup()
     {
         Game? game = await PopupService.ShowAsync<AddGamePopup, Game>(
-                                                                      new Dictionary<string, object?>
-                                                                      {
-                                                                          [nameof(AddGamePopup.Companies)] = companies,
-                                                                          [nameof(AddGamePopup.OnCompanyAdded)] = new Func<Company, Task<Company?>>(AddCompanyFromSearch)
-                                                                      });
+            new Dictionary<string, object?>
+            {
+                [nameof(AddGamePopup.Companies)] = companies,
+                [nameof(AddGamePopup.Platforms)] = platforms,
+                [nameof(AddGamePopup.OnCompanyAdded)] = new Func<Company, Task<Company?>>(AddCompanyFromSearch)
+            });
 
         if (game is not null)
         {
@@ -169,10 +244,10 @@ public partial class GamesPage : CollectionPageBase<Game>
     {
         Game selectedGame = new(game);
         bool? shouldEdit = await PopupService.ShowAsync<GameView, bool>(
-                                                                        new Dictionary<string, object?>
-                                                                        {
-                                                                            [nameof(GameView.Game)] = selectedGame
-                                                                        });
+            new Dictionary<string, object?>
+            {
+                [nameof(GameView.Game)] = selectedGame
+            });
 
         if (shouldEdit == true)
         {
@@ -192,6 +267,71 @@ public partial class GamesPage : CollectionPageBase<Game>
                .Select(group => group.First())
                .OrderBy(company => company.Role)
                .ThenBy(company => company.CompanyID)
+               .ToList();
+    }
+
+    private async Task UpdateUserGameDetails(Game updatedGame)
+    {
+        if (UserSession.CurrentUserID is null)
+        {
+            return;
+        }
+
+        int userProfileId = UserSession.CurrentUserID.Value;
+        UserGameCollection? userGame = await DbContext.UserGameCollections
+                                                      .FirstOrDefaultAsync(item => item.UserProfileID == userProfileId
+                                                                                   && item.GameID == updatedGame.ID);
+
+        if (userGame is null)
+        {
+            DbContext.UserGameCollections.Add(new UserGameCollection
+                                              {
+                                                  UserProfileID = userProfileId,
+                                                  GameID = updatedGame.ID,
+                                                  Rating = Math.Clamp(updatedGame.Rating, 0, Game.MaxRating)
+                                              });
+        }
+        else
+        {
+            userGame.Rating = Math.Clamp(updatedGame.Rating, 0, Game.MaxRating);
+        }
+
+        List<UserGamePlatformOwnership> existingOwnerships = await DbContext.UserGamePlatformOwnerships
+                                                                           .Where(ownership => ownership.UserProfileID == userProfileId
+                                                                                               && ownership.GameID == updatedGame.ID)
+                                                                           .ToListAsync();
+        DbContext.UserGamePlatformOwnerships.RemoveRange(existingOwnerships);
+
+        AddOwnerships(userProfileId, updatedGame.ID, NormalizePlatformOwnerships(updatedGame.GamePlatforms));
+    }
+
+    private void AddOwnerships(int userProfileId, int gameId, IEnumerable<GamePlatformRelation> ownerships)
+    {
+        foreach (GamePlatformRelation ownership in ownerships)
+        {
+            DbContext.UserGamePlatformOwnerships.Add(new UserGamePlatformOwnership
+                                                     {
+                                                         UserProfileID = userProfileId,
+                                                         GameID = gameId,
+                                                         PlatformID = ownership.PlatformID,
+                                                         Ownership = ownership.Ownership
+                                                     });
+        }
+    }
+
+    private static List<GamePlatformRelation> NormalizePlatformOwnerships(IEnumerable<GamePlatformRelation> ownerships)
+    {
+        return ownerships
+               .Where(ownership => ownership.PlatformID > 0
+                                   && ownership.Ownership != OwnershipType.None)
+               .GroupBy(ownership => new
+                                     {
+                                         ownership.PlatformID,
+                                         ownership.Ownership
+                                     })
+               .Select(group => group.First())
+               .OrderBy(ownership => ownership.PlatformID)
+               .ThenBy(ownership => ownership.Ownership)
                .ToList();
     }
 
@@ -233,12 +373,14 @@ public partial class GamesPage : CollectionPageBase<Game>
 
     private async Task OpenEditPopup(Game game)
     {
-        Game? updatedGame = await PopupService.ShowAsync<AddGamePopup, Game>(new Dictionary<string, object?>
-                                                                             {
-                                                                                 [nameof(AddGamePopup.InitialGame)] = game,
-                                                                                 [nameof(AddGamePopup.Companies)] = companies,
-                                                                                 [nameof(AddGamePopup.OnCompanyAdded)] = new Func<Company, Task<Company?>>(AddCompanyFromSearch)
-                                                                             });
+        Game? updatedGame = await PopupService.ShowAsync<AddGamePopup, Game>(
+            new Dictionary<string, object?>
+            {
+                [nameof(AddGamePopup.InitialGame)] = game,
+                [nameof(AddGamePopup.Companies)] = companies,
+                [nameof(AddGamePopup.Platforms)] = platforms,
+                [nameof(AddGamePopup.OnCompanyAdded)] = new Func<Company, Task<Company?>>(AddCompanyFromSearch)
+            });
 
         if (updatedGame is not null)
         {

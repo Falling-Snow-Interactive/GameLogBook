@@ -3,9 +3,11 @@ using VGL.Components.Elements.ImageField;
 using VGL.Models;
 using VGL.Models.Games;
 using VGL.Models.Games.Company;
+using VGL.Models.Games.Platforms;
 using VGL.Services;
 using Company = VGL.Models.Companies.Company;
 using Game = VGL.Models.Games.Game;
+using Platform = VGL.Models.Platforms.Platform;
 
 namespace VGL.Components.Popups;
 
@@ -21,6 +23,9 @@ public partial class AddGamePopup
     
     [Parameter]
     public IReadOnlyList<Company> Companies { get; set; } = [];
+
+    [Parameter]
+    public IReadOnlyList<Platform> Platforms { get; set; } = [];
     
     [Parameter]
     public EventCallback<Game> OnGameSelected { get; set; }
@@ -41,6 +46,7 @@ public partial class AddGamePopup
     private List<Company> availableCompanies = [];
     private List<int> selectedDeveloperIDs = [];
     private List<int> selectedPublisherIDs = [];
+    private List<GamePlatformRelation> selectedPlatformOwnerships = [];
     
     private string developerSearchText = string.Empty;
     private string publisherSearchText = string.Empty;
@@ -168,6 +174,7 @@ public partial class AddGamePopup
             
             game.AddCompaniesByID(GameCompanyRole.Developer, selectedDeveloperIDs);
             game.AddCompaniesByID(GameCompanyRole.Publisher, selectedPublisherIDs);
+            game.GamePlatforms = NormalizePlatformOwnerships(selectedPlatformOwnerships);
             
             if (Popup is not null)
             {
@@ -199,6 +206,7 @@ public partial class AddGamePopup
         // Companies
         selectedDeveloperIDs = game.GetDeveloperIDs().Order().Distinct().ToList();
         selectedPublisherIDs = game.GetPublisherIDs().Order().Distinct().ToList();
+        selectedPlatformOwnerships = NormalizePlatformOwnerships(game.GamePlatforms);
 
         // Images
         cover = game.Cover;
@@ -251,6 +259,7 @@ public partial class AddGamePopup
         // Developers
         selectedDeveloperIDs = [];
         selectedPublisherIDs = [];     
+        selectedPlatformOwnerships = [];
         
         // Search
         developerSearchText = string.Empty;
@@ -307,6 +316,22 @@ public partial class AddGamePopup
         availableCompanies = availableCompanies
                              .OrderBy(existingCompany => existingCompany.Name, StringComparer.OrdinalIgnoreCase)
                              .ToList();
+    }
+
+    private static List<GamePlatformRelation> NormalizePlatformOwnerships(IEnumerable<GamePlatformRelation> ownerships)
+    {
+        return ownerships
+               .Where(ownership => ownership.PlatformID > 0
+                                   && ownership.Ownership != OwnershipType.None)
+               .GroupBy(ownership => new
+                                     {
+                                         ownership.PlatformID,
+                                         ownership.Ownership
+                                     })
+               .Select(group => group.First())
+               .OrderBy(ownership => ownership.PlatformID)
+               .ThenBy(ownership => ownership.Ownership)
+               .ToList();
     }
     
     #endregion

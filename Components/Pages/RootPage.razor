@@ -4,8 +4,17 @@
 
 @code
 {
-    protected override void OnInitialized()
+    [Inject]
+    private UserProfileSession UserSession { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
     {
-        Navigation.NavigateTo("/platforms");
+        if (UserSession.IsSignedIn || await UserSession.TryAutoSignInAsync())
+        {
+            Navigation.NavigateTo("/home");
+            return;
+        }
+
+        Navigation.NavigateTo("/profiles");
     }
 }

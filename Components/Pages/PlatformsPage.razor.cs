@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
-using VGL.Components.Elements.PlatformElements;
 using VGL.Components.Popups;
 using VGL.Models;
 using VGL.Models.Companies;
 using VGL.Models.Games;
 using VGL.Models.Platforms.Company;
+using VGL.Models.Users;
 using VGL.Services;
 using PlatformModel = VGL.Models.Platforms.Platform;
 
@@ -15,13 +15,12 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
 {
     private List<Game> games = [];
     private List<Company> companies = [];
+    private Dictionary<int, List<string>> gameNamesByPlatformID = [];
 
     [Inject]
     private PopupService PopupService { get; set; } = null!;
 
     protected override DbSet<PlatformModel> EntitySet => DbContext.Platforms;
-    
-    private Dictionary<int, List<string>> gameNamesByPlatformID = [];
 
     protected override string GetSortKey(PlatformModel item)
     {
@@ -40,13 +39,48 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
 
         await LoadGamesAsync();
         await LoadCompaniesAsync();
+        await LoadGamePlatformSummaries();
+    }
+
+    protected override async Task LoadItemsAsync()
+    {
+        if (UserSession.CurrentUserID is null)
+        {
+            Items = [];
+            return;
+        }
+
+        int userProfileId = UserSession.CurrentUserID.Value;
+        Items = await DbContext.UserPlatformCollections
+                               .AsNoTracking()
+                               .Where(userPlatform => userPlatform.UserProfileID == userProfileId)
+                               .Include(userPlatform => userPlatform.Platform)
+                               .ThenInclude(platform => platform.PlatformCompanies)
+                               .ThenInclude(platformCompany => platformCompany.Company)
+                               .Select(userPlatform => userPlatform.Platform)
+                               .OrderBy(platform => platform.Name)
+                               .ToListAsync();
     }
 
     private async Task AddPlatform(PlatformModel platform)
     {
+        if (UserSession.CurrentUserID is null)
+        {
+            return;
+        }
+
         platform.PlatformCompanies = NormalizeCompanyIds(platform.PlatformCompanies);
 
-        await AddItemAsync(platform);
+        DbContext.Platforms.Add(platform);
+        await DbContext.SaveChangesAsync();
+
+        DbContext.UserPlatformCollections.Add(new UserPlatformCollection
+                                              {
+                                                  UserProfileID = UserSession.CurrentUserID.Value,
+                                                  PlatformID = platform.ID
+                                              });
+
+        await DbContext.SaveChangesAsync();
         await LoadItemsAsync();
     }
 
@@ -95,58 +129,58 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
         {
             return;
         }
-        
+
         existingPlatform.Name = updatedPlatform.Name.Trim();
         existingPlatform.ShortName = updatedPlatform.ShortName?.Trim();
         existingPlatform.ReleaseDate = updatedPlatform.ReleaseDate;
         existingPlatform.Summary = string.IsNullOrWhiteSpace(updatedPlatform.Summary) ? null : updatedPlatform.Summary.Trim();
-        
-        existingPlatform.Cover = string.IsNullOrWhiteSpace(updatedPlatform.Cover?.Path)
-                                     ? null
-                                     : new ImageRef
-                                       {
-                                           Path = updatedPlatform.Cover.Path.Trim()
-                                       };
-        existingPlatform.Hero = string.IsNullOrWhiteSpace(updatedPlatform.Hero?.Path)
-                                    ? null
-                                    : new ImageRef
-                                      {
-                                          Path = updatedPlatform.Hero.Path.Trim()
-                                      };
-        existingPlatform.Logo = string.IsNullOrWhiteSpace(updatedPlatform.Logo?.Path)
-                                    ? null
-                                    : new ImageRef
-                                      {
-                                          Path = updatedPlatform.Logo.Path.Trim()
-                                      };
-        existingPlatform.Icon = string.IsNullOrWhiteSpace(updatedPlatform.Icon?.Path)
-                                    ? null
-                                    : new ImageRef
-                                      {
-                                          Path = updatedPlatform.Icon.Path.Trim()
-                                      };
-        
+        existingPlatform.Cover = CopyImageRef(updatedPlatform.Cover);
+        existingPlatform.Hero = CopyImageRef(updatedPlatform.Hero);
+        existingPlatform.Logo = CopyImageRef(updatedPlatform.Logo);
+        existingPlatform.Icon = CopyImageRef(updatedPlatform.Icon);
         existingPlatform.AddCompaniesByID(PlatformCompanyRole.Developer, updatedPlatform.GetDeveloperIDs());
-        
-        // IGDB
         existingPlatform.IGDB = updatedPlatform.IGDB;
-        
+
         await UpdateItemAsync();
     }
 
     private async Task RemovePlatform(PlatformModel platform)
     {
-        await RemoveItemAsync(platform);
+        if (UserSession.CurrentUserID is null)
+        {
+            return;
+        }
+
+        int userProfileId = UserSession.CurrentUserID.Value;
+        UserPlatformCollection? userPlatform = await DbContext.UserPlatformCollections
+                                                              .FirstOrDefaultAsync(item => item.UserProfileID == userProfileId
+                                                                                           && item.PlatformID == platform.ID);
+
+        if (userPlatform is not null)
+        {
+            DbContext.UserPlatformCollections.Remove(userPlatform);
+        }
+
+        List<UserGamePlatformOwnership> ownerships = await DbContext.UserGamePlatformOwnerships
+                                                                    .Where(ownership => ownership.UserProfileID == userProfileId
+                                                                                        && ownership.PlatformID == platform.ID)
+                                                                    .ToListAsync();
+        DbContext.UserGamePlatformOwnerships.RemoveRange(ownerships);
+
+        await DbContext.SaveChangesAsync();
+        await LoadItemsAsync();
+        await LoadGamePlatformSummaries();
     }
 
     protected override async Task OpenAddPopup()
     {
-        PlatformModel? platform = await PopupService.ShowAsync<AddPlatformPopup, PlatformModel>(new Dictionary<string, object?>
-                                                                                                {
-                                                                                                    [nameof(AddPlatformPopup.Games)] = games,
-                                                                                                    [nameof(AddPlatformPopup.Companies)] = companies,
-                                                                                                    [nameof(AddPlatformPopup.OnCompanyAdded)] = new Func<Company, Task<Company?>>(AddCompanyFromSearch)
-                                                                                                });
+        PlatformModel? platform = await PopupService.ShowAsync<AddPlatformPopup, PlatformModel>(
+            new Dictionary<string, object?>
+            {
+                [nameof(AddPlatformPopup.Games)] = games,
+                [nameof(AddPlatformPopup.Companies)] = companies,
+                [nameof(AddPlatformPopup.OnCompanyAdded)] = new Func<Company, Task<Company?>>(AddCompanyFromSearch)
+            });
 
         if (platform is not null)
         {
@@ -156,16 +190,14 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
 
     private async Task OpenEditPopup(PlatformModel platform)
     {
-        PlatformModel? updatedPlatform = 
-            await PopupService
-                .ShowAsync<AddPlatformPopup, PlatformModel>(new Dictionary<string, object?>
-                                                            {
-                                                                [nameof(AddPlatformPopup.InitialPlatform)] 
-                                                                    = new PlatformModel(platform),
-                                                                [nameof(AddPlatformPopup.Games)] = games,
-                                                                [nameof(AddPlatformPopup.Companies)] = companies,
-                                                                [nameof(AddPlatformPopup.OnCompanyAdded)] = new Func<Company, Task<Company?>>(AddCompanyFromSearch)
-                                                            });
+        PlatformModel? updatedPlatform = await PopupService.ShowAsync<AddPlatformPopup, PlatformModel>(
+            new Dictionary<string, object?>
+            {
+                [nameof(AddPlatformPopup.InitialPlatform)] = new PlatformModel(platform),
+                [nameof(AddPlatformPopup.Games)] = games,
+                [nameof(AddPlatformPopup.Companies)] = companies,
+                [nameof(AddPlatformPopup.OnCompanyAdded)] = new Func<Company, Task<Company?>>(AddCompanyFromSearch)
+            });
 
         if (updatedPlatform is not null)
         {
@@ -187,28 +219,31 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
                .OrderBy(company => company.Name)
                .ToList();
     }
-    
+
     private bool PlatformHasLinkedGames(PlatformModel platform)
     {
         return gameNamesByPlatformID.ContainsKey(platform.ID);
     }
-    
+
     private async Task LoadGamePlatformSummaries()
     {
-        await LoadGamesAsync();
+        if (UserSession.CurrentUserID is null)
+        {
+            gameNamesByPlatformID = [];
+            return;
+        }
 
-        gameNamesByPlatformID = games
-                                .SelectMany(game => game.GamePlatforms
-                                                        .Select(gamePlatform => gamePlatform.PlatformID)
-                                                        .Distinct()
-                                                        .Select(platformId => new
-                                                                             {
-                                                                                 game.Name,
-                                                                                 PlatformId = platformId
-                                                                             }))
-                                .GroupBy(item => item.PlatformId)
+        int userProfileId = UserSession.CurrentUserID.Value;
+        List<UserGamePlatformOwnership> ownerships = await DbContext.UserGamePlatformOwnerships
+                                                                    .AsNoTracking()
+                                                                    .Where(ownership => ownership.UserProfileID == userProfileId)
+                                                                    .Include(ownership => ownership.Game)
+                                                                    .ToListAsync();
+
+        gameNamesByPlatformID = ownerships
+                                .GroupBy(ownership => ownership.PlatformID)
                                 .ToDictionary(group => group.Key,
-                                              group => group.Select(item => item.Name)
+                                              group => group.Select(ownership => ownership.Game.Name)
                                                             .Distinct(StringComparer.OrdinalIgnoreCase)
                                                             .OrderBy(name => name)
                                                             .ToList());
@@ -216,8 +251,18 @@ public partial class PlatformsPage : CollectionPageBase<PlatformModel>
 
     private async Task LoadGamesAsync()
     {
-        games = await DbContext.Games
-                               .Include(game => game.GamePlatforms)
+        if (UserSession.CurrentUserID is null)
+        {
+            games = [];
+            return;
+        }
+
+        int userProfileId = UserSession.CurrentUserID.Value;
+        games = await DbContext.UserGameCollections
+                               .AsNoTracking()
+                               .Where(userGame => userGame.UserProfileID == userProfileId)
+                               .Include(userGame => userGame.Game)
+                               .Select(userGame => userGame.Game)
                                .OrderBy(game => game.Name)
                                .ToListAsync();
     }

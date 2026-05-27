@@ -1,0 +1,117 @@
+@page "/profiles"
+@using Microsoft.EntityFrameworkCore
+@using VGL.Data
+@inject GameLogBookDbContext DbContext
+@inject UserProfileSession UserSession
+@inject NavigationManager Navigation
+
+<PageTitle>Select Profile</PageTitle>
+
+<div class="profile-page">
+    <div class="profile-header">
+        <div>
+            <h3>Select Profile</h3>
+            <p>Choose who is using this logbook.</p>
+        </div>
+
+        <button class="collection-add-button" type="button" @onclick="CreateProfile">
+            Create Profile
+        </button>
+    </div>
+
+    @if (profiles.Count > 0)
+    {
+        <label class="profile-toggle">
+            <input type="checkbox"
+                   checked="@signInAutomatically"
+                   @onchange="HandleAutoSignInChanged" />
+            <span>Sign in automatically</span>
+        </label>
+
+        <div class="profile-grid">
+            @foreach (UserProfile profile in profiles)
+            {
+                <button class="profile-card"
+                        type="button"
+                        @onclick="() => SelectProfile(profile)">
+                    <span class="profile-avatar">
+                        @if (!string.IsNullOrWhiteSpace(profile.ProfilePicture?.Path))
+                        {
+                            <LocalImage ImagePath="@profile.ProfilePicture.Path"
+                                        ImageClass="profile-avatar-image"
+                                        AltText="@($"{profile.DisplayName} profile picture")"
+                                        MaxWidth="96"
+                                        MaxHeight="96" />
+                        }
+                        else
+                        {
+                            <span>@GetInitials(profile)</span>
+                        }
+                    </span>
+
+                    <span class="profile-card-copy">
+                        <strong>@profile.DisplayName</strong>
+                        <span>@profile.Name</span>
+                    </span>
+                </button>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="collection-empty-state">
+            <h4>No profiles yet</h4>
+            <p>Create the first profile to start. The first profile will be an admin.</p>
+        </div>
+    }
+</div>
+
+@code {
+    private List<UserProfile> profiles = [];
+    private bool signInAutomatically;
+
+    protected override async Task OnInitializedAsync()
+    {
+        profiles = await DbContext.UserProfiles
+                                  .AsNoTracking()
+                                  .Where(profile => !profile.IsHidden)
+                                  .OrderBy(profile => profile.DisplayName)
+                                  .ToListAsync();
+
+        signInAutomatically = UserSession.AutoSignInProfileID is not null;
+    }
+
+    private async Task SelectProfile(UserProfile profile)
+    {
+        await UserSession.SignInAsync(profile.ID, signInAutomatically);
+        Navigation.NavigateTo("/home");
+    }
+
+    private void HandleAutoSignInChanged(ChangeEventArgs args)
+    {
+        signInAutomatically = args.Value is true;
+
+        if (!signInAutomatically)
+        {
+            UserSession.ClearAutoSignIn();
+        }
+    }
+
+    private void CreateProfile()
+    {
+        Navigation.NavigateTo("/profiles/create");
+    }
+
+    private static string GetInitials(UserProfile profile)
+    {
+        string source = string.IsNullOrWhiteSpace(profile.DisplayName) ? profile.Name : profile.DisplayName;
+        string[] parts = source.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        if (parts.Length == 0)
+        {
+            return "?";
+        }
+
+        return string.Concat(parts.Take(2).Select(part => char.ToUpperInvariant(part[0])));
+    }
+}

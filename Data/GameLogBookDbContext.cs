@@ -5,6 +5,7 @@ using VGL.Models.Games;
 using VGL.Models.Games.Company;
 using VGL.Models.Games.Platforms;
 using VGL.Models.Platforms.Company;
+using VGL.Models.Users;
 using Platform = VGL.Models.Platforms.Platform;
 
 namespace VGL.Data;
@@ -17,6 +18,10 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
     public DbSet<Platform> Platforms => Set<Platform>();
     
     public DbSet<Playthrough> Playthroughs => Set<Playthrough>();
+    public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
+    public DbSet<UserGameCollection> UserGameCollections => Set<UserGameCollection>();
+    public DbSet<UserPlatformCollection> UserPlatformCollections => Set<UserPlatformCollection>();
+    public DbSet<UserGamePlatformOwnership> UserGamePlatformOwnerships => Set<UserGamePlatformOwnership>();
     
     // Relational DBs
     public DbSet<GameCompany> GameCompanies => Set<GameCompany>();
@@ -35,6 +40,8 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
         SetupGameDb(modelBuilder);
         SetupPlatformDb(modelBuilder);
         SetupCompanyDb(modelBuilder);
+        SetupUserDb(modelBuilder);
+        SetupPlaythroughDb(modelBuilder);
     }
 
     private void SetupGameDb(ModelBuilder modelBuilder)
@@ -61,10 +68,21 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
         modelBuilder.Entity<Company>().OwnsOne(company => company.Icon);
     }
 
+    private void SetupPlaythroughDb(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Playthrough>()
+                    .HasOne(playthrough => playthrough.UserProfile)
+                    .WithMany()
+                    .HasForeignKey(playthrough => playthrough.UserProfileID)
+                    .OnDelete(DeleteBehavior.Cascade);
+    }
+
     private void SetupRelationalDbs(ModelBuilder modelBuilder)
     {
         SetupGameCompanyRelationalDb(modelBuilder);
-        SetupGamePlatformRelationalDb(modelBuilder);
+        SetupUserGameCollectionDb(modelBuilder);
+        SetupUserPlatformCollectionDb(modelBuilder);
+        SetupUserGamePlatformOwnershipDb(modelBuilder);
         SetupPlatformCompanyRelationalDb(modelBuilder);
     }
 
@@ -96,33 +114,88 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
                     .HasFilter($"{nameof(Company.ID)} IS NOT NULL");
     }
     
-    private void SetupGamePlatformRelationalDb(ModelBuilder modelBuilder)
+    private void SetupUserDb(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<GamePlatformRelation>()
-                    .ToTable("GamePlatform")
-                    .HasKey(gpr => new
-                                   {
-                                       GameId = gpr.GameID,
-                                       Platform = gpr.PlatformID,
-                                       gpr.Ownership,
-                                   });
-
-        modelBuilder.Entity<GamePlatformRelation>()
-                    .HasOne(gpr => gpr.Game)
-                    .WithMany(game => game.GamePlatforms)
-                    .HasForeignKey(gamePlatform => gamePlatform.GameID)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<GamePlatformRelation>()
-                    .HasOne(gpr => gpr.Platform)
-                    .WithMany()
-                    .HasForeignKey(gamePlatform => gamePlatform.PlatformID)
-                    .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<UserProfile>().OwnsOne(profile => profile.ProfilePicture);
 
         modelBuilder.Entity<Platform>()
                     .HasIndex(platform => platform.ID)
                     .IsUnique()
                     .HasFilter($"{nameof(Platform.ID)} IS NOT NULL");
+    }
+
+    private void SetupUserGameCollectionDb(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<UserGameCollection>()
+                    .HasKey(userGame => new
+                                        {
+                                            userGame.UserProfileID,
+                                            userGame.GameID
+                                        });
+
+        modelBuilder.Entity<UserGameCollection>()
+                    .HasOne(userGame => userGame.UserProfile)
+                    .WithMany(user => user.Games)
+                    .HasForeignKey(userGame => userGame.UserProfileID)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserGameCollection>()
+                    .HasOne(userGame => userGame.Game)
+                    .WithMany()
+                    .HasForeignKey(userGame => userGame.GameID)
+                    .OnDelete(DeleteBehavior.Cascade);
+    }
+
+    private void SetupUserPlatformCollectionDb(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<UserPlatformCollection>()
+                    .HasKey(userPlatform => new
+                                            {
+                                                userPlatform.UserProfileID,
+                                                userPlatform.PlatformID
+                                            });
+
+        modelBuilder.Entity<UserPlatformCollection>()
+                    .HasOne(userPlatform => userPlatform.UserProfile)
+                    .WithMany(user => user.Platforms)
+                    .HasForeignKey(userPlatform => userPlatform.UserProfileID)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserPlatformCollection>()
+                    .HasOne(userPlatform => userPlatform.Platform)
+                    .WithMany()
+                    .HasForeignKey(userPlatform => userPlatform.PlatformID)
+                    .OnDelete(DeleteBehavior.Cascade);
+    }
+
+    private void SetupUserGamePlatformOwnershipDb(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<UserGamePlatformOwnership>()
+                    .HasKey(ownership => new
+                                         {
+                                             ownership.UserProfileID,
+                                             ownership.GameID,
+                                             ownership.PlatformID,
+                                             ownership.Ownership,
+                                         });
+
+        modelBuilder.Entity<UserGamePlatformOwnership>()
+                    .HasOne(ownership => ownership.UserProfile)
+                    .WithMany(user => user.GamePlatformOwnerships)
+                    .HasForeignKey(ownership => ownership.UserProfileID)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserGamePlatformOwnership>()
+                    .HasOne(ownership => ownership.Game)
+                    .WithMany()
+                    .HasForeignKey(ownership => ownership.GameID)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserGamePlatformOwnership>()
+                    .HasOne(ownership => ownership.Platform)
+                    .WithMany()
+                    .HasForeignKey(ownership => ownership.PlatformID)
+                    .OnDelete(DeleteBehavior.Cascade);
     }
 
     private void SetupPlatformCompanyRelationalDb(ModelBuilder modelBuilder)

@@ -1,0 +1,126 @@
+@page "/profiles/create"
+@using Microsoft.EntityFrameworkCore
+@using VGL.Data
+@inject GameLogBookDbContext DbContext
+@inject UserProfileSession UserSession
+@inject NavigationManager Navigation
+
+<PageTitle>Create Profile</PageTitle>
+
+<div class="profile-page">
+    <div class="profile-header">
+        <div>
+            <h3>Create Profile</h3>
+            <p>Add a user profile for this device.</p>
+        </div>
+    </div>
+
+    <EditForm Model="form" OnValidSubmit="SaveProfile">
+        <DataAnnotationsValidator />
+
+        <div class="profile-form">
+            <EntryField Label="Name">
+                <InputText class="game-detail-input" @bind-Value="form.Name" />
+            </EntryField>
+
+            <EntryField Label="Display Name">
+                <InputText class="game-detail-input" @bind-Value="form.DisplayName" />
+            </EntryField>
+
+            <EntryField Label="Email">
+                <InputText class="game-detail-input" type="email" @bind-Value="form.Email" />
+            </EntryField>
+
+            <ImageFieldWidget @ref="profilePictureField"
+                              class="form-span-all"
+                              Label="Profile Picture"
+                              FieldName="create-profile-picture"
+                              Category="profiles"
+                              ImageRef="form.ProfilePicture"
+                              AspectRatio="1"
+                              AltText="Profile picture preview" />
+
+            @if (!string.IsNullOrWhiteSpace(errorMessage))
+            {
+                <p class="form-hint">@errorMessage</p>
+            }
+
+            <div class="profile-actions">
+                <button class="save-button" type="submit" disabled="@isSaving">
+                    @(isSaving ? "Creating..." : "Create Profile")
+                </button>
+
+                <button class="settings-cancel-button" type="button" @onclick="Cancel">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private readonly ProfileForm form = new();
+    private ImageFieldWidget? profilePictureField;
+    private bool isSaving;
+    private string? errorMessage;
+
+    private async Task SaveProfile()
+    {
+        errorMessage = null;
+
+        if (string.IsNullOrWhiteSpace(form.Name))
+        {
+            errorMessage = "Name is required.";
+            return;
+        }
+
+        isSaving = true;
+
+        bool isFirstProfile = !await DbContext.UserProfiles.AnyAsync();
+        try
+        {
+            ImageRef? profilePicture = await profilePictureField?.CommitAsync()!;
+
+            UserProfile profile = new()
+                                  {
+                                      Name = form.Name.Trim(),
+                                      DisplayName = string.IsNullOrWhiteSpace(form.DisplayName) ? form.Name.Trim() : form.DisplayName.Trim(),
+                                      Email = form.Email?.Trim() ?? string.Empty,
+                                      ProfilePicture = profilePicture,
+                                      Role = isFirstProfile ? UserRole.Admin : UserRole.User,
+                                      CreatedAt = DateTimeOffset.UtcNow,
+                                      UpdatedAt = DateTimeOffset.UtcNow
+                                  };
+
+            DbContext.UserProfiles.Add(profile);
+            await DbContext.SaveChangesAsync();
+
+            await UserSession.SignInAsync(profile.ID, signInAutomatically: false);
+            Navigation.NavigateTo("/home");
+        }
+        catch (Exception exception)
+        {
+            errorMessage = exception.Message;
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/profiles");
+    }
+
+    private sealed class ProfileForm
+    {
+        public string Name { get; set; } = string.Empty;
+
+        public string DisplayName { get; set; } = string.Empty;
+
+        public string? Email { get; set; }
+
+        public ImageRef? ProfilePicture { get; set; }
+    }
+}
