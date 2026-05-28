@@ -1,0 +1,200 @@
+@page "/admin/settings"
+@using Microsoft.EntityFrameworkCore
+@using VGL.Data
+@using VGL.Models.Configuration
+@inject GameLogBookDbContext DbContext
+@inject UserProfileSession UserSession
+@inject NavigationManager Navigation
+
+<PageTitle>Admin Settings</PageTitle>
+
+<div class="admin-settings-page">
+    <div class="admin-settings-header">
+        <div>
+            <h3>Admin Settings</h3>
+            <p>Manage shared app integrations for every profile.</p>
+        </div>
+    </div>
+
+    <section class="admin-settings-card">
+        <div class="admin-settings-card-copy">
+            <span class="admin-settings-eyebrow">SteamGridDB</span>
+            <h4>Shared API key</h4>
+            <p>Used across the app for artwork search. The saved key is never displayed here.</p>
+        </div>
+
+        <div class="admin-settings-state">
+            <span class="@ConfiguredBadgeClass">@ConfiguredStatusLabel</span>
+        </div>
+
+        <EditForm Model="form" OnValidSubmit="SaveSteamGridDbKeyAsync">
+            <div class="admin-settings-form">
+                <EntryField Label="New API Key">
+                    <InputText class="game-detail-input"
+                               type="password"
+                               autocomplete="off"
+                               @bind-Value="form.SteamGridDbApiKey" />
+                </EntryField>
+
+                <div class="admin-settings-actions">
+                    <button class="save-button" type="submit" disabled="@isSaving">
+                        @(isSaving ? "Saving..." : "Save Key")
+                    </button>
+
+                    <button class="settings-cancel-button"
+                            type="button"
+                            disabled="@(!isConfigured || isSaving || isClearing)"
+                            @onclick="ClearSteamGridDbKeyAsync">
+                        @(isClearing ? "Clearing..." : "Clear Key")
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+
+        @if (!string.IsNullOrWhiteSpace(statusMessage))
+        {
+            <p class="@StatusMessageClass">@statusMessage</p>
+        }
+    </section>
+</div>
+
+@code {
+    private readonly AdminSettingsForm form = new();
+    private bool isConfigured;
+    private bool isSaving;
+    private bool isClearing;
+    private string? statusMessage;
+    private bool lastActionSucceeded;
+
+    private string ConfiguredStatusLabel => isConfigured
+        ? "API key configured"
+        : "API key not configured";
+
+    private string ConfiguredBadgeClass => isConfigured
+        ? "admin-settings-badge admin-settings-badge-success"
+        : "admin-settings-badge admin-settings-badge-muted";
+
+    private string StatusMessageClass => lastActionSucceeded
+        ? "admin-settings-status admin-settings-status-success"
+        : "admin-settings-status admin-settings-status-error";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!UserSession.IsSignedIn && !await UserSession.TryAutoSignInAsync())
+        {
+            Navigation.NavigateTo("/profiles");
+            return;
+        }
+
+        if (!UserSession.IsAdmin)
+        {
+            Navigation.NavigateTo("/home");
+            return;
+        }
+
+        await LoadConfiguredStateAsync();
+    }
+
+    private async Task LoadConfiguredStateAsync()
+    {
+        string? apiKey = await DbContext.AppSettings
+                                        .AsNoTracking()
+                                        .Where(settings => settings.ID == AppSettings.SingletonId)
+                                        .Select(settings => settings.SteamGridDbApiKey)
+                                        .FirstOrDefaultAsync();
+
+        isConfigured = !string.IsNullOrWhiteSpace(apiKey);
+    }
+
+    private async Task SaveSteamGridDbKeyAsync()
+    {
+        statusMessage = null;
+
+        if (string.IsNullOrWhiteSpace(form.SteamGridDbApiKey))
+        {
+            lastActionSucceeded = false;
+            statusMessage = "Enter a SteamGridDB API key to save.";
+            return;
+        }
+
+        isSaving = true;
+
+        try
+        {
+            AppSettings settings = await GetOrCreateSettingsAsync();
+            settings.SteamGridDbApiKey = form.SteamGridDbApiKey.Trim();
+            settings.UpdatedAt = DateTimeOffset.UtcNow;
+
+            await DbContext.SaveChangesAsync();
+
+            form.SteamGridDbApiKey = string.Empty;
+            isConfigured = true;
+            lastActionSucceeded = true;
+            statusMessage = "SteamGridDB API key saved.";
+        }
+        catch (Exception)
+        {
+            lastActionSucceeded = false;
+            statusMessage = "The SteamGridDB API key could not be saved. Please try again.";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task ClearSteamGridDbKeyAsync()
+    {
+        statusMessage = null;
+        isClearing = true;
+
+        try
+        {
+            AppSettings settings = await GetOrCreateSettingsAsync();
+            settings.SteamGridDbApiKey = string.Empty;
+            settings.UpdatedAt = DateTimeOffset.UtcNow;
+
+            await DbContext.SaveChangesAsync();
+
+            form.SteamGridDbApiKey = string.Empty;
+            isConfigured = false;
+            lastActionSucceeded = true;
+            statusMessage = "SteamGridDB API key cleared.";
+        }
+        catch (Exception)
+        {
+            lastActionSucceeded = false;
+            statusMessage = "The SteamGridDB API key could not be cleared. Please try again.";
+        }
+        finally
+        {
+            isClearing = false;
+        }
+    }
+
+    private async Task<AppSettings> GetOrCreateSettingsAsync()
+    {
+        AppSettings? settings = await DbContext.AppSettings
+                                               .FirstOrDefaultAsync(settings => settings.ID == AppSettings.SingletonId);
+
+        if (settings is not null)
+        {
+            return settings;
+        }
+
+        settings = new AppSettings
+                   {
+                       ID = AppSettings.SingletonId,
+                       CreatedAt = DateTimeOffset.UtcNow,
+                       UpdatedAt = DateTimeOffset.UtcNow
+                   };
+
+        DbContext.AppSettings.Add(settings);
+        return settings;
+    }
+
+    private sealed class AdminSettingsForm
+    {
+        public string SteamGridDbApiKey { get; set; } = string.Empty;
+    }
+}

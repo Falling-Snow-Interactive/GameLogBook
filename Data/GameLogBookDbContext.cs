@@ -4,6 +4,7 @@ using VGL.Models.Companies;
 using VGL.Models.Games;
 using VGL.Models.Games.Company;
 using VGL.Models.Games.Platforms;
+using VGL.Models.Configuration;
 using VGL.Models.Platforms.Company;
 using VGL.Models.Users;
 using Platform = VGL.Models.Platforms.Platform;
@@ -13,6 +14,8 @@ namespace VGL.Data;
 public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options) 
     : DbContext(options)
 {
+    public DbSet<AppSettings> AppSettings => Set<AppSettings>();
+
     public DbSet<Game> Games => Set<Game>();
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<Platform> Platforms => Set<Platform>();
@@ -37,11 +40,22 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
 
     private void SetupDatabases(ModelBuilder modelBuilder)
     {
+        SetupAppSettingsDb(modelBuilder);
         SetupGameDb(modelBuilder);
         SetupPlatformDb(modelBuilder);
         SetupCompanyDb(modelBuilder);
         SetupUserDb(modelBuilder);
         SetupPlaythroughDb(modelBuilder);
+    }
+
+    private static void SetupAppSettingsDb(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<AppSettings>()
+                    .HasKey(settings => settings.ID);
+
+        modelBuilder.Entity<AppSettings>()
+                    .Property(settings => settings.ID)
+                    .ValueGeneratedNever();
     }
 
     private void SetupGameDb(ModelBuilder modelBuilder)

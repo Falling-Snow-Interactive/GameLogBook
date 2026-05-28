@@ -7,7 +7,10 @@ public class SteamGridDbArtworkService(SteamGridDbClientProvider clientProvider)
 {
     private const int ResultLimit = 50;
 
-    public bool IsConfigured => clientProvider.IsConfigured;
+    public Task<bool> IsConfiguredAsync()
+    {
+        return clientProvider.IsConfiguredAsync();
+    }
 
     public async Task<IReadOnlyList<SteamGridDbGameSearchResult>> SearchGamesAsync(string searchTerm)
     {
@@ -19,7 +22,8 @@ public class SteamGridDbArtworkService(SteamGridDbClientProvider clientProvider)
         SteamGridDbGame[]? games;
         try
         {
-            games = await clientProvider.GetClient().SearchForGamesAsync(searchTerm.Trim());
+            SteamGridDb client = await clientProvider.GetClientAsync();
+            games = await client.SearchForGamesAsync(searchTerm.Trim());
         }
         catch (SteamGridDbNotFoundException)
         {
@@ -50,7 +54,7 @@ public class SteamGridDbArtworkService(SteamGridDbClientProvider clientProvider)
         SteamGridDbObject[] images;
         try
         {
-            SteamGridDb client = clientProvider.GetClient();
+            SteamGridDb client = await clientProvider.GetClientAsync();
             images = imageType switch
             {
                 SteamGridDbImageType.Cover => await client.GetGridsByGameIdAsync(

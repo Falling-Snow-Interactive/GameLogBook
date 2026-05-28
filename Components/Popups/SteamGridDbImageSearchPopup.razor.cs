@@ -15,6 +15,7 @@ public partial class SteamGridDbImageSearchPopup
     private bool isLoadingImages;
     private bool hasSearchedGames;
     private bool hasLoadedImages;
+    private bool isConfigured;
 
     private List<SteamGridDbGameSearchResult> gameResults = [];
     private List<SteamGridDbImageSearchResult> imageResults = [];
@@ -40,6 +41,7 @@ public partial class SteamGridDbImageSearchPopup
     protected override async Task OnInitializedAsync()
     {
         searchInput = InitialSearchTerm ?? string.Empty;
+        await RefreshConfigurationState();
 
         if (!string.IsNullOrWhiteSpace(searchInput))
         {
@@ -63,6 +65,8 @@ public partial class SteamGridDbImageSearchPopup
 
     private async Task SearchGames()
     {
+        await RefreshConfigurationState();
+
         errorMessage = null;
         gameResults = [];
         imageResults = [];
@@ -70,7 +74,7 @@ public partial class SteamGridDbImageSearchPopup
         hasSearchedGames = false;
         hasLoadedImages = false;
 
-        if (!SteamGridDbArtworkService.IsConfigured)
+        if (!isConfigured)
         {
             return;
         }
@@ -154,6 +158,11 @@ public partial class SteamGridDbImageSearchPopup
         {
             await Popup.CloseAsync();
         }
+    }
+
+    private async Task RefreshConfigurationState()
+    {
+        isConfigured = await SteamGridDbArtworkService.IsConfiguredAsync();
     }
 
     private static string GetGameLabel(SteamGridDbGameSearchResult game)

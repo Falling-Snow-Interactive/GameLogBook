@@ -1,0 +1,153 @@
+.admin-settings-page {
+    min-height: calc(100vh - 4rem);
+    min-width: 0;
+    padding-bottom: 2rem;
+}
+
+.admin-settings-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.admin-settings-header h3 {
+    margin: 0 0 0.25rem;
+    color: var(--color-text);
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.admin-settings-header p,
+.admin-settings-card-copy p {
+    margin: 0;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+}
+
+.admin-settings-card {
+    display: grid;
+    gap: 1.25rem;
+    max-width: 42rem;
+    padding: 1.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-sm);
+}
+
+.admin-settings-card-copy h4 {
+    margin: 0.2rem 0 0.5rem;
+    color: var(--color-text);
+    font-size: 1.35rem;
+    font-weight: 800;
+}
+
+.admin-settings-eyebrow {
+    display: inline-block;
+    color: var(--color-text-soft);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.admin-settings-state {
+    display: flex;
+}
+
+.admin-settings-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2rem;
+    border-radius: var(--radius-pill);
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 800;
+}
+
+.admin-settings-badge-success {
+    background: #ecfdf5;
+    color: #166534;
+}
+
+.admin-settings-badge-muted {
+    background: #f8fafc;
+    color: var(--color-text-muted);
+}
+
+.admin-settings-form {
+    display: grid;
+    gap: 1rem;
+}
+
+.admin-settings-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.settings-cancel-button {
+    min-height: 2.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    padding: 0.65rem 1rem;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: 0.9rem;
+    font-weight: 700;
+    transition:
+        transform var(--transition-fast),
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        opacity var(--transition-fast);
+}
+
+.settings-cancel-button:hover:not(:disabled) {
+    border-color: var(--color-text-muted);
+    background: rgba(15, 23, 42, 0.03);
+    transform: translateY(-1px);
+}
+
+.settings-cancel-button:disabled {
+    opacity: 0.55;
+}
+
+.admin-settings-status {
+    margin: 0;
+    padding: 0.9rem 1rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+}
+
+.admin-settings-status-success {
+    background: #ecfdf5;
+    color: #166534;
+}
+
+.admin-settings-status-error {
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+@media (max-width: 700px) {
+    .admin-settings-header h3 {
+        font-size: 1.65rem;
+    }
+
+    .admin-settings-card {
+        padding: 1.25rem;
+    }
+
+    .admin-settings-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-settings-actions > button {
+        width: 100%;
+    }
+}

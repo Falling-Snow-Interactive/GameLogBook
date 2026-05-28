@@ -109,7 +109,12 @@
                     {
                         <button type="button" @onclick="GoToAdmin">
                             <span class="bi bi-shield-lock" aria-hidden="true"></span>
-                            <span>Admin</span>
+                            <span>Admin Users</span>
+                        </button>
+
+                        <button type="button" @onclick="GoToAdminSettings">
+                            <span class="bi bi-sliders" aria-hidden="true"></span>
+                            <span>Admin Settings</span>
                         </button>
                     }
                 </div>
@@ -188,6 +193,11 @@
     private void GoToAdmin()
     {
         NavigateAndClose("/admin/users");
+    }
+
+    private void GoToAdminSettings()
+    {
+        NavigateAndClose("/admin/settings");
     }
 
     private void NavigateAndClose(string uri)

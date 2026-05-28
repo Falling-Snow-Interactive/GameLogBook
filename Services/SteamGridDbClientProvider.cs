@@ -1,24 +1,46 @@
 using craftersmine.SteamGridDBNet;
-using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
+using VGL.Data;
 using VGL.Models.Configuration;
 
 namespace VGL.Services;
 
-public class SteamGridDbClientProvider(IOptions<SteamGridDbSettings> options)
+public class SteamGridDbClientProvider(GameLogBookDbContext dbContext)
 {
-    private readonly SteamGridDbSettings settings = options.Value;
     private SteamGridDb? client;
+    private string? clientApiKey;
 
-    public bool IsConfigured => !string.IsNullOrWhiteSpace(settings.ApiKey);
-
-    public SteamGridDb GetClient()
+    public async Task<bool> IsConfiguredAsync()
     {
-        if (!IsConfigured)
+        string apiKey = await GetApiKeyAsync();
+        return !string.IsNullOrWhiteSpace(apiKey);
+    }
+
+    public async Task<SteamGridDb> GetClientAsync()
+    {
+        string apiKey = (await GetApiKeyAsync()).Trim();
+
+        if (string.IsNullOrWhiteSpace(apiKey))
         {
             throw new InvalidOperationException("SteamGridDB API key is not configured.");
         }
 
-        client ??= new SteamGridDb(settings.ApiKey.Trim());
+        if (client is null || !string.Equals(clientApiKey, apiKey, StringComparison.Ordinal))
+        {
+            client = new SteamGridDb(apiKey);
+            clientApiKey = apiKey;
+        }
+
         return client;
+    }
+
+    private async Task<string> GetApiKeyAsync()
+    {
+        return await dbContext.AppSettings
+                              .AsNoTracking()
+                              .Where(settings => settings.ID == AppSettings.SingletonId)
+                              .Select(settings => settings.SteamGridDbApiKey)
+                              .FirstOrDefaultAsync()
+               ?? string.Empty;
     }
 }
