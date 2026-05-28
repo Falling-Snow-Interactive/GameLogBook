@@ -33,7 +33,11 @@ public partial class CompanySearch : ComponentBase
     [Parameter]
     public Func<Company, Task<Company?>>? OnCompanyAdded { get; set; }
 
-    private IReadOnlyList<Company>? CompanyMatches => FilterCompanies(SearchText, selectedCompanyIDs);
+    private bool HasSearchText => !string.IsNullOrWhiteSpace(SearchText);
+    private bool ShouldShowDropdown => HasSearchText;
+    private IReadOnlyList<Company> CompanyMatches => HasSearchText
+                                                        ? FilterCompanies(SearchText, selectedCompanyIDs)
+                                                        : [];
     private IReadOnlyList<Company>? SelectedCompanies => GetSelectedCompanies(selectedCompanyIDs);
 
     protected override void OnParametersSet()
@@ -44,17 +48,17 @@ public partial class CompanySearch : ComponentBase
                              .ToList();
     }
 
-    private IReadOnlyList<Company>? FilterCompanies(string searchText, IReadOnlyCollection<int> selectedIds)
+    private IReadOnlyList<Company> FilterCompanies(string searchText, IReadOnlyCollection<int> selectedIds)
     {
         string trimmedSearchText = searchText.Trim();
 
         return Companies?
                .Where(company => !selectedIds.Contains(company.ID))
-               .Where(company => string.IsNullOrWhiteSpace(trimmedSearchText)
-                                 || company.Name.Contains(trimmedSearchText, StringComparison.OrdinalIgnoreCase))
+               .Where(company => company.Name.Contains(trimmedSearchText, StringComparison.OrdinalIgnoreCase))
                .OrderBy(company => company.Name)
                .Take(10)
-               .ToList();
+               .ToList()
+               ?? [];
     }
 
     private async Task SelectCompany(Company company)

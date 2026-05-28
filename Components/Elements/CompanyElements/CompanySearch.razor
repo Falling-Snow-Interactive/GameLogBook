@@ -1,53 +1,66 @@
 @using VGL.Models.Companies
-<div class="search-input">
-    <input class="game-detail-input"
-           value="@SearchText"
-           @oninput="OnSearchTextChanged"
-           placeholder="@Placeholder"/>
-    <button class="plus-button"
-            type="button"
-            @onclick="HandlePlusClicked">
-        +
-    </button>
-</div>
+<div class="company-search">
+    <div class="company-search-anchor">
+        <div class="search-input">
+            <input class="game-detail-input"
+                   value="@SearchText"
+                   @oninput="OnSearchTextChanged"
+                   placeholder="@Placeholder"
+                   autocomplete="off"
+                   aria-expanded="@ShouldShowDropdown"/>
+            <button class="plus-button"
+                    type="button"
+                    @onclick="HandlePlusClicked">
+                +
+            </button>
+        </div>
+
+        @if (ShouldShowDropdown)
+        {
+            <div class="company-search-results">
+                @if (CompanyMatches.Count > 0)
+                {
+                    @foreach (Company company in CompanyMatches)
+                    {
+                        <button class="igdb-search-result"
+                                type="button"
+                                @onclick="() => SelectCompany(company)">
+                            <span class="igdb-search-result-icon bi bi-building"
+                                  aria-hidden="true"></span>
+
+                            <span class="igdb-search-result-copy">
+                                <strong>@company.Name</strong>
+                                <small>@GetCompanyBadge(company)</small>
+                            </span>
+                        </button>
+                    }
+                }
+                else
+                {
+                    <p class="company-search-empty">No companies found.</p>
+                }
+            </div>
+        }
+    </div>
 
 @if (selectedCompanyIDs.Count > 0)
 {
-<div class="manufacturer-chip-list">
-    @if (SelectedCompanies != null)
-    { 
-        @foreach (Company company in SelectedCompanies)
-        {
-            <span class="manufacturer-chip">
-                @company.Name
-                <button type="button"
-                        title="Remove @company.Name"
-                        aria-label="Remove @company.Name"
-                        @onclick="() => RemoveCompany(company.ID)">
-                    X
-                </button>
-            </span>
-        }
-    }
-</div>
-}
-
-@if (CompanyMatches?.Count > 0)
-{
-    <div class="company-search-results">
-        @foreach (Company company in CompanyMatches)
-        {
-            <button class="igdb-search-result"
-                    type="button"
-                    @onclick="() => SelectCompany(company)">
-                <span class="igdb-search-result-icon bi bi-building"
-                      aria-hidden="true"></span>
-
-                <span class="igdb-search-result-copy">
-                    <strong>@company.Name</strong>
-                    <small>@GetCompanyBadge(company)</small>
+    <div class="manufacturer-chip-list">
+        @if (SelectedCompanies != null)
+        { 
+            @foreach (Company company in SelectedCompanies)
+            {
+                <span class="manufacturer-chip">
+                    @company.Name
+                    <button type="button"
+                            title="Remove @company.Name"
+                            aria-label="Remove @company.Name"
+                            @onclick="() => RemoveCompany(company.ID)">
+                        X
+                    </button>
                 </span>
-            </button>
+            }
         }
     </div>
 }
+</div>
