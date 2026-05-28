@@ -1,8 +1,8 @@
-.steamgriddb-popup {
+::deep .steamgriddb-popup {
     width: min(68rem, 100%);
 }
 
-.steamgriddb-popup-content {
+::deep .steamgriddb-popup-content {
     gap: 1rem;
 }
 
@@ -24,6 +24,54 @@
 
 .steamgriddb-search-button {
     position: absolute;
+    top: 50%;
+    right: 0.45rem;
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    padding: 0;
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+    cursor: pointer;
+    font: inherit;
+    transform: translateY(-50%);
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        opacity var(--transition-fast);
+}
+
+.steamgriddb-search-button:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    background: var(--color-primary-soft-hover);
+    box-shadow: var(--shadow-sm);
+}
+
+.steamgriddb-search-button:focus-visible {
+    outline: 3px solid rgba(103, 80, 164, 0.22);
+    outline-offset: 2px;
+}
+
+.steamgriddb-search-button:disabled {
+    cursor: default;
+    opacity: 0.72;
+}
+
+.steamgriddb-search-button .bi {
+    line-height: 1;
+}
+
+.igdb-search-spinner {
+    width: 1.1rem;
+    height: 1.1rem;
+    border: 0.18rem solid rgba(103, 80, 164, 0.22);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: steamgriddb-search-spin 0.8s linear infinite;
 }
 
 .steamgriddb-game-picker {
@@ -111,5 +159,11 @@
 @media (max-width: 700px) {
     .steamgriddb-image-results {
         grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+    }
+}
+
+@keyframes steamgriddb-search-spin {
+    to {
+        transform: rotate(360deg);
     }
 }

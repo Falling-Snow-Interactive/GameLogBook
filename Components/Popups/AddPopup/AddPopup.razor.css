@@ -14,21 +14,15 @@
     width: min(75rem, 100%);
     max-inline-size: calc(100vw - 3rem);
     max-block-size: calc(100vh - 3rem);
-    
     display: flex;
     flex-direction: column;
-    
-    min-height: 0;
     min-width: 0;
-    
+    min-height: 0;
     overflow: hidden;
-    
     border: var(--border-thickness-md) solid var(--color-border);
     border-radius: var(--radius-dialog);
-    
     background: var(--color-surface);
     color: var(--color-text);
-    
     box-shadow: var(--shadow-dialog);
 }
 
@@ -38,13 +32,12 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
-    padding: 1.5rem 1.75rem;
     border-bottom: 1px solid #ede7f6;
+    padding: 1.5rem 1.75rem;
     background: linear-gradient(180deg, var(--color-surface) 0%, #fbf9ff 100%);
 }
 
-.popup-header h3,
-.company-popup h3 {
+.popup-header h3 {
     margin: 0 0 0.25rem;
     color: var(--color-text);
     font-size: 1.75rem;
@@ -53,8 +46,7 @@
     letter-spacing: 0;
 }
 
-.popup-header p,
-.company-popup p {
+.popup-header p {
     margin: 0;
     color: var(--color-text-muted);
     font-size: 0.975rem;
@@ -80,32 +72,28 @@
     margin: 0.35rem 0 0.2rem;
 }
 
+.popup-form ::deep .igdb-search {
+    margin: 0;
+}
+
 .popup-content::-webkit-scrollbar,
-.popup-form::-webkit-scrollbar,
-.search-results::-webkit-scrollbar,
-.igdb-search-dropdown::-webkit-scrollbar {
+.popup-form::-webkit-scrollbar {
     width: 0.65rem;
 }
 
 .popup-content::-webkit-scrollbar-track,
-.popup-form::-webkit-scrollbar-track,
-.search-results::-webkit-scrollbar-track,
-.igdb-search-dropdown::-webkit-scrollbar-track {
+.popup-form::-webkit-scrollbar-track {
     background: transparent;
 }
 
 .popup-content::-webkit-scrollbar-thumb,
-.popup-form::-webkit-scrollbar-thumb,
-.search-results::-webkit-scrollbar-thumb,
-.igdb-search-dropdown::-webkit-scrollbar-thumb {
+.popup-form::-webkit-scrollbar-thumb {
     border-radius: var(--radius-pill);
     background: var(--color-border-strong);
 }
 
 .popup-content::-webkit-scrollbar-thumb:hover,
-.popup-form::-webkit-scrollbar-thumb:hover,
-.search-results::-webkit-scrollbar-thumb:hover,
-.igdb-search-dropdown::-webkit-scrollbar-thumb:hover {
+.popup-form::-webkit-scrollbar-thumb:hover {
     background: #c4c8cf;
 }
 
@@ -127,8 +115,7 @@
         padding: 1.25rem;
     }
 
-    .popup-header h3,
-    .company-popup h3 {
+    .popup-header h3 {
         font-size: 1.45rem;
     }
 

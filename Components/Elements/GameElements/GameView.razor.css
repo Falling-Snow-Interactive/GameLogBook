@@ -1,0 +1,90 @@
+.game-view {
+    width: 100%;
+    min-width: 0;
+    min-height: 24rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.game-view-content {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.game-view-content ::deep .game-cover {
+    flex: 0 0 min(12rem, 35%);
+    width: min(12rem, 35%);
+    height: 18rem;
+    border-radius: var(--radius-md);
+    object-fit: cover;
+}
+
+.game-details {
+    min-width: 0;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.game-title {
+    margin: 0;
+    color: var(--color-text);
+    font-size: 2rem;
+    font-weight: 900;
+    line-height: 1.2;
+}
+
+.game-summary {
+    display: block;
+    margin: 0;
+    overflow-y: auto;
+    color: var(--color-text-soft);
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+.popup-button-container {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.popup-button {
+    flex: 1;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
+    background: var(--color-primary-soft);
+    color: var(--color-primary-ink);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.popup-button:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+}
+
+@media (max-width: 700px) {
+    .game-view-content,
+    .popup-button-container {
+        flex-direction: column;
+    }
+
+    .game-view-content ::deep .game-cover {
+        flex-basis: auto;
+        width: 100%;
+        height: min(18rem, 55vh);
+    }
+
+    .popup-button {
+        width: 100%;
+    }
+}

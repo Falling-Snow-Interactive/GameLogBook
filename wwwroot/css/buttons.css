@@ -44,12 +44,8 @@
 .floating-add-button:focus-visible,
 .plus-button:focus-visible,
 .close-button:focus-visible,
-.popup-button:focus-visible,
 .button-pill:focus-visible,
-.button-dot:focus-visible,
-.igdb-search-button:focus-visible,
-.igdb-search-result:focus-visible,
-.steamgriddb-image-result:focus-visible {
+.button-dot:focus-visible {
     outline: none;
     box-shadow: var(--focus-ring);
 }
@@ -58,8 +54,7 @@
 .search-button:disabled,
 .save-button:disabled,
 .add-game-button:disabled,
-.load-more-button:disabled,
-.igdb-search-load-more-button:disabled {
+.load-more-button:disabled {
     opacity: 0.55;
     box-shadow: none;
 }
@@ -100,8 +95,7 @@
     transform: translateY(-1px);
 }
 
-.load-more-button,
-.igdb-search-load-more-button {
+.load-more-button {
     min-height: 2.75rem;
     border: none;
     border-radius: var(--radius-pill);
@@ -118,15 +112,13 @@
         opacity var(--transition-fast);
 }
 
-.load-more-button:hover:not(:disabled),
-.igdb-search-load-more-button:hover:not(:disabled) {
+.load-more-button:hover:not(:disabled) {
     background: var(--color-primary-soft-hover);
     box-shadow: 0 8px 20px rgba(103, 80, 164, 0.24);
     transform: translateY(-1px);
 }
 
-.load-more-button:focus-visible,
-.igdb-search-load-more-button:focus-visible {
+.load-more-button:focus-visible {
     outline: none;
     box-shadow:
         var(--focus-ring),
@@ -331,13 +323,4 @@
 }
 
 .button-accent:hover {
-}
-
-.fill {
-    height: 100%;
-    width: 100%;
-}
-
-.contain {
-    object-fit: contain;
 }

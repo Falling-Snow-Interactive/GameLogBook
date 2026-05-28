@@ -1,0 +1,32 @@
+.u-visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: -1px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+.u-stack {
+    display: grid;
+    gap: var(--u-stack-gap, 1rem);
+}
+
+.u-truncate {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.u-fill {
+    width: 100%;
+    height: 100%;
+}
+
+.u-contain {
+    object-fit: contain;
+}

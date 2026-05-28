@@ -1,0 +1,47 @@
+.popup-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: rgba(15, 23, 42, 0.48);
+    backdrop-filter: blur(4px);
+}
+
+.popup {
+    width: min(75rem, 100%);
+    max-inline-size: calc(100vw - 3rem);
+    max-block-size: calc(100vh - 3rem);
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    border: var(--border-thickness-md) solid var(--color-border);
+    border-radius: var(--radius-dialog);
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: var(--shadow-dialog);
+}
+
+.popup-content {
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+}
+
+@media (max-width: 700px) {
+    .popup-backdrop {
+        padding: 0.75rem;
+    }
+
+    .popup {
+        width: 100%;
+        min-inline-size: 0;
+        max-inline-size: calc(100vw - 1.5rem);
+        max-block-size: calc(100vh - 1.5rem);
+    }
+}
