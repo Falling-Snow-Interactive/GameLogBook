@@ -7,7 +7,11 @@ namespace VGL.Components.Elements.CompanyElements;
 
 public partial class CompanySearch : ComponentBase
 {
+    private const int FocusOutDelayMilliseconds = 25;
+
     private List<int> selectedCompanyIDs = [];
+    private bool isDropdownActive;
+    private int focusChangeVersion;
 
     [Inject]
     private PopupService PopupService { get; set; } = null!;
@@ -34,7 +38,7 @@ public partial class CompanySearch : ComponentBase
     public Func<Company, Task<Company?>>? OnCompanyAdded { get; set; }
 
     private bool HasSearchText => !string.IsNullOrWhiteSpace(SearchText);
-    private bool ShouldShowDropdown => HasSearchText;
+    private bool ShouldShowDropdown => isDropdownActive && HasSearchText;
     private IReadOnlyList<Company> CompanyMatches => HasSearchText
                                                         ? FilterCompanies(SearchText, selectedCompanyIDs)
                                                         : [];
@@ -102,6 +106,7 @@ public partial class CompanySearch : ComponentBase
 
     private async Task OnSearchTextChanged(ChangeEventArgs e)
     {
+        MarkDropdownActive();
         await SetSearchTextAsync(e.Value?.ToString() ?? string.Empty);
     }
 
@@ -113,8 +118,34 @@ public partial class CompanySearch : ComponentBase
     
     #endregion
 
+    private void HandleSearchFocusIn()
+    {
+        MarkDropdownActive();
+    }
+
+    private async Task HandleSearchFocusOut()
+    {
+        int currentFocusChangeVersion = ++focusChangeVersion;
+        await Task.Delay(FocusOutDelayMilliseconds);
+
+        if (currentFocusChangeVersion != focusChangeVersion)
+        {
+            return;
+        }
+
+        isDropdownActive = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void MarkDropdownActive()
+    {
+        focusChangeVersion++;
+        isDropdownActive = true;
+    }
+
     private async Task HandlePlusClicked()
     {
+        MarkDropdownActive();
         Company? company = await PopupService.ShowAsync<AddCompanyPopup, Company>();
 
         if (company is not null)

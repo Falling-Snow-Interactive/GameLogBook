@@ -23,6 +23,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     private const int MinSearchLength = 2;
     private const int DebounceDelayMilliseconds = 300;
     private const int CompanyCandidateLimit = 500;
+    private const int FocusOutDelayMilliseconds = 25;
 
     private string searchInput = string.Empty;
     private string? searchErrorMessage;
@@ -31,7 +32,9 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     private bool isLoadingMore;
     private bool canLoadMore;
     private bool hasSearched;
+    private bool isDropdownActive;
     private int searchOffset;
+    private int focusChangeVersion;
     private CancellationTokenSource? searchCancellationTokenSource;
 
     private List<LocalGame> gameResults = [];
@@ -86,11 +89,12 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                                    _ => false
                                };
 
-    private bool ShouldShowDropdown => isSearching
-                                       || isLoadingMore
-                                       || hasSearched
-                                       || !string.IsNullOrWhiteSpace(searchErrorMessage)
-                                       || HasResults;
+    private bool ShouldShowDropdown => isDropdownActive
+                                       && (isSearching
+                                           || isLoadingMore
+                                           || hasSearched
+                                           || !string.IsNullOrWhiteSpace(searchErrorMessage)
+                                           || HasResults);
 
     private string RootClass => Inline ? "igdb-search igdb-search-inline" : "igdb-search";
 
@@ -110,6 +114,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
     private async Task HandleSearchInput(ChangeEventArgs args)
     {
+        MarkDropdownActive();
         searchInput = args.Value?.ToString() ?? string.Empty;
         await ValueChanged.InvokeAsync(searchInput);
 
@@ -145,11 +150,13 @@ public partial class IGDBSearch : ComponentBase, IDisposable
             return;
         }
 
+        MarkDropdownActive();
         await SearchCurrentInputAsync();
     }
 
     private async Task HandleSearchButtonClick()
     {
+        MarkDropdownActive();
         await SearchCurrentInputAsync();
     }
 
@@ -160,8 +167,35 @@ public partial class IGDBSearch : ComponentBase, IDisposable
             return;
         }
 
+        MarkDropdownActive();
         await CancelPendingSearch();
         await SearchAsync(activeSearchText, CancellationToken.None, appendResults: true);
+    }
+
+    private void HandleSearchFocusIn()
+    {
+        MarkDropdownActive();
+    }
+
+    private async Task HandleSearchFocusOut()
+    {
+        int currentFocusChangeVersion = ++focusChangeVersion;
+        await Task.Delay(FocusOutDelayMilliseconds);
+
+        if (currentFocusChangeVersion != focusChangeVersion)
+        {
+            return;
+        }
+
+        isDropdownActive = false;
+        await CancelPendingSearch();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void MarkDropdownActive()
+    {
+        focusChangeVersion++;
+        isDropdownActive = true;
     }
 
     private async Task SearchCurrentInputAsync()

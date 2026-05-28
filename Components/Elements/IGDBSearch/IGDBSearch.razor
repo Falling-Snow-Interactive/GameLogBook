@@ -1,6 +1,8 @@
 @using VGL.Models.Companies
 @using VGL.Models.Games
-<div class="@RootClass">
+<div class="@RootClass"
+     @onfocusin="HandleSearchFocusIn"
+     @onfocusout="HandleSearchFocusOut">
     @if (!Inline)
     {
         <span class="igdb-search-label">@Label</span>

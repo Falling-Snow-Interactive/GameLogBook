@@ -1,5 +1,7 @@
 @using VGL.Models.Companies
-<div class="company-search">
+<div class="company-search"
+     @onfocusin="HandleSearchFocusIn"
+     @onfocusout="HandleSearchFocusOut">
     <div class="company-search-anchor">
         <div class="search-input">
             <input class="game-detail-input"
