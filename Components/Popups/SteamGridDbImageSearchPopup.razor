@@ -8,7 +8,7 @@
           OnClose="HandleClose">
     <div class="steamgriddb-search-panel">
         <div class="steamgriddb-search-row">
-            <input class="game-detail-input"
+            <input class="detail-input"
                    value="@searchInput"
                    placeholder="Search SteamGridDB"
                    aria-label="Search SteamGridDB"
@@ -36,7 +36,7 @@
         {
             <label class="steamgriddb-game-picker">
                 <span>Search result</span>
-                <select class="game-detail-input"
+                <select class="detail-input"
                         value="@selectedGameId"
                         @onchange="HandleSelectedGameChanged">
                     @foreach (SteamGridDbGameSearchResult game in gameResults)

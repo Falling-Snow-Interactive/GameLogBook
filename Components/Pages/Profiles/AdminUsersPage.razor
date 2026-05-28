@@ -33,15 +33,15 @@
 
             <div class="profile-form admin-form">
                 <EntryField Label="Name">
-                    <InputText class="game-detail-input" @bind-Value="form.Name" />
+                    <InputText class="detail-input" @bind-Value="form.Name" />
                 </EntryField>
 
                 <EntryField Label="Display Name">
-                    <InputText class="game-detail-input" @bind-Value="form.DisplayName" />
+                    <InputText class="detail-input" @bind-Value="form.DisplayName" />
                 </EntryField>
 
                 <EntryField Label="Email">
-                    <InputText class="game-detail-input" type="email" @bind-Value="form.Email" />
+                    <InputText class="detail-input" type="email" @bind-Value="form.Email" />
                 </EntryField>
 
                 <ImageFieldWidget @ref="profilePictureField"
@@ -54,7 +54,7 @@
                                   AltText="Profile picture preview" />
 
                 <EntryField Label="Permission">
-                    <InputSelect class="game-detail-input" @bind-Value="form.Role">
+                    <InputSelect class="detail-input" @bind-Value="form.Role">
                         <option value="@UserRole.User">User</option>
                         <option value="@UserRole.Admin">Admin</option>
                     </InputSelect>

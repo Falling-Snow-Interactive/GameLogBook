@@ -122,7 +122,7 @@
 .detail-textarea,
 .detail-input,
 .game-name-input,
-.game-detail-input,
+.detail-input,
 .game-detail-textarea,
 .playthrough-name-input,
 .playthrough-detail-input,
@@ -145,7 +145,7 @@
 }
 
 .game-name-input,
-.game-detail-input,
+.detail-input,
 .playthrough-name-input,
 .playthrough-detail-input,
 .platform-input,
@@ -162,7 +162,7 @@
 
 .game-name-input::placeholder,
 .detail-textarea::placeholder,
-.game-detail-input::placeholder,
+.detail-input::placeholder,
 .game-detail-textarea::placeholder,
 .playthrough-name-input::placeholder,
 .playthrough-detail-input::placeholder,
@@ -174,7 +174,7 @@
 
 .game-name-input:focus,
 .detail-textarea:focus,
-.game-detail-input:focus,
+.detail-input:focus,
 .game-detail-textarea:focus,
 .playthrough-name-input:focus,
 .playthrough-detail-input:focus,
@@ -247,7 +247,7 @@
     }
 }
 
-.game-detail-input[type="date"],
+.detail-input[type="date"],
 .platform-input[type="date"] {
     appearance: none;
     -webkit-appearance: none;

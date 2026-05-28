@@ -19,7 +19,7 @@
                     <span>@platform.Name</span>
                 </label>
 
-                <select class="game-detail-input"
+                <select class="detail-input"
                         disabled="@(!isSelected)"
                         value="@GetOwnershipType(platform.ID)"
                         @onchange="args => ChangeOwnershipType(platform.ID, args.Value?.ToString())">

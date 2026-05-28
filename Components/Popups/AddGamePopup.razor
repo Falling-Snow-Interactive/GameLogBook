@@ -5,6 +5,7 @@
           OnClose="HandleCloseButtonClick"
           OnGameSelected="HandleGameSelected"
           LocalCompanies="@Companies">
+    
     <div class="game-details-form">
         <AddPopupSection Title="Information">
             <EntryField Label="Name" Class="form-span-all" UseLabel="false">
@@ -14,24 +15,25 @@
                             Inline="true"
                             @bind-Value="name"
                             LocalCompanies="@availableCompanies"
-                            OnGameSelected="HandleGameSelected" />
+                            OnGameSelected="HandleGameSelected"/>
             </EntryField>
 
             <EntryField Label="Release Date">
-                <input class="game-detail-input" type="date" @bind="releaseDate" @bind:event="oninput" placeholder="Release date" />
+                <input class="detail-input" type="date" @bind="releaseDate" 
+                       @bind:event="oninput" placeholder="Release date"/>
             </EntryField>
 
             <EntryField Label="Type">
-                <EnumDropdown TEnum="GameType" class="game-detail-input" @bind-Value="type" />
+                <EnumDropdown TEnum="GameType" class="detail-input" @bind-Value="type"/>
             </EntryField>
 
-            <EntryField Label="Rating" UseLabel="false">
-                <StarRating @bind-Value="rating" AriaLabel="Game rating" />
+            <EntryField Label="Rating" Class="form-span-wide" UseLabel="false">
+                <StarRating @bind-Value="rating" AriaLabel="Game rating"/>
             </EntryField>
 
-            <EntryField Label="Ownership">
+            <EntryField Label="Ownership" Class="form-span-wide">
                 <OwnershipInputWidget Platforms="Platforms"
-                                      @bind-Ownerships="selectedPlatformOwnerships" />
+                                      @bind-Ownerships="selectedPlatformOwnerships"/>
             </EntryField>
 
             <EntryField Label="Summary" Class="form-span-all">
@@ -40,7 +42,7 @@
 
             @if (availableCompanies.Count == 0)
             {
-                <EntryField Class="form-span-all" Hint="No shared companies exist yet, so this game will save without developer or publisher links." />
+                <EntryField Class="form-span-all" Hint="No shared companies exist yet, so this game will save without developer or publisher links."/>
             }
 
             <EntryField Label="Developer" Class="form-span-wide" UseLabel="false">
@@ -48,7 +50,7 @@
                                @bind-SelectedCompanyIds="selectedDeveloperIDs"
                                @bind-SearchText="developerSearchText"
                                OnCompanyAdded="HandleCompanyAdded"
-                               Placeholder="Search companies..." />
+                               Placeholder="Search companies..."/>
             </EntryField>
 
             <EntryField Label="Publisher" Class="form-span-wide" UseLabel="false">
@@ -56,7 +58,7 @@
                                @bind-SelectedCompanyIds="selectedPublisherIDs"
                                @bind-SearchText="publisherSearchText"
                                OnCompanyAdded="HandleCompanyAdded"
-                               Placeholder="Search companies..." />
+                               Placeholder="Search companies..."/>
             </EntryField>
         </AddPopupSection>
 
@@ -66,28 +68,28 @@
                               ImageRef="cover" AspectRatio="1" AltText="@($"{name} cover preview")"
                               SteamGridDbSearchEnabled="true"
                               SteamGridDbImageType="@SteamGridDbImageType.Cover"
-                              SteamGridDbSearchTerm="@name" />
+                              SteamGridDbSearchTerm="@name"/>
 
             <ImageFieldWidget @ref="logoField" class="form-span-wide"
                               Label="Logo" FieldName="logo" Category="games"
                               ImageRef="logo" AspectRatio="1" AltText="@($"{name} logo preview")"
                               SteamGridDbSearchEnabled="true"
                               SteamGridDbImageType="@SteamGridDbImageType.Logo"
-                              SteamGridDbSearchTerm="@name" />
+                              SteamGridDbSearchTerm="@name"/>
 
             <ImageFieldWidget @ref="heroField" class="form-span-wide"
                               Label="Hero" FieldName="hero" Category="games"
                               ImageRef="hero" AspectRatio="1" AltText="@($"{name} hero preview")"
                               SteamGridDbSearchEnabled="true"
                               SteamGridDbImageType="@SteamGridDbImageType.Hero"
-                              SteamGridDbSearchTerm="@name" />
+                              SteamGridDbSearchTerm="@name"/>
 
             <ImageFieldWidget @ref="iconField" class="form-span-wide"
                               Label="Icon" FieldName="icon" Category="games"
                               ImageRef="icon" AspectRatio="1" AltText="@($"{name} icon preview")"
                               SteamGridDbSearchEnabled="true"
                               SteamGridDbImageType="@SteamGridDbImageType.Icon"
-                              SteamGridDbSearchTerm="@name" />
+                              SteamGridDbSearchTerm="@name"/>
         </AddPopupSection>
 
         @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
@@ -97,12 +99,12 @@
 
         <AddPopupSection Title="APIs">
             <EntryField Label="IGDB ID">
-                <input class="game-detail-input" type="number" @bind="igdb" @bind:event="oninput" placeholder="id" />
+                <input class="detail-input" type="number" @bind="igdb" @bind:event="oninput" placeholder="id"/>
             </EntryField>
         </AddPopupSection>
 
         <AddPopupActions>
-            <button class="save-button" type="button" @onclick="HandleSaveButtonClick" 
+            <button class="save-button" type="button" @onclick="HandleSaveButtonClick"
                     disabled="@(isSaving || string.IsNullOrWhiteSpace(name))">
                 @(isSaving ? "Saving image..." : SaveButtonText)
             </button>

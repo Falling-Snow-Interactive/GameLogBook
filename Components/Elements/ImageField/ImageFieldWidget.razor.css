@@ -67,7 +67,7 @@
     gap: 0.65rem;
 }
 
-.image-field-url-row ::deep .game-detail-input,
+.image-field-url-row ::deep .detail-input,
 .image-field-url-row ::deep .company-input,
 .image-field-url-row ::deep .platform-input {
     flex: 1 1 auto;

@@ -4,95 +4,170 @@
           OnPlatformSelected="IGDBSearch_PlatformSelected">
     
     <div class="platform-details-form">
+        <AddPopupSection Title="Information">
+            <EntryField Label="Name" Class="form-span-all" UseLabel="false">
+                <IGDBSearch Label="Name" SearchFor="IgdbSearchFor.Companies"
+                            Placeholder="Platform name..." Inline="true"
+                            @bind-Value="name" 
+                            OnPlatformSelected="IGDBSearch_PlatformSelected" />
+            </EntryField>
+
+            <EntryField Label="Short Name">
+                <input class="detail-input" type="text" @bind="nameShort"
+                       @bind:event="oninput" placeholder="Short name..."/>
+            </EntryField>
+            
+            <EntryField Label="Release Date">
+                <input class="detail-input" type="date" @bind="releaseDate"
+                       @bind:event="oninput" placeholder="Release date..."/>
+            </EntryField>
+            
+            <EntryField Label="Developer" Class="form-span-wide" UseLabel="false">
+                <CompanySearch Companies="companyCache"
+                               @bind-SelectedCompanyIds="developerIDs"
+                               @bind-SearchText="companySearchText"
+                               OnCompanyAdded="HandleCompanyAdded"
+                               Placeholder="Search companies..."></CompanySearch>
+            </EntryField>
+
+            <EntryField Label="Summary" Class="form-span-all">
+                <textarea class="game-detail-textarea" @bind="summary" 
+                            @bind:event="oninput" placeholder="Summary"></textarea>
+            </EntryField>
+        </AddPopupSection>
+
+        <AddPopupSection Title="Images">
+            <ImageFieldWidget @ref="coverField" class="form-span-wide"
+                              Label="Cover" FieldName="cover" Category="games"
+                              ImageRef="cover" AspectRatio="1" AltText="@($"{name} cover preview")"
+                              SteamGridDbSearchEnabled="true"
+                              SteamGridDbImageType="@SteamGridDbImageType.Cover"
+                              SteamGridDbSearchTerm="@name"/>
+
+            <ImageFieldWidget @ref="logoField" class="form-span-wide"
+                              Label="Logo" FieldName="logo" Category="games"
+                              ImageRef="logo" AspectRatio="1" AltText="@($"{name} logo preview")"
+                              SteamGridDbSearchEnabled="true"
+                              SteamGridDbImageType="@SteamGridDbImageType.Logo"
+                              SteamGridDbSearchTerm="@name"/>
+
+            <ImageFieldWidget @ref="heroField" class="form-span-wide"
+                              Label="Hero" FieldName="hero" Category="games"
+                              ImageRef="hero" AspectRatio="1" AltText="@($"{name} hero preview")"
+                              SteamGridDbSearchEnabled="true"
+                              SteamGridDbImageType="@SteamGridDbImageType.Hero"
+                              SteamGridDbSearchTerm="@name"/>
+
+            <ImageFieldWidget @ref="iconField" class="form-span-wide"
+                              Label="Icon" FieldName="icon" Category="games"
+                              ImageRef="icon" AspectRatio="1" AltText="@($"{name} icon preview")"
+                              SteamGridDbSearchEnabled="true"
+                              SteamGridDbImageType="@SteamGridDbImageType.Icon"
+                              SteamGridDbSearchTerm="@name"/>
+        </AddPopupSection>
+
+        @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
+        {
+        <p class="form-hint">@imageErrorMessage</p>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
+        {
+        <p class="form-hint">@imageErrorMessage</p>
+        }
+
+        <AddPopupSection Title="APIs">
+            <EntryField Label="IGDB ID">
+                <input class="detail-input" type="number" 
+                       @bind="igdb" @bind:event="oninput" 
+                       placeholder="IGDB ID"/>
+            </EntryField>
+        </AddPopupSection>
+        
         @if (!string.IsNullOrWhiteSpace(searchErrorMessage))
         {
             <p class="platform-form-error">@searchErrorMessage</p>
         }
-        
-        <div class="form-field">
-            <span>Name</span>
-            <IGDBSearch Label="Name"
-                        SearchFor="@IgdbSearchFor.Platforms"
-                        Placeholder="Platform name"
-                        Inline="true"
-                        @bind-Value="name"
-                        OnPlatformSelected="IGDBSearch_PlatformSelected" />
-        </div>
-        
-        <label class="form-field">
-            <span>Short Name</span>
-            <input class="game-detail-input"
-                   @bind="nameShort"
-                   @bind:event="oninput"
-                   placeholder="Short name"/>
-        </label>
 
-        <label class="form-field">
-            <span>Release Date</span>
-            <input class="game-detail-input"
-                   type="date"
-                   @bind="releaseDate"
-                   @bind:event="oninput"/>
-        </label>
+        @* <div class="form-field"> *@
+        @*     <span>Name</span> *@
+        @*     <IGDBSearch Label="Name" *@
+        @*                 SearchFor="@IgdbSearchFor.Platforms" *@
+        @*                 Placeholder="Platform name" *@
+        @*                 Inline="true" *@
+        @*                 @bind-Value="name" *@
+        @*                 OnPlatformSelected="IGDBSearch_PlatformSelected"/> *@
+        @* </div> *@
 
-        <div class="form-field">
-            <span>Developers</span>
-            <CompanySearch Companies="companyCache"
-                           @bind-SelectedCompanyIds="developerIDs"
-                           @bind-SearchText="companySearchText"
-                           OnCompanyAdded="HandleCompanyAdded"
-                           Placeholder="Search companies..." />
-        </div>
+        @* <label class="form-field"> *@
+        @*     <span>Short Name</span> *@
+        @*     <input class="detail-input" *@
+        @*            @bind="nameShort" *@
+        @*            @bind:event="oninput" *@
+        @*            placeholder="Short name"/> *@
+        @* </label> *@
 
-        <ImageFieldWidget @ref="coverField"
-                          Label="Cover" FieldName="cover" Category="platforms"
-                          ImageRef="cover" AspectRatio="1" AltText="@($"{name} cover preview")"
-                          SteamGridDbSearchEnabled="true"
-                          SteamGridDbImageType="@SteamGridDbImageType.Cover"
-                          SteamGridDbSearchTerm="@name"/>
+        @* <label class="form-field"> *@
+        @*     <span>Release Date</span> *@
+        @*     <input class="detail-input" *@
+        @*            type="date" *@
+        @*            @bind="releaseDate" *@
+        @*            @bind:event="oninput"/> *@
+        @* </label> *@
 
-        <ImageFieldWidget @ref="heroField"
-                          Label="Hero" FieldName="hero" Category="platforms"
-                          ImageRef="hero" AspectRatio="1" AltText="@($"{name} hero preview")"
-                          SteamGridDbSearchEnabled="true"
-                          SteamGridDbImageType="@SteamGridDbImageType.Hero"
-                          SteamGridDbSearchTerm="@name"/>
+        @* <div class="form-field"> *@
+        @*     <span>Developers</span> *@
+        @*     <CompanySearch Companies="companyCache" *@
+        @*                    @bind-SelectedCompanyIds="developerIDs" *@
+        @*                    @bind-SearchText="companySearchText" *@
+        @*                    OnCompanyAdded="HandleCompanyAdded" *@
+        @*                    Placeholder="Search companies..."/> *@
+        @* </div> *@
 
-        <ImageFieldWidget @ref="logoField"
-                          Label="Logo" FieldName="logo" Category="platforms"
-                          ImageRef="logo" AspectRatio="1" AltText="@($"{name} logo preview")"
-                          SteamGridDbSearchEnabled="true"
-                          SteamGridDbImageType="@SteamGridDbImageType.Logo"
-                          SteamGridDbSearchTerm="@name"/>
+        @* <ImageFieldWidget @ref="coverField" *@
+        @*                   Label="Cover" FieldName="cover" Category="platforms" *@
+        @*                   ImageRef="cover" AspectRatio="1" AltText="@($"{name} cover preview")" *@
+        @*                   SteamGridDbSearchEnabled="true" *@
+        @*                   SteamGridDbImageType="@SteamGridDbImageType.Cover" *@
+        @*                   SteamGridDbSearchTerm="@name"/> *@
+        @* *@
+        @* <ImageFieldWidget @ref="heroField" *@
+        @*                   Label="Hero" FieldName="hero" Category="platforms" *@
+        @*                   ImageRef="hero" AspectRatio="1" AltText="@($"{name} hero preview")" *@
+        @*                   SteamGridDbSearchEnabled="true" *@
+        @*                   SteamGridDbImageType="@SteamGridDbImageType.Hero" *@
+        @*                   SteamGridDbSearchTerm="@name"/> *@
+        @* *@
+        @* <ImageFieldWidget @ref="logoField" *@
+        @*                   Label="Logo" FieldName="logo" Category="platforms" *@
+        @*                   ImageRef="logo" AspectRatio="1" AltText="@($"{name} logo preview")" *@
+        @*                   SteamGridDbSearchEnabled="true" *@
+        @*                   SteamGridDbImageType="@SteamGridDbImageType.Logo" *@
+        @*                   SteamGridDbSearchTerm="@name"/> *@
+        @* *@
+        @* <ImageFieldWidget @ref="iconField" *@
+        @*                   Label="Icon" FieldName="icon" Category="platforms" *@
+        @*                   ImageRef="icon" AspectRatio="1" AltText="@($"{name} icon preview")" *@
+        @*                   SteamGridDbSearchEnabled="true" *@
+        @*                   SteamGridDbImageType="@SteamGridDbImageType.Icon" *@
+        @*                   SteamGridDbSearchTerm="@name"/> *@
 
-        <ImageFieldWidget @ref="iconField"
-                          Label="Icon" FieldName="icon" Category="platforms"
-                          ImageRef="icon" AspectRatio="1" AltText="@($"{name} icon preview")"
-                          SteamGridDbSearchEnabled="true"
-                          SteamGridDbImageType="@SteamGridDbImageType.Icon"
-                          SteamGridDbSearchTerm="@name"/>
+        @* <label class="form-field"> *@
+        @*     <span>IGDB ID</span> *@
+        @*     <input class="detail-input" *@
+        @*            type="number" *@
+        @*            @bind="igdb" *@
+        @*            @bind:event="oninput" *@
+        @*            placeholder="id"/> *@
+        @* </label> *@
 
-        @if (!string.IsNullOrWhiteSpace(imageErrorMessage))
-        {
-            <p class="form-hint">@imageErrorMessage</p>
-        }
-
-        <label class="form-field">
-            <span>IGDB ID</span>
-            <input class="game-detail-input"
-                   type="number"
-                   @bind="igdb"
-                   @bind:event="oninput"
-                   placeholder="id"/>
-        </label>
-
-        <label class="form-field">
-            <span>Summary</span>
-            <textarea class="game-detail-textarea"
-                      @bind="summary"
-                      @bind:event="oninput"
-                      placeholder="Summary"></textarea>
-        </label>
+        @* <label class="form-field"> *@
+        @*     <span>Summary</span> *@
+        @*     <textarea class="game-detail-textarea" *@
+        @*               @bind="summary" *@
+        @*               @bind:event="oninput" *@
+        @*               placeholder="Summary"></textarea> *@
+        @* </label> *@
 
         <div class="form-actions">
             <button class="save-button"
