@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using VGL.Components.Elements.CollectionPageShell;
 using VGL.Data;
 using VGL.Services.UserProfiles;
 
@@ -19,6 +20,8 @@ public abstract class CollectionPageBase<TEntity> : ComponentBase
 
     protected List<TEntity> Items { get; set; } = [];
 
+    protected CollectionViewMode ViewMode { get; private set; } = CollectionViewMode.Card;
+
     protected abstract DbSet<TEntity> EntitySet { get; }
 
     protected abstract string GetSortKey(TEntity item);
@@ -35,6 +38,7 @@ public abstract class CollectionPageBase<TEntity> : ComponentBase
             return;
         }
 
+        LoadViewModePreference();
         await LoadItemsAsync();
     }
 
@@ -82,6 +86,54 @@ public abstract class CollectionPageBase<TEntity> : ComponentBase
         await DbContext.SaveChangesAsync();
 
         Items.Remove(item);
+    }
+
+    protected void SetViewMode(CollectionViewMode viewMode)
+    {
+        ViewMode = viewMode;
+
+        if (UserSession.CurrentUserID is not null)
+        {
+            Preferences.Default.Set(GetViewPreferenceKey(), viewMode.ToString());
+        }
+    }
+
+    protected static string FormatDate(DateOnly? date)
+    {
+        return date?.ToString("MMM d, yyyy") ?? "Not set";
+    }
+
+    protected static string FormatNames(IEnumerable<string> names)
+    {
+        string[] normalizedNames = names
+                                   .Where(name => !string.IsNullOrWhiteSpace(name))
+                                   .Distinct(StringComparer.OrdinalIgnoreCase)
+                                   .Order(StringComparer.OrdinalIgnoreCase)
+                                   .ToArray();
+
+        return normalizedNames.Length == 0
+                   ? "None"
+                   : string.Join(", ", normalizedNames);
+    }
+
+    private void LoadViewModePreference()
+    {
+        if (UserSession.CurrentUserID is null)
+        {
+            ViewMode = CollectionViewMode.Card;
+            return;
+        }
+
+        string storedViewMode = Preferences.Default.Get(GetViewPreferenceKey(), nameof(CollectionViewMode.Card));
+
+        ViewMode = Enum.TryParse(storedViewMode, ignoreCase: true, out CollectionViewMode parsedViewMode)
+                       ? parsedViewMode
+                       : CollectionViewMode.Card;
+    }
+
+    private string GetViewPreferenceKey()
+    {
+        return $"CollectionViewMode:{GetType().Name}:{UserSession.CurrentUserID}";
     }
 
     private void SortItems()

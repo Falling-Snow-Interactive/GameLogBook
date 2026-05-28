@@ -120,6 +120,17 @@ public partial class PlaythroughsPage : CollectionPageBase<Playthrough>
         };
     }
 
+    private IReadOnlyList<string> GetLinkedGameNames(Playthrough playthrough)
+    {
+        HashSet<int> gameIds = playthrough.GameIds.ToHashSet();
+
+        return Games
+               .Where(game => gameIds.Contains(game.ID))
+               .Select(game => game.Name)
+               .Order(StringComparer.OrdinalIgnoreCase)
+               .ToList();
+    }
+
     private async Task LoadGamesAsync()
     {
         if (UserSession.CurrentUserID is null)

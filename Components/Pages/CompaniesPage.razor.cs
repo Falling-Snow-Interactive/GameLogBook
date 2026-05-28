@@ -103,6 +103,11 @@ public partial class CompaniesPage : CollectionPageBase<Company>
         return gameNamesByCompanyId.GetValueOrDefault(company.ID) ?? [];
     }
 
+    private IReadOnlyList<string> GetPlatformNames(Company company)
+    {
+        return platformNamesByCompanyId.GetValueOrDefault(company.ID) ?? [];
+    }
+
     private string GetCompanyRoleSummary(Company company)
     {
         if (!rolesByCompanyId.TryGetValue(company.ID, out HashSet<string>? roles)

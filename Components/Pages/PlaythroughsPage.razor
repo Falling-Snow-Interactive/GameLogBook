@@ -13,17 +13,73 @@
                      AddButtonText="Add Playthrough"
                      OnAdd="OpenAddPopup"
                      IsEmpty="@(Items.Count == 0)"
+                     ViewMode="ViewMode"
+                     ViewModeChanged="SetViewMode"
                      EmptyTitle="No playthroughs added yet"
                      EmptyDescription="Add a playthrough to start grouping your game sessions.">
-    <ul class="collection-list">
-        @foreach (Playthrough playthrough in Items)
-        {
-            <NamedCollectionEntry TItem="Playthrough"
-                                  Item="playthrough"
-                                  Title="@playthrough.Name"
-                                  Description="@GetPlaythroughSummary(playthrough)"
-                                  OnClick="OpenEditPopup"
-                                  OnRemove="RemovePlaythrough" />
-        }
-    </ul>
+    @if (ViewMode == CollectionViewMode.Card)
+    {
+        <ul class="collection-list">
+            @foreach (Playthrough playthrough in Items)
+            {
+                <NamedCollectionEntry TItem="Playthrough"
+                                      Item="playthrough"
+                                      Title="@playthrough.Name"
+                                      Description="@GetPlaythroughSummary(playthrough)"
+                                      OnClick="OpenEditPopup"
+                                      OnRemove="RemovePlaythrough" />
+            }
+        </ul>
+    }
+    else
+    {
+        <div class="collection-table-scroll">
+            <table class="collection-table">
+                <thead>
+                <tr>
+                    <th scope="col">Playthrough</th>
+                    <th scope="col">Linked Game Count</th>
+                    <th scope="col">Linked Games</th>
+                    <th scope="col" class="collection-table-actions-heading">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (Playthrough playthrough in Items)
+                {
+                    <tr role="button"
+                        tabindex="0"
+                        @onclick="() => OpenEditPopup(playthrough)">
+                        <td>
+                            <div class="collection-table-primary-cell">
+                                <span>@playthrough.Name</span>
+                            </div>
+                        </td>
+                        <td>@playthrough.GameIds.Length</td>
+                        <td>@FormatNames(GetLinkedGameNames(playthrough))</td>
+                        <td>
+                            <div class="collection-table-actions">
+                                <button class="collection-table-action collection-table-action-edit"
+                                        type="button"
+                                        title="Edit @playthrough.Name"
+                                        aria-label="Edit @playthrough.Name"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => OpenEditPopup(playthrough)">
+                                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                </button>
+                                <button class="collection-table-action collection-table-action-remove"
+                                        type="button"
+                                        title="Remove @playthrough.Name"
+                                        aria-label="Remove @playthrough.Name"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => RemovePlaythrough(playthrough)">
+                                    <i class="bi bi-trash" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
 </CollectionPageShell>

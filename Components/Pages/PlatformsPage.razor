@@ -13,17 +13,81 @@
                      AddButtonText="Add Platform"
                      OnAdd="OpenAddPopup"
                      IsEmpty="@(Items.Count == 0)"
+                     ViewMode="ViewMode"
+                     ViewModeChanged="SetViewMode"
                      EmptyTitle="No platforms added yet"
                      EmptyDescription="Add a platform to start organizing where you play.">
-    <ul class="collection-grid">
-        @foreach (Platform platform in Items)
-        {
-            <li>
-                <LibraryEntry Entry="platform"
-                              RelatedCompanies="GetRelatedCompanies(platform)"
-                              OnClick="() => OpenEditPopup(platform)"
-                              OnRemove="() => RemovePlatform(platform)"/>
-            </li>
-        }
-    </ul>
+    @if (ViewMode == CollectionViewMode.Card)
+    {
+        <ul class="collection-grid">
+            @foreach (Platform platform in Items)
+            {
+                <li>
+                    <LibraryEntry Entry="platform"
+                                  RelatedCompanies="GetRelatedCompanies(platform)"
+                                  OnClick="() => OpenEditPopup(platform)"
+                                  OnRemove="() => RemovePlatform(platform)"/>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <div class="collection-table-scroll">
+            <table class="collection-table">
+                <thead>
+                <tr>
+                    <th scope="col">Platform</th>
+                    <th scope="col">Short Name</th>
+                    <th scope="col">Release</th>
+                    <th scope="col">Companies</th>
+                    <th scope="col">Linked Games</th>
+                    <th scope="col" class="collection-table-actions-heading">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (Platform platform in Items)
+                {
+                    <tr role="button"
+                        tabindex="0"
+                        @onclick="() => OpenEditPopup(platform)">
+                        <td>
+                            <div class="collection-table-primary-cell">
+                                <span>@platform.Name</span>
+                                @if (!string.IsNullOrWhiteSpace(platform.Summary))
+                                {
+                                    <small>@platform.Summary</small>
+                                }
+                            </div>
+                        </td>
+                        <td>@(string.IsNullOrWhiteSpace(platform.ShortName) ? "None" : platform.ShortName)</td>
+                        <td>@FormatDate(platform.ReleaseDate)</td>
+                        <td>@FormatNames(GetRelatedCompanies(platform).Select(company => company.Name))</td>
+                        <td>@FormatNames(GetGameNames(platform))</td>
+                        <td>
+                            <div class="collection-table-actions">
+                                <button class="collection-table-action collection-table-action-edit"
+                                        type="button"
+                                        title="Edit @platform.Name"
+                                        aria-label="Edit @platform.Name"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => OpenEditPopup(platform)">
+                                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                </button>
+                                <button class="collection-table-action collection-table-action-remove"
+                                        type="button"
+                                        title="Remove @platform.Name"
+                                        aria-label="Remove @platform.Name"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => RemovePlatform(platform)">
+                                    <i class="bi bi-trash" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
 </CollectionPageShell>

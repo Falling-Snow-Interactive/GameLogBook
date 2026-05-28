@@ -12,75 +12,80 @@
                      AddButtonText="Add Company"
                      OnAdd="OpenAddPopup"
                      IsEmpty="@(Items.Count == 0)"
+                     ViewMode="ViewMode"
+                     ViewModeChanged="SetViewMode"
                      EmptyTitle="No companies added yet"
                      EmptyDescription="Add a company to start building the shared catalog.">
-    <div class="collection-grid">
-        @foreach (Company company in Items)
-        {
-            <LibraryEntry Entry="company"
-                          OnClick="() => OpenEditPopup(company)"
-                          OnRemove="() => HandleRemove(company)"/>
-            
-            @* <article class="collection-card company-card" *@
-            @*          role="button" *@
-            @*          tabindex="0" *@
-            @*          @onclick="() => OpenEditPopup(company)"> *@
-            @*     @if (!string.IsNullOrWhiteSpace(company.ImagePath)) *@
-            @*     { *@
-            @*         <LocalImage ImagePath="@company.ImagePath" *@
-            @*                     ImageClass="company-cover" *@
-            @*                     AltText="@($"{company.Name} logo")"> *@
-            @*             <Placeholder> *@
-            @*                 <div class="company-cover company-cover-placeholder"> *@
-            @*                     <span class="bi bi-building" aria-hidden="true"></span> *@
-            @*                 </div> *@
-            @*             </Placeholder> *@
-            @*         </LocalImage> *@
-            @*     } *@
-            @*     else *@
-            @*     { *@
-            @*         <div class="company-cover company-cover-placeholder"> *@
-            @*             <span class="bi bi-building" aria-hidden="true"></span> *@
-            @*         </div> *@
-            @*     } *@
-            @* *@
-            @*     <div class="company-content"> *@
-            @*         <div class="company-title-row"> *@
-            @*             <h4>@company.Name</h4> *@
-            @*             <button class="collection-remove-button" *@
-            @*                     type="button" *@
-            @*                     title="Remove @company.Name" *@
-            @*                     disabled="@CompanyHasLinkedGames(company)" *@
-            @*                     @onclick:stopPropagation="true" *@
-            @*                     @onclick="() => HandleRemove(company)"> *@
-            @*                 Remove *@
-            @*             </button> *@
-            @*         </div> *@
-            @* *@
-            @*         <div class="company-badges"> *@
-            @*             <span class="company-badge neutral-badge">@GetCompanySourceSummary(company)</span> *@
-            @*             <span class="company-badge neutral-badge">@GetCompanyRoleSummary(company)</span> *@
-            @*         </div> *@
-            @* *@
-            @*         <div class="company-games"> *@
-            @*             <span class="company-games-label">Games worked on</span> *@
-            @* *@
-            @*             @if (GetGameNames(company).Count == 0) *@
-            @*             { *@
-            @*                 <span class="company-games-empty">No linked games yet</span> *@
-            @*             } *@
-            @*             else *@
-            @*             { *@
-            @*                 <div class="game-chip-list"> *@
-            @*                     @foreach (string gameName in GetGameNames(company)) *@
-            @*                     { *@
-            @*                         <span class="game-chip">@gameName</span> *@
-            @*                     } *@
-            @*                 </div> *@
-            @*             } *@
-            @*         </div> *@
-            @*     </div> *@
-            @* </article> *@
-        }
-    </div>
+    @if (ViewMode == CollectionViewMode.Card)
+    {
+        <div class="collection-grid">
+            @foreach (Company company in Items)
+            {
+                <LibraryEntry Entry="company"
+                              OnClick="() => OpenEditPopup(company)"
+                              OnRemove="() => HandleRemove(company)"/>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="collection-table-scroll">
+            <table class="collection-table">
+                <thead>
+                <tr>
+                    <th scope="col">Company</th>
+                    <th scope="col">Founded</th>
+                    <th scope="col">Source</th>
+                    <th scope="col">Roles</th>
+                    <th scope="col">Linked Games</th>
+                    <th scope="col">Linked Platforms</th>
+                    <th scope="col" class="collection-table-actions-heading">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (Company company in Items)
+                {
+                    <tr role="button"
+                        tabindex="0"
+                        @onclick="() => OpenEditPopup(company)">
+                        <td>
+                            <div class="collection-table-primary-cell">
+                                <span>@company.Name</span>
+                                @if (!string.IsNullOrWhiteSpace(company.Summary))
+                                {
+                                    <small>@company.Summary</small>
+                                }
+                            </div>
+                        </td>
+                        <td>@FormatDate(company.FoundedDate)</td>
+                        <td>@GetCompanySourceSummary(company)</td>
+                        <td>@GetCompanyRoleSummary(company)</td>
+                        <td>@FormatNames(GetGameNames(company))</td>
+                        <td>@FormatNames(GetPlatformNames(company))</td>
+                        <td>
+                            <div class="collection-table-actions">
+                                <button class="collection-table-action collection-table-action-edit"
+                                        type="button"
+                                        title="Edit @company.Name"
+                                        aria-label="Edit @company.Name"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => OpenEditPopup(company)">
+                                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                </button>
+                                <button class="collection-table-action collection-table-action-remove"
+                                        type="button"
+                                        title="Remove @company.Name"
+                                        aria-label="Remove @company.Name"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => HandleRemove(company)">
+                                    <i class="bi bi-trash" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
 </CollectionPageShell>

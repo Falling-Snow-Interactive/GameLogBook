@@ -10,17 +10,88 @@
                      AddButtonText="Add Game"
                      OnAdd="OpenAddPopup"
                      IsEmpty="@(Items.Count == 0)"
+                     ViewMode="ViewMode"
+                     ViewModeChanged="SetViewMode"
                      EmptyTitle="No games added yet"
                      EmptyDescription="Add a game to start building your library.">
-    <ul class="collection-grid">
-        @foreach (Game game in Items)
-        {
-            <li>
-                <LibraryEntry Entry="game"
-                              RelatedCompanies="GetRelatedCompanies(game)"
-                              OnClick="() => OpenEditPopup(game)"
-                              OnRemove="() => RemoveGame(game)"/>
-            </li>
-        }
-    </ul>
+    @if (ViewMode == CollectionViewMode.Card)
+    {
+        <ul class="collection-grid">
+            @foreach (Game game in Items)
+            {
+                <li>
+                    <LibraryEntry Entry="game"
+                                  RelatedCompanies="GetRelatedCompanies(game)"
+                                  OnClick="() => OpenEditPopup(game)"
+                                  OnRemove="() => RemoveGame(game)"/>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <div class="collection-table-scroll">
+            <table class="collection-table">
+                <thead>
+                <tr>
+                    <th scope="col">Game</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Release</th>
+                    <th scope="col">Rating</th>
+                    <th scope="col">Companies</th>
+                    <th scope="col">Platforms</th>
+                    <th scope="col" class="collection-table-actions-heading">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (Game game in Items)
+                {
+                    <tr role="button"
+                        tabindex="0"
+                        @onclick="() => OpenEditPopup(game)">
+                        <td>
+                            <div class="collection-table-primary-cell">
+                                <span>@game.Name</span>
+                                @if (!string.IsNullOrWhiteSpace(game.Summary))
+                                {
+                                    <small>@game.Summary</small>
+                                }
+                            </div>
+                        </td>
+                        <td>@game.GameType</td>
+                        <td>@FormatDate(game.ReleaseDate)</td>
+                        <td>
+                            <StarRating Value="game.Rating"
+                                        ReadOnly="true"
+                                        Class="collection-table-rating"
+                                        AriaLabel="@($"{game.Name} rating")" />
+                        </td>
+                        <td>@FormatNames(GetRelatedCompanies(game).Select(company => company.Name))</td>
+                        <td>@FormatNames(GetPlatformNames(game))</td>
+                        <td>
+                            <div class="collection-table-actions">
+                                <button class="collection-table-action collection-table-action-edit"
+                                        type="button"
+                                        title="Edit @game.Name"
+                                        aria-label="Edit @game.Name"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => OpenEditPopup(game)">
+                                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                </button>
+                                <button class="collection-table-action collection-table-action-remove"
+                                        type="button"
+                                        title="Remove @game.Name"
+                                        aria-label="Remove @game.Name"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => RemoveGame(game)">
+                                    <i class="bi bi-trash" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
 </CollectionPageShell>

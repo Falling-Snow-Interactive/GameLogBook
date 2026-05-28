@@ -8,14 +8,41 @@
             }
         </div>
 
-        @if (!string.IsNullOrWhiteSpace(AddButtonText))
-        {
-            <button class="collection-add-button"
-                    type="button"
-                    @onclick="OnAdd">
-                @AddButtonText
-            </button>
-        }
+        <div class="collection-header-actions">
+            @if (ShowViewToggle)
+            {
+                <div class="collection-view-toggle"
+                     role="group"
+                     aria-label="Collection view">
+                    <button class="@GetViewButtonClass(CollectionViewMode.Card)"
+                            type="button"
+                            title="Card view"
+                            aria-label="Card view"
+                            aria-pressed="@(ViewMode == CollectionViewMode.Card)"
+                            @onclick="() => ChangeViewMode(CollectionViewMode.Card)">
+                        <i class="bi bi-grid" aria-hidden="true"></i>
+                    </button>
+
+                    <button class="@GetViewButtonClass(CollectionViewMode.Table)"
+                            type="button"
+                            title="Table view"
+                            aria-label="Table view"
+                            aria-pressed="@(ViewMode == CollectionViewMode.Table)"
+                            @onclick="() => ChangeViewMode(CollectionViewMode.Table)">
+                        <i class="bi bi-table" aria-hidden="true"></i>
+                    </button>
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(AddButtonText))
+            {
+                <button class="collection-add-button"
+                        type="button"
+                        @onclick="OnAdd">
+                    @AddButtonText
+                </button>
+            }
+        </div>
     </div>
 
     @if (IsEmpty)
@@ -48,6 +75,12 @@
     public bool IsEmpty { get; set; }
 
     [Parameter]
+    public CollectionViewMode? ViewMode { get; set; }
+
+    [Parameter]
+    public EventCallback<CollectionViewMode> ViewModeChanged { get; set; }
+
+    [Parameter]
     public string EmptyTitle { get; set; } = string.Empty;
 
     [Parameter]
@@ -55,4 +88,20 @@
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
+
+    private bool ShowViewToggle => !IsEmpty
+                                   && ViewMode.HasValue
+                                   && ViewModeChanged.HasDelegate;
+
+    private async Task ChangeViewMode(CollectionViewMode viewMode)
+    {
+        await ViewModeChanged.InvokeAsync(viewMode);
+    }
+
+    private string GetViewButtonClass(CollectionViewMode viewMode)
+    {
+        return ViewMode == viewMode
+                   ? "collection-view-option is-active"
+                   : "collection-view-option";
+    }
 }

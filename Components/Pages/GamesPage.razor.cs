@@ -210,6 +210,20 @@ public partial class GamesPage : CollectionPageBase<Game>
                .ToList();
     }
 
+    private IReadOnlyList<string> GetPlatformNames(Game game)
+    {
+        HashSet<int> platformIds = game.GamePlatforms
+                                       .Select(ownership => ownership.PlatformID)
+                                       .Where(platformId => platformId > 0)
+                                       .ToHashSet();
+
+        return platforms
+               .Where(platform => platformIds.Contains(platform.ID))
+               .Select(platform => platform.Name)
+               .Order(StringComparer.OrdinalIgnoreCase)
+               .ToList();
+    }
+
     private async Task LoadCompaniesAsync()
     {
         companies = await DbContext.Companies
