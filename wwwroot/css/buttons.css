@@ -35,6 +35,25 @@
     transform: translateY(0);
 }
 
+.collection-add-button:focus-visible,
+.search-button:focus-visible,
+.save-button:focus-visible,
+.add-game-button:focus-visible,
+.collection-remove-button:focus-visible,
+.remove-game-button:focus-visible,
+.floating-add-button:focus-visible,
+.plus-button:focus-visible,
+.close-button:focus-visible,
+.popup-button:focus-visible,
+.button-pill:focus-visible,
+.button-dot:focus-visible,
+.igdb-search-button:focus-visible,
+.igdb-search-result:focus-visible,
+.steamgriddb-image-result:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+}
+
 .collection-add-button:disabled,
 .search-button:disabled,
 .save-button:disabled,

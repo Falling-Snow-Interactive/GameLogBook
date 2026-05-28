@@ -286,6 +286,10 @@
     overflow: hidden;
 }
 
+.image-field-upload-button:focus-within {
+    box-shadow: var(--focus-ring);
+}
+
 .image-field-upload-input {
     position: absolute;
     inset: 0;

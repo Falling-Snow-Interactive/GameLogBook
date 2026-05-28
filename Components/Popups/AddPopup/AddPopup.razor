@@ -1,8 +1,13 @@
 @using VGL.Models.Companies
 @using VGL.Models.Games
+@inject IJSRuntime JsRuntime
+@implements IAsyncDisposable
 
 <div class="popup-backdrop" @onclick="HandleClose">
-    <div class="@PopupClass" @onclick:stopPropagation="true">
+    <div class="@PopupClass"
+         data-focus-scope="modal"
+         @ref="popupElement"
+         @onclick:stopPropagation="true">
         <div class="popup-header">
             <div>
                 <h3>@Title</h3>
@@ -81,12 +86,45 @@
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
+    private ElementReference popupElement;
+    private bool focusObserverConnected;
+
     private string ContentClass => string.IsNullOrWhiteSpace(FormClass)
                                        ? "popup-content popup-form"
                                        : $"popup-content popup-form {FormClass}";
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        await JsRuntime.InvokeVoidAsync("gameLogBookFocus.observeModal", popupElement);
+        focusObserverConnected = true;
+    }
+
     private async Task HandleClose()
     {
         await OnClose.InvokeAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (!focusObserverConnected)
+        {
+            return;
+        }
+
+        try
+        {
+            await JsRuntime.InvokeVoidAsync("gameLogBookFocus.cleanupModal", popupElement);
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+        catch (InvalidOperationException)
+        {
+        }
     }
 }
