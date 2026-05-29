@@ -1,18 +1,19 @@
 @using VGL.Models.Games.Platforms
 
-<div class="ownership-input-widget">
+<div class="ownership-input-widget" @ref="ownershipGridElement">
     @if (Platforms.Count == 0)
     {
         <p class="form-hint">Add a platform before setting ownership.</p>
     }
     else
     {
-        @foreach (var platform in Platforms)
+        @foreach (var platform in OrderedPlatforms)
         {
             bool isSelected = IsSelected(platform.ID);
             bool hasLogo = !string.IsNullOrWhiteSpace(platform.Logo?.Path);
 
             <div class="ownership-row @(isSelected ? "ownership-row-selected" : null)"
+                 data-ownership-platform-id="@platform.ID"
                  role="checkbox"
                  tabindex="0"
                  aria-checked="@isSelected"

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using VGL.Models.Games.Platforms;
 using Platform = VGL.Models.Platforms.Platform;
 
@@ -7,6 +8,12 @@ namespace VGL.Components.Elements.GameElements;
 
 public partial class OwnershipInputWidget : ComponentBase
 {
+    private ElementReference ownershipGridElement;
+    private bool shouldAnimateLayout;
+
+    [Inject]
+    private IJSRuntime JsRuntime { get; set; } = null!;
+
     [Parameter]
     public IReadOnlyList<Platform> Platforms { get; set; } = [];
 
@@ -15,6 +22,28 @@ public partial class OwnershipInputWidget : ComponentBase
 
     [Parameter]
     public EventCallback<List<GamePlatformRelation>> OwnershipsChanged { get; set; }
+
+    private IEnumerable<Platform> OrderedPlatforms =>
+        Platforms
+            .Select((platform, index) => new
+                                         {
+                                             Platform = platform,
+                                             Index = index
+                                         })
+            .OrderBy(item => IsSelected(item.Platform.ID) ? 0 : 1)
+            .ThenBy(item => item.Index)
+            .Select(item => item.Platform);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!shouldAnimateLayout)
+        {
+            return;
+        }
+
+        shouldAnimateLayout = false;
+        await JsRuntime.InvokeVoidAsync("gameLogBookOwnershipInput.animate", ownershipGridElement);
+    }
 
     private bool IsSelected(int platformId)
     {
@@ -49,6 +78,8 @@ public partial class OwnershipInputWidget : ComponentBase
 
     private async Task TogglePlatform(int platformId, bool isSelected)
     {
+        await PrepareLayoutAnimation();
+
         if (isSelected && !IsSelected(platformId))
         {
             Ownerships.Add(new GamePlatformRelation
@@ -67,6 +98,8 @@ public partial class OwnershipInputWidget : ComponentBase
 
     private async Task ToggleOwnershipType(int platformId, OwnershipType ownershipType)
     {
+        await PrepareLayoutAnimation();
+
         GamePlatformRelation? ownership = Ownerships.FirstOrDefault(item => item.PlatformID == platformId
                                                                             && item.Ownership == ownershipType);
 
@@ -102,5 +135,11 @@ public partial class OwnershipInputWidget : ComponentBase
                      .ToList();
 
         await OwnershipsChanged.InvokeAsync(Ownerships);
+    }
+
+    private async Task PrepareLayoutAnimation()
+    {
+        shouldAnimateLayout = true;
+        await JsRuntime.InvokeVoidAsync("gameLogBookOwnershipInput.prepare", ownershipGridElement);
     }
 }
