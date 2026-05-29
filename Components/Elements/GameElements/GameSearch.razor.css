@@ -1,0 +1,121 @@
+.entity-search {
+    position: relative;
+    display: grid;
+    gap: 0.5rem;
+    width: 100%;
+    min-width: 0;
+}
+
+.entity-search-anchor {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+.search-input {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.search-input .detail-input {
+    flex: 1;
+}
+
+.search-input .plus-button {
+    flex: 0 0 auto;
+}
+
+.entity-search-results {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    left: 0;
+    z-index: 20;
+    display: grid;
+    max-height: min(20rem, 50vh);
+    gap: 0.55rem;
+    overflow-y: auto;
+    border: 1px solid #edf0f3;
+    border-radius: var(--radius-lg);
+    padding: 0.55rem;
+    background: var(--color-surface-muted);
+    box-shadow: var(--shadow-lg);
+}
+
+.entity-search-empty {
+    margin: 0;
+    border-radius: var(--radius-md);
+    padding: 0.75rem 0.85rem;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.entity-search-result {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 0.65rem;
+    background: var(--color-surface);
+    color: var(--color-text);
+    text-align: left;
+    transition:
+        transform var(--transition-fast),
+        background var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.entity-search-result:hover {
+    background: #f4effa;
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+}
+
+.entity-search-result:focus-visible {
+    outline: 3px solid rgba(103, 80, 164, 0.22);
+    outline-offset: 2px;
+}
+
+.entity-search-result-icon {
+    width: 3rem;
+    height: 3rem;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-subtle);
+    color: var(--color-primary);
+    font-size: 1.15rem;
+}
+
+.entity-search-result-copy {
+    min-width: 0;
+    display: grid;
+    gap: 0.15rem;
+}
+
+.entity-search-result-copy strong,
+.entity-search-result-copy small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.entity-search-result-copy strong {
+    color: var(--color-text);
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.entity-search-result-copy small {
+    color: var(--color-text-muted);
+    font-weight: 600;
+    line-height: 1.3;
+}

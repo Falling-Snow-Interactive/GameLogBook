@@ -2,17 +2,18 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using VGL.Components.Popups;
 using VGL.Models;
+using VGL.Models.Companies;
 using VGL.Models.Games;
-using VGL.Services;
+using PlatformModel = VGL.Models.Platforms.Platform;
 
 namespace VGL.Components.Pages;
 
-public partial class PlaythroughsPage : CollectionPageBase<Playthrough>
+public partial class PlaythroughsPage : LogbookPageBase<Playthrough>
 {
     public IReadOnlyList<Game> Games { get; set; } = [];
-
-    [Inject]
-    private PopupService PopupService { get; set; } = null!;
+    public IReadOnlyList<PlatformModel> Platforms { get; set; } = [];
+    public IReadOnlyList<PlaythroughRun> PlaythroughRuns { get; set; } = [];
+    private IReadOnlyList<Company> companies = [];
 
     protected override DbSet<Playthrough> EntitySet => DbContext.Playthroughs;
 
@@ -20,11 +21,11 @@ public partial class PlaythroughsPage : CollectionPageBase<Playthrough>
     {
         return item.Name;
     }
-    
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        await LoadGamesAsync();
+        await LoadPickerDataAsync();
     }
 
     protected override async Task LoadItemsAsync()
@@ -36,7 +37,12 @@ public partial class PlaythroughsPage : CollectionPageBase<Playthrough>
         }
 
         Items = await DbContext.Playthroughs
+                               .AsNoTracking()
                                .Where(playthrough => playthrough.UserProfileID == UserSession.CurrentUserID.Value)
+                               .Include(playthrough => playthrough.Game)
+                               .Include(playthrough => playthrough.Platform)
+                               .Include(playthrough => playthrough.PlaythroughRun)
+                               .Include(playthrough => playthrough.Logs)
                                .OrderBy(playthrough => playthrough.Name)
                                .ToListAsync();
     }
@@ -49,7 +55,10 @@ public partial class PlaythroughsPage : CollectionPageBase<Playthrough>
         }
 
         playthrough.UserProfileID = UserSession.CurrentUserID.Value;
+        await ApplyRunGroupAsync(playthrough);
         await AddItemAsync(playthrough);
+        await LoadPickerDataAsync();
+        await LoadItemsAsync();
     }
 
     private async Task UpdatePlaythrough(Playthrough updatedPlaythrough)
@@ -63,24 +72,47 @@ public partial class PlaythroughsPage : CollectionPageBase<Playthrough>
             return;
         }
 
+        await ApplyRunGroupAsync(updatedPlaythrough);
+
         existingPlaythrough.Name = updatedPlaythrough.Name.Trim();
-        existingPlaythrough.GameIds = updatedPlaythrough.GameIds.Distinct().ToArray();
+        existingPlaythrough.Status = updatedPlaythrough.Status;
+        existingPlaythrough.GameID = updatedPlaythrough.GameID;
+        existingPlaythrough.PlatformID = updatedPlaythrough.PlatformID;
+        existingPlaythrough.PlaythroughRunID = updatedPlaythrough.PlaythroughRunID;
+        existingPlaythrough.ManualStartedAt = updatedPlaythrough.ManualStartedAt;
+        existingPlaythrough.ManualFinishedAt = updatedPlaythrough.ManualFinishedAt;
+        existingPlaythrough.ManualMasteredAt = updatedPlaythrough.ManualMasteredAt;
 
         await UpdateItemAsync();
+        await LoadPickerDataAsync();
     }
 
     private async Task RemovePlaythrough(Playthrough playthrough)
     {
-        await RemoveItemAsync(playthrough);
+        Playthrough? existingPlaythrough = await DbContext.Playthroughs
+                                                          .FirstOrDefaultAsync(item => item.ID == playthrough.ID
+                                                                                       && item.UserProfileID == UserSession.CurrentUserID);
+
+        if (existingPlaythrough is null)
+        {
+            return;
+        }
+
+        await RemoveItemAsync(existingPlaythrough);
+        await LoadItemsAsync();
     }
 
     protected override async Task OpenAddPopup()
     {
         Playthrough? playthrough = await PopupService.ShowAsync<AddPlaythroughPopup, Playthrough>(
-                                                                                                  new Dictionary<string, object?>
-                                                                                                  {
-                                                                                                      [nameof(AddPlaythroughPopup.LibraryGames)] = Games
-                                                                                                  });
+            new Dictionary<string, object?>
+            {
+                [nameof(AddPlaythroughPopup.LibraryGames)] = Games,
+                [nameof(AddPlaythroughPopup.Platforms)] = Platforms,
+                [nameof(AddPlaythroughPopup.PlaythroughRuns)] = PlaythroughRuns,
+                [nameof(AddPlaythroughPopup.OnGameAdded)] = new Func<Task<Game?>>(AddGameFromPicker),
+                [nameof(AddPlaythroughPopup.OnPlatformAdded)] = new Func<Task<PlatformModel?>>(AddPlatformFromPicker)
+            });
 
         if (playthrough is not null)
         {
@@ -94,14 +126,24 @@ public partial class PlaythroughsPage : CollectionPageBase<Playthrough>
                                           {
                                               ID = playthrough.ID,
                                               Name = playthrough.Name,
-                                              GameIds = playthrough.GameIds.ToArray()
+                                              Status = playthrough.Status,
+                                              GameID = playthrough.GameID,
+                                              PlatformID = playthrough.PlatformID,
+                                              PlaythroughRunID = playthrough.PlaythroughRunID,
+                                              ManualStartedAt = playthrough.ManualStartedAt,
+                                              ManualFinishedAt = playthrough.ManualFinishedAt,
+                                              ManualMasteredAt = playthrough.ManualMasteredAt
                                           };
 
         Playthrough? updatedPlaythrough = await PopupService.ShowAsync<AddPlaythroughPopup, Playthrough>(
             new Dictionary<string, object?>
             {
                 [nameof(AddPlaythroughPopup.InitialPlaythrough)] = editablePlaythrough,
-                [nameof(AddPlaythroughPopup.LibraryGames)] = Games
+                [nameof(AddPlaythroughPopup.LibraryGames)] = Games,
+                [nameof(AddPlaythroughPopup.Platforms)] = Platforms,
+                [nameof(AddPlaythroughPopup.PlaythroughRuns)] = PlaythroughRuns,
+                [nameof(AddPlaythroughPopup.OnGameAdded)] = new Func<Task<Game?>>(AddGameFromPicker),
+                [nameof(AddPlaythroughPopup.OnPlatformAdded)] = new Func<Task<PlatformModel?>>(AddPlatformFromPicker)
             });
 
         if (updatedPlaythrough is not null)
@@ -110,41 +152,114 @@ public partial class PlaythroughsPage : CollectionPageBase<Playthrough>
         }
     }
 
-    private static string GetPlaythroughSummary(Playthrough playthrough)
+    private async Task ApplyRunGroupAsync(Playthrough playthrough)
     {
-        return playthrough.GameIds.Length switch
+        if (UserSession.CurrentUserID is null || string.IsNullOrWhiteSpace(playthrough.PlaythroughRun?.Name))
         {
-            0 => "No linked games yet",
-            1 => "1 linked game",
-            _ => $"{playthrough.GameIds.Length} linked games"
-        };
+            playthrough.PlaythroughRun = null;
+            return;
+        }
+
+        string runName = playthrough.PlaythroughRun.Name.Trim();
+        PlaythroughRun? existingRun = await DbContext.PlaythroughRuns
+                                                     .FirstOrDefaultAsync(run => run.UserProfileID == UserSession.CurrentUserID.Value
+                                                                                 && run.Name == runName);
+
+        if (existingRun is null)
+        {
+            existingRun = new PlaythroughRun
+                          {
+                              UserProfileID = UserSession.CurrentUserID.Value,
+                              Name = runName
+                          };
+
+            DbContext.PlaythroughRuns.Add(existingRun);
+            await DbContext.SaveChangesAsync();
+        }
+
+        playthrough.PlaythroughRunID = existingRun.ID;
+        playthrough.PlaythroughRun = null;
     }
 
-    private IReadOnlyList<string> GetLinkedGameNames(Playthrough playthrough)
-    {
-        HashSet<int> gameIds = playthrough.GameIds.ToHashSet();
-
-        return Games
-               .Where(game => gameIds.Contains(game.ID))
-               .Select(game => game.Name)
-               .Order(StringComparer.OrdinalIgnoreCase)
-               .ToList();
-    }
-
-    private async Task LoadGamesAsync()
+    private async Task LoadPickerDataAsync()
     {
         if (UserSession.CurrentUserID is null)
         {
             Games = [];
+            Platforms = [];
+            PlaythroughRuns = [];
+            companies = [];
             return;
         }
 
-        Games = await DbContext.UserGameCollections
-                               .AsNoTracking()
-                               .Where(userGame => userGame.UserProfileID == UserSession.CurrentUserID.Value)
-                               .Include(userGame => userGame.Game)
-                               .Select(userGame => userGame.Game)
-                               .OrderBy(game => game.Name)
-                               .ToListAsync();
+        int userProfileId = UserSession.CurrentUserID.Value;
+
+        Games = await LoadLibraryGamesAsync();
+        Platforms = await LoadLibraryPlatformsAsync();
+        companies = await LoadCompaniesAsync();
+
+        PlaythroughRuns = await DbContext.PlaythroughRuns
+                                         .AsNoTracking()
+                                         .Where(run => run.UserProfileID == userProfileId)
+                                         .OrderBy(run => run.Name)
+                                         .ToListAsync();
+    }
+
+    private async Task<Game?> AddGameFromPicker()
+    {
+        Game? game = await OpenAddGameToLibraryPopupAsync(companies, Platforms);
+        await LoadPickerDataAsync();
+        return game;
+    }
+
+    private async Task<PlatformModel?> AddPlatformFromPicker()
+    {
+        PlatformModel? platform = await OpenAddPlatformToLibraryPopupAsync(Games, companies);
+        await LoadPickerDataAsync();
+        return platform;
+    }
+
+    private static string GetPlaythroughSummary(Playthrough playthrough)
+    {
+        string game = playthrough.Game?.Name ?? "No game";
+        string platform = playthrough.Platform?.Name ?? "No platform";
+        return $"{game} on {platform} · {FormatPlaytime(playthrough.TotalPlaytime)} · {FormatLogCount(playthrough.Logs.Count)}";
+    }
+
+    private static string FormatLogCount(int count)
+    {
+        return count == 1 ? "1 log" : $"{count} logs";
+    }
+
+    private static string FormatDateTime(DateTimeOffset? value)
+    {
+        return value?.LocalDateTime.ToString("MMM d, yyyy h:mm tt") ?? "Not set";
+    }
+
+    private static string FormatPlaytime(TimeSpan playtime)
+    {
+        if (playtime <= TimeSpan.Zero)
+        {
+            return "0 Minutes";
+        }
+
+        List<string> parts = [];
+
+        if (playtime.Days > 0)
+        {
+            parts.Add($"{playtime.Days} {(playtime.Days == 1 ? "Day" : "Days")}");
+        }
+
+        if (playtime.Hours > 0)
+        {
+            parts.Add($"{playtime.Hours} {(playtime.Hours == 1 ? "Hour" : "Hours")}");
+        }
+
+        if (playtime.Minutes > 0 || parts.Count == 0)
+        {
+            parts.Add($"{playtime.Minutes} {(playtime.Minutes == 1 ? "Minute" : "Minutes")}");
+        }
+
+        return string.Join(' ', parts);
     }
 }

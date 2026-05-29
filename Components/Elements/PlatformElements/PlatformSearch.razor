@@ -1,0 +1,65 @@
+@using PlatformModel = VGL.Models.Platforms.Platform
+
+<div class="entity-search"
+     @onfocusin="HandleSearchFocusIn"
+     @onfocusout="HandleSearchFocusOut">
+    <div class="entity-search-anchor">
+        <div class="search-input">
+            <input class="detail-input"
+                   value="@SearchText"
+                   @oninput="OnSearchTextChanged"
+                   placeholder="@Placeholder"
+                   autocomplete="off"
+                   aria-expanded="@ShouldShowDropdown" />
+            <button class="plus-button"
+                    type="button"
+                    title="Add platform"
+                    aria-label="Add platform"
+                    @onclick="HandlePlusClicked">
+                +
+            </button>
+        </div>
+
+        @if (ShouldShowDropdown)
+        {
+            <div class="entity-search-results">
+                @if (PlatformMatches.Count > 0)
+                {
+                    @foreach (PlatformModel platform in PlatformMatches)
+                    {
+                        <button class="entity-search-result"
+                                type="button"
+                                @onclick="() => SelectPlatform(platform)">
+                            <span class="entity-search-result-icon bi bi-tv"
+                                  aria-hidden="true"></span>
+
+                            <span class="entity-search-result-copy">
+                                <strong>@platform.Name</strong>
+                                <small>@GetPlatformBadge(platform)</small>
+                            </span>
+                        </button>
+                    }
+                }
+                else
+                {
+                    <p class="entity-search-empty">No platforms found.</p>
+                }
+            </div>
+        }
+    </div>
+
+    @if (SelectedPlatform is not null)
+    {
+        <div class="manufacturer-chip-list">
+            <span class="manufacturer-chip">
+                @SelectedPlatform.Name
+                <button type="button"
+                        title="Remove @SelectedPlatform.Name"
+                        aria-label="Remove @SelectedPlatform.Name"
+                        @onclick="RemovePlatform">
+                    X
+                </button>
+            </span>
+        </div>
+    }
+</div>

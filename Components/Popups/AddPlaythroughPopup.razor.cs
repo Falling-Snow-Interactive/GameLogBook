@@ -2,19 +2,38 @@ using Microsoft.AspNetCore.Components;
 using VGL.Models;
 using VGL.Models.Games;
 using VGL.Services;
+using PlatformModel = VGL.Models.Platforms.Platform;
 
 namespace VGL.Components.Popups;
 
 public partial class AddPlaythroughPopup : ComponentBase
 {
     private Playthrough? previousInitialPlaythrough;
-    private string? playthroughName;
+    private string playthroughName = string.Empty;
     private string? errorMessage;
-    private int? selectedGameIdToAdd;
-    private readonly List<int> selectedGameIds = [];
+    private int? selectedGameId;
+    private int? selectedPlatformId;
+    private int? selectedRunId;
+    private string newRunName = string.Empty;
+    private PlaythroughStatus status;
+    private DateTime? manualStartedAt;
+    private DateTime? manualFinishedAt;
+    private DateTime? manualMasteredAt;
 
     [Parameter]
     public IReadOnlyList<Game> LibraryGames { get; set; } = [];
+
+    [Parameter]
+    public IReadOnlyList<PlatformModel> Platforms { get; set; } = [];
+
+    [Parameter]
+    public IReadOnlyList<PlaythroughRun> PlaythroughRuns { get; set; } = [];
+
+    [Parameter]
+    public Func<Task<Game?>>? OnGameAdded { get; set; }
+
+    [Parameter]
+    public Func<Task<PlatformModel?>>? OnPlatformAdded { get; set; }
 
     [Parameter]
     public EventCallback OnClose { get; set; }
@@ -32,11 +51,9 @@ public partial class AddPlaythroughPopup : ComponentBase
 
     private string SaveButtonText => InitialPlaythrough is null ? "Add Playthrough" : "Save Changes";
 
-    private IEnumerable<Game> SelectedGames =>
-        LibraryGames.Where(game => selectedGameIds.Contains(game.ID));
-
-    private IEnumerable<Game> AvailableGamesToAdd =>
-        LibraryGames.Where(game => !selectedGameIds.Contains(game.ID));
+    private bool CanSave => !string.IsNullOrWhiteSpace(playthroughName)
+                            && selectedGameId is not null
+                            && selectedPlatformId is not null;
 
     protected override void OnParametersSet()
     {
@@ -67,50 +84,18 @@ public partial class AddPlaythroughPopup : ComponentBase
         await OnClose.InvokeAsync();
     }
 
-    private void HandleSelectedGameChanged(ChangeEventArgs args)
+    private void HandleRunChanged(ChangeEventArgs args)
     {
-        string? value = args.Value?.ToString();
-
-        selectedGameIdToAdd = int.TryParse(value, out int gameId)
-         
-                                  ? gameId
-            : null;
-    }
-
-    private void HandleAddSelectedGame()
-    {
-        if (selectedGameIdToAdd is null)
-        {
-            return;
-        }
-
-        int gameId = selectedGameIdToAdd.Value;
-
-        if (!selectedGameIds.Contains(gameId))
-        {
-            selectedGameIds.Add(gameId);
-        }
-
-        selectedGameIdToAdd = null;
-    }
-
-    private void HandleRemoveGame(int gameId)
-    {
-        selectedGameIds.Remove(gameId);
-
-        if (selectedGameIdToAdd == gameId)
-        {
-            selectedGameIdToAdd = null;
-        }
+        selectedRunId = ParseNullableInt(args.Value);
     }
 
     private async Task HandleSavePlaythrough()
     {
         errorMessage = null;
 
-        if (string.IsNullOrWhiteSpace(playthroughName))
+        if (!CanSave)
         {
-            errorMessage = "Please enter a playthrough name.";
+            errorMessage = "Enter a name, game, and platform.";
             return;
         }
 
@@ -118,8 +103,22 @@ public partial class AddPlaythroughPopup : ComponentBase
                                   {
                                       ID = InitialPlaythrough?.ID ?? 0,
                                       Name = playthroughName.Trim(),
-                                      GameIds = selectedGameIds.ToArray()
+                                      Status = status,
+                                      GameID = selectedGameId,
+                                      PlatformID = selectedPlatformId,
+                                      PlaythroughRunID = selectedRunId,
+                                      ManualStartedAt = ToDateTimeOffset(manualStartedAt),
+                                      ManualFinishedAt = ToDateTimeOffset(manualFinishedAt),
+                                      ManualMasteredAt = ToDateTimeOffset(manualMasteredAt)
                                   };
+
+        if (!string.IsNullOrWhiteSpace(newRunName))
+        {
+            playthrough.PlaythroughRun = new PlaythroughRun
+                                         {
+                                             Name = newRunName.Trim()
+                                         };
+        }
 
         if (Popup is not null)
         {
@@ -134,17 +133,43 @@ public partial class AddPlaythroughPopup : ComponentBase
     private void LoadPlaythrough(Playthrough playthrough)
     {
         playthroughName = playthrough.Name;
+        status = playthrough.Status;
+        selectedGameId = playthrough.GameID;
+        selectedPlatformId = playthrough.PlatformID;
+        selectedRunId = playthrough.PlaythroughRunID;
+        newRunName = string.Empty;
+        manualStartedAt = ToLocalDateTime(playthrough.ManualStartedAt);
+        manualFinishedAt = ToLocalDateTime(playthrough.ManualFinishedAt);
+        manualMasteredAt = ToLocalDateTime(playthrough.ManualMasteredAt);
         errorMessage = null;
-        selectedGameIdToAdd = null;
-        selectedGameIds.Clear();
-        selectedGameIds.AddRange(playthrough.GameIds.Distinct());
     }
 
     private void ResetForm()
     {
         playthroughName = string.Empty;
+        status = PlaythroughStatus.NotStarted;
+        selectedGameId = null;
+        selectedPlatformId = null;
+        selectedRunId = null;
+        newRunName = string.Empty;
+        manualStartedAt = null;
+        manualFinishedAt = null;
+        manualMasteredAt = null;
         errorMessage = null;
-        selectedGameIdToAdd = null;
-        selectedGameIds.Clear();
+    }
+
+    private static int? ParseNullableInt(object? value)
+    {
+        return int.TryParse(value?.ToString(), out int parsed) ? parsed : null;
+    }
+
+    private static DateTimeOffset? ToDateTimeOffset(DateTime? value)
+    {
+        return value is null ? null : new DateTimeOffset(DateTime.SpecifyKind(value.Value, DateTimeKind.Local));
+    }
+
+    private static DateTime? ToLocalDateTime(DateTimeOffset? value)
+    {
+        return value?.LocalDateTime;
     }
 }

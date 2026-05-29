@@ -1,0 +1,18 @@
+using VGL.Models.Users;
+
+namespace VGL.Models;
+
+public class PlaythroughRun
+{
+    public int ID { get; set; }
+
+    public int UserProfileID { get; set; }
+
+    public UserProfile UserProfile { get; set; } = null!;
+
+    public string Name { get; set; } = string.Empty;
+
+    public string? Description { get; set; }
+
+    public List<Playthrough> Playthroughs { get; set; } = [];
+}

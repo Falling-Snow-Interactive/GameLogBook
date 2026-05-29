@@ -6,16 +6,24 @@
           ShowSearch="false"
           OnClose="HandleClose">
     <div class="playthrough-details-form">
-        <AddPopupSection Title="Information">
-            <EntryField Label="Name" Class="form-span-wide">
+        <AddPopupSection Title="Session">
+            <EntryField Label="Title" Class="form-span-wide" Hint="Optional. Leave blank to use the game and start time.">
                 <input class="playthrough-detail-input"
-                       @bind="playthroughName"
+                       @bind="title"
                        @bind:event="oninput"
-                       placeholder="Playthrough name" />
+                       placeholder="Session title" />
             </EntryField>
 
-            <EntryField Label="Status">
-                <EnumDropdown TEnum="PlaythroughStatus" class="playthrough-detail-input" @bind-Value="status" />
+            <EntryField Label="Playthrough">
+                <select class="playthrough-detail-input"
+                        value="@selectedPlaythroughId"
+                        @onchange="HandlePlaythroughChanged">
+                    <option value="">Select a playthrough...</option>
+                    @foreach (Playthrough playthrough in Playthroughs)
+                    {
+                        <option value="@playthrough.ID">@playthrough.Name</option>
+                    }
+                </select>
             </EntryField>
 
             <EntryField Label="Game">
@@ -32,53 +40,55 @@
                                 @bind-SelectedPlatformId="selectedPlatformId" />
             </EntryField>
 
-            <EntryField Label="Run Group">
+            <EntryField Label="Status Change">
                 <select class="playthrough-detail-input"
-                        value="@selectedRunId"
-                        @onchange="HandleRunChanged">
-                    <option value="">No run group</option>
-                    @foreach (PlaythroughRun run in PlaythroughRuns)
+                        value="@statusChangeValue"
+                        @onchange="HandleStatusChangeChanged">
+                    <option value="">No change</option>
+                    @foreach (PlaythroughStatus option in Enum.GetValues<PlaythroughStatus>())
                     {
-                        <option value="@run.ID">@run.Name</option>
+                        <option value="@option">@option</option>
                     }
                 </select>
             </EntryField>
-
-            <EntryField Label="New Run Group" Hint="Optional. Creates a run group and links this playthrough to it.">
-                <input class="playthrough-detail-input"
-                       @bind="newRunName"
-                       @bind:event="oninput"
-                       placeholder="Series, expansion arc, themed run..." />
-            </EntryField>
         </AddPopupSection>
 
-        <AddPopupSection Title="Manual Date Overrides">
+        <AddPopupSection Title="Time and Place">
             <EntryField Label="Started">
                 <input class="playthrough-detail-input"
                        type="datetime-local"
-                       @bind="manualStartedAt"
+                       @bind="startedAt"
                        @bind:format="yyyy-MM-ddTHH:mm" />
             </EntryField>
 
-            <EntryField Label="Finished">
+            <EntryField Label="Ended">
                 <input class="playthrough-detail-input"
                        type="datetime-local"
-                       @bind="manualFinishedAt"
+                       @bind="endedAt"
                        @bind:format="yyyy-MM-ddTHH:mm" />
             </EntryField>
 
-            <EntryField Label="Mastered">
+            <EntryField Label="Location">
                 <input class="playthrough-detail-input"
-                       type="datetime-local"
-                       @bind="manualMasteredAt"
-                       @bind:format="yyyy-MM-ddTHH:mm" />
+                       @bind="location"
+                       @bind:event="oninput"
+                       placeholder="Couch, commute, vacation..." />
+            </EntryField>
+        </AddPopupSection>
+
+        <AddPopupSection Title="Notes">
+            <EntryField Label="Notes" Class="form-span-all">
+                <textarea class="playthrough-detail-textarea"
+                          @bind="notes"
+                          @bind:event="oninput"
+                          placeholder="Bosses beaten, story beats, thoughts, goals for next time..."></textarea>
             </EntryField>
         </AddPopupSection>
 
         <AddPopupActions>
             <button class="save-button"
                     type="button"
-                    @onclick="HandleSavePlaythrough"
+                    @onclick="HandleSaveLog"
                     disabled="@(!CanSave)">
                 @SaveButtonText
             </button>

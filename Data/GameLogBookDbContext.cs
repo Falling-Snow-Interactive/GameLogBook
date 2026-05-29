@@ -21,6 +21,8 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
     public DbSet<Platform> Platforms => Set<Platform>();
     
     public DbSet<Playthrough> Playthroughs => Set<Playthrough>();
+    public DbSet<GameLog> GameLogs => Set<GameLog>();
+    public DbSet<PlaythroughRun> PlaythroughRuns => Set<PlaythroughRun>();
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
     public DbSet<UserGameCollection> UserGameCollections => Set<UserGameCollection>();
     public DbSet<UserPlatformCollection> UserPlatformCollections => Set<UserPlatformCollection>();
@@ -46,6 +48,8 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
         SetupCompanyDb(modelBuilder);
         SetupUserDb(modelBuilder);
         SetupPlaythroughDb(modelBuilder);
+        SetupGameLogDb(modelBuilder);
+        SetupPlaythroughRunDb(modelBuilder);
     }
 
     private static void SetupAppSettingsDb(ModelBuilder modelBuilder)
@@ -89,6 +93,81 @@ public class GameLogBookDbContext(DbContextOptions<GameLogBookDbContext> options
                     .WithMany()
                     .HasForeignKey(playthrough => playthrough.UserProfileID)
                     .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Playthrough>()
+                    .HasOne(playthrough => playthrough.Game)
+                    .WithMany()
+                    .HasForeignKey(playthrough => playthrough.GameID)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Playthrough>()
+                    .HasOne(playthrough => playthrough.Platform)
+                    .WithMany()
+                    .HasForeignKey(playthrough => playthrough.PlatformID)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Playthrough>()
+                    .HasOne(playthrough => playthrough.PlaythroughRun)
+                    .WithMany(run => run.Playthroughs)
+                    .HasForeignKey(playthrough => playthrough.PlaythroughRunID)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Playthrough>()
+                    .HasIndex(playthrough => new
+                                             {
+                                                 playthrough.UserProfileID,
+                                                 playthrough.Status,
+                                             });
+    }
+
+    private void SetupGameLogDb(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<GameLog>()
+                    .HasOne(log => log.UserProfile)
+                    .WithMany()
+                    .HasForeignKey(log => log.UserProfileID)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<GameLog>()
+                    .HasOne(log => log.Game)
+                    .WithMany()
+                    .HasForeignKey(log => log.GameID)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<GameLog>()
+                    .HasOne(log => log.Playthrough)
+                    .WithMany(playthrough => playthrough.Logs)
+                    .HasForeignKey(log => log.PlaythroughID)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<GameLog>()
+                    .HasOne(log => log.Platform)
+                    .WithMany()
+                    .HasForeignKey(log => log.PlatformID)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<GameLog>()
+                    .HasIndex(log => new
+                                     {
+                                         log.UserProfileID,
+                                         log.StartedAt,
+                                     });
+    }
+
+    private void SetupPlaythroughRunDb(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<PlaythroughRun>()
+                    .HasOne(run => run.UserProfile)
+                    .WithMany()
+                    .HasForeignKey(run => run.UserProfileID)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<PlaythroughRun>()
+                    .HasIndex(run => new
+                                     {
+                                         run.UserProfileID,
+                                         run.Name,
+                                     });
     }
 
     private void SetupRelationalDbs(ModelBuilder modelBuilder)

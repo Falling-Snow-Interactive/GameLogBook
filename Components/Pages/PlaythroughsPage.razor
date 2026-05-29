@@ -4,12 +4,12 @@
 @using VGL.Components.Elements.CollectionPageShell
 @using VGL.Components.Elements.NamedCollectionEntry
 
-@inherits CollectionPageBase<VGL.Models.Playthrough>
+@inherits LogbookPageBase<VGL.Models.Playthrough>
 
 <PageTitle>Playthroughs</PageTitle>
 
 <CollectionPageShell Title="Playthroughs"
-                     Description="Your saved playthroughs."
+                     Description="Your game runs, progress, and session totals."
                      AddButtonText="Add Playthrough"
                      OnAdd="OpenAddPopup"
                      IsEmpty="@(Items.Count == 0)"
@@ -34,12 +34,20 @@
     else
     {
         <div class="collection-table-scroll">
-            <table class="collection-table">
+            <table class="collection-table logbook-table">
                 <thead>
                 <tr>
                     <th scope="col">Playthrough</th>
-                    <th scope="col">Linked Game Count</th>
-                    <th scope="col">Linked Games</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Game</th>
+                    <th scope="col">Platform</th>
+                    <th scope="col">Playtime</th>
+                    <th scope="col">Logs</th>
+                    <th scope="col">Started</th>
+                    <th scope="col">Finished</th>
+                    <th scope="col">Mastered</th>
+                    <th scope="col">Last Played</th>
+                    <th scope="col">Run Group</th>
                     <th scope="col" class="collection-table-actions-heading">Actions</th>
                 </tr>
                 </thead>
@@ -52,10 +60,23 @@
                         <td>
                             <div class="collection-table-primary-cell">
                                 <span>@playthrough.Name</span>
+                                <small>Average @FormatPlaytime(playthrough.AverageSessionLength ?? TimeSpan.Zero)</small>
                             </div>
                         </td>
-                        <td>@playthrough.GameIds.Length</td>
-                        <td>@FormatNames(GetLinkedGameNames(playthrough))</td>
+                        <td>
+                            <span class="@($"status-badge status-badge-{playthrough.Status.ToString().ToLowerInvariant()}")">
+                                @playthrough.Status
+                            </span>
+                        </td>
+                        <td>@(playthrough.Game?.Name ?? "Not set")</td>
+                        <td>@(playthrough.Platform?.Name ?? "Not set")</td>
+                        <td>@FormatPlaytime(playthrough.TotalPlaytime)</td>
+                        <td>@playthrough.Logs.Count</td>
+                        <td>@FormatDateTime(playthrough.StartedAt)</td>
+                        <td>@FormatDateTime(playthrough.FinishedAt)</td>
+                        <td>@FormatDateTime(playthrough.MasteredAt)</td>
+                        <td>@FormatDateTime(playthrough.LastPlayedAt)</td>
+                        <td>@(playthrough.PlaythroughRun?.Name ?? "None")</td>
                         <td>
                             <div class="collection-table-actions">
                                 <button class="collection-table-action collection-table-action-edit"

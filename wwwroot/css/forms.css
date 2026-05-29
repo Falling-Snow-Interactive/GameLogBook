@@ -248,6 +248,8 @@
 }
 
 .detail-input[type="date"],
+.detail-input[type="datetime-local"],
+.playthrough-detail-input[type="datetime-local"],
 .platform-input[type="date"] {
     appearance: none;
     -webkit-appearance: none;

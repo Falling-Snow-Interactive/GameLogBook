@@ -1,15 +1,100 @@
 @page "/logs"
-@inject UserProfileSession UserSession
-@inject NavigationManager Navigation
 
-<h3>Logs</h3>
+@using VGL.Models
+@using VGL.Components.Elements.CollectionPageShell
+@using VGL.Components.Elements.NamedCollectionEntry
 
-@code {
-    protected override async Task OnInitializedAsync()
+@inherits LogbookPageBase<VGL.Models.GameLog>
+
+<PageTitle>Logs</PageTitle>
+
+<CollectionPageShell Title="Logs"
+                     Description="Individual sessions across your playthroughs."
+                     AddButtonText="Add Log"
+                     OnAdd="OpenAddPopup"
+                     IsEmpty="@(Items.Count == 0)"
+                     ViewMode="ViewMode"
+                     ViewModeChanged="SetViewMode"
+                     EmptyTitle="No logs added yet"
+                     EmptyDescription="Add a log after a play session to build your history.">
+    @if (ViewMode == CollectionViewMode.Card)
     {
-        if (!UserSession.IsSignedIn && !await UserSession.TryAutoSignInAsync())
-        {
-            Navigation.NavigateTo("/profiles");
-        }
+        <ul class="collection-list">
+            @foreach (GameLog log in Items)
+            {
+                <NamedCollectionEntry TItem="GameLog"
+                                      Item="log"
+                                      Title="@GetLogTitle(log)"
+                                      Description="@GetLogSummary(log)"
+                                      OnClick="OpenEditPopup"
+                                      OnRemove="RemoveLog" />
+            }
+        </ul>
     }
-}
+    else
+    {
+        <div class="collection-table-scroll">
+            <table class="collection-table logbook-table">
+                <thead>
+                <tr>
+                    <th scope="col">Log</th>
+                    <th scope="col">Game</th>
+                    <th scope="col">Playthrough</th>
+                    <th scope="col">Platform</th>
+                    <th scope="col">Status Change</th>
+                    <th scope="col">Started</th>
+                    <th scope="col">Ended</th>
+                    <th scope="col">Duration</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Notes</th>
+                    <th scope="col" class="collection-table-actions-heading">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (GameLog log in Items)
+                {
+                    <tr role="button"
+                        tabindex="0"
+                        @onclick="() => OpenEditPopup(log)">
+                        <td>
+                            <div class="collection-table-primary-cell">
+                                <span>@GetLogTitle(log)</span>
+                                <small>@FormatDateTime(log.StartedAt)</small>
+                            </div>
+                        </td>
+                        <td>@log.Game.Name</td>
+                        <td>@log.Playthrough.Name</td>
+                        <td>@log.Platform.Name</td>
+                        <td>@(log.StatusChange?.ToString() ?? "None")</td>
+                        <td>@FormatDateTime(log.StartedAt)</td>
+                        <td>@FormatDateTime(log.EndedAt)</td>
+                        <td>@FormatDuration(log)</td>
+                        <td>@(log.Location ?? "Not set")</td>
+                        <td>@GetNotesPreview(log)</td>
+                        <td>
+                            <div class="collection-table-actions">
+                                <button class="collection-table-action collection-table-action-edit"
+                                        type="button"
+                                        title="Edit @GetLogTitle(log)"
+                                        aria-label="Edit @GetLogTitle(log)"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => OpenEditPopup(log)">
+                                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                </button>
+                                <button class="collection-table-action collection-table-action-remove"
+                                        type="button"
+                                        title="Remove @GetLogTitle(log)"
+                                        aria-label="Remove @GetLogTitle(log)"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => RemoveLog(log)">
+                                    <i class="bi bi-trash" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</CollectionPageShell>

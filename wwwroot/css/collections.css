@@ -178,6 +178,10 @@
     table-layout: fixed;
 }
 
+.collection-table.logbook-table {
+    min-width: 92rem;
+}
+
 .collection-table th,
 .collection-table td {
     padding: 0.875rem 1rem;
@@ -246,6 +250,51 @@
 
 .collection-table-rating {
     white-space: nowrap;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.75rem;
+    padding: 0.25rem 0.625rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-subtle);
+    color: var(--color-text);
+    font-size: 0.78rem;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.status-badge-notstarted {
+    background: #f4f6f8;
+    color: #475467;
+}
+
+.status-badge-playing {
+    background: #e9f7ef;
+    color: #087443;
+}
+
+.status-badge-paused {
+    background: #fff7e6;
+    color: #a15c07;
+}
+
+.status-badge-abandoned {
+    background: #fff1f0;
+    color: #b42318;
+}
+
+.status-badge-finished {
+    background: #eaf2ff;
+    color: #175cd3;
+}
+
+.status-badge-mastered {
+    background: #f4efff;
+    color: #6941c6;
 }
 
 .collection-table-actions-heading {
