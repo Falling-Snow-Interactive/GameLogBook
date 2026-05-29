@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Components;
 using VGL.Components.Elements.ImageField;
 using VGL.Models;
@@ -51,7 +52,7 @@ public partial class AddGamePopup
     private string developerSearchText = string.Empty;
     private string publisherSearchText = string.Empty;
 
-    private string name = string.Empty;
+    public string name = string.Empty;
     private GameType type;
     private int rating;
     private DateOnly? releaseDate;
@@ -197,11 +198,11 @@ public partial class AddGamePopup
     private void Load(Game game)
     {
         // Information
-        name = game.Name;
-        summary = game.Summary ?? string.Empty;
-        type = game.GameType;
-        rating = Math.Clamp(game.Rating, 0, Game.MaxRating);
-        releaseDate = game.ReleaseDate;
+        name = string.IsNullOrWhiteSpace(game.Name) ? name : game.Name;
+        summary = string.IsNullOrWhiteSpace(game.Summary) ? summary : game.Summary;
+        type = game.GameType != GameType.None ? game.GameType : type;
+        rating = game.Rating > rating ? game.Rating : rating;
+        releaseDate = game.ReleaseDate ?? releaseDate;
         
         // Companies
         selectedDeveloperIDs = game.GetDeveloperIDs().Order().Distinct().ToList();
@@ -209,30 +210,10 @@ public partial class AddGamePopup
         selectedPlatformOwnerships = NormalizePlatformOwnerships(game.GamePlatforms);
 
         // Images
-        cover = game.Cover;
-        hero = game.Hero;
-        logo = game.Logo;
-        icon = game.Icon;
-
-        if (coverField?.ImageRef?.Path != null)
-        {
-            coverField.ImageRef.Path = cover?.Path;
-        }
-        
-        if (heroField?.ImageRef?.Path != null)
-        {
-            heroField.ImageRef.Path = hero?.Path;
-        }
-        
-        if (logoField?.ImageRef?.Path != null)
-        {
-            logoField.ImageRef.Path = logo?.Path;
-        }
-        
-        if (iconField?.ImageRef?.Path != null)
-        {
-            iconField.ImageRef.Path = icon?.Path;
-        }
+        cover = CheckOverrideImage(cover, game.Cover);
+        hero = CheckOverrideImage(cover, game.Hero);
+        logo = CheckOverrideImage(cover, game.Logo);
+        icon = CheckOverrideImage(cover, game.Icon);
         
         // IGDB
         igdb = game.IGDB;
@@ -335,4 +316,19 @@ public partial class AddGamePopup
     }
     
     #endregion
+    
+    private ImageRef? CheckOverrideImage(ImageRef? imageRef, ImageRef? newRef)
+    {
+        if (newRef == null)
+        {
+            return imageRef;
+        }
+        
+        if (imageRef == null)
+        {
+            return newRef;
+        }
+
+        return newRef.IsValid() ? newRef : imageRef;
+    }
 }

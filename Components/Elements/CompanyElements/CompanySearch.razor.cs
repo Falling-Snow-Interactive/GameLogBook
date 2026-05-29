@@ -7,7 +7,7 @@ namespace VGL.Components.Elements.CompanyElements;
 
 public partial class CompanySearch : ComponentBase
 {
-    private const int FocusOutDelayMilliseconds = 25;
+    private const int FocusOutDelayMilliseconds = 250;
 
     private List<int> selectedCompanyIDs = [];
     private bool isDropdownActive;
@@ -40,8 +40,8 @@ public partial class CompanySearch : ComponentBase
     private bool HasSearchText => !string.IsNullOrWhiteSpace(SearchText);
     private bool ShouldShowDropdown => isDropdownActive && HasSearchText;
     private IReadOnlyList<Company> CompanyMatches => HasSearchText
-                                                        ? FilterCompanies(SearchText, selectedCompanyIDs)
-                                                        : [];
+                                                         ? FilterCompanies(SearchText, selectedCompanyIDs)
+                                                         : [];
     private IReadOnlyList<Company>? SelectedCompanies => GetSelectedCompanies(selectedCompanyIDs);
 
     protected override void OnParametersSet()

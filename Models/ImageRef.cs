@@ -6,4 +6,6 @@ public class ImageRef
 
     [System.ComponentModel.DataAnnotations.Schema.NotMapped]
     public string? PendingUrl { get; set; }
+
+    public bool IsValid() => !string.IsNullOrWhiteSpace(Path) || !string.IsNullOrWhiteSpace(PendingUrl);
 }

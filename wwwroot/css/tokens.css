@@ -160,6 +160,9 @@
     --checker-layout: 0 0 / var(--checker-size) var(--checker-size);
     
     --checker-board: var(--checker-gradient) var(--checker-layout);
+    
+    /* ----- Button Animation ----- */
+    --anim-hover-translate: translateY(-1px);
 
     /*----- Debug -----*/
     --debug-border-size-sm: 0.1rem;

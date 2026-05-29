@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using IGDB;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -23,7 +24,7 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     private const int MinSearchLength = 2;
     private const int DebounceDelayMilliseconds = 300;
     private const int CompanyCandidateLimit = 500;
-    private const int FocusOutDelayMilliseconds = 25;
+    private const int FocusOutDelayMilliseconds = 250;
 
     private string searchInput = string.Empty;
     private string? searchErrorMessage;
@@ -181,12 +182,12 @@ public partial class IGDBSearch : ComponentBase, IDisposable
     {
         int currentFocusChangeVersion = ++focusChangeVersion;
         await Task.Delay(FocusOutDelayMilliseconds);
-
+        
         if (currentFocusChangeVersion != focusChangeVersion)
         {
             return;
         }
-
+        
         isDropdownActive = false;
         await CancelPendingSearch();
         await InvokeAsync(StateHasChanged);
@@ -307,9 +308,8 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
         IgdbGame[] igdbResults = await IgdbClientProvider
                                        .GetClient()
-                                       .QueryAsync<IgdbGame>(
-                                                             IGDBClient.Endpoints.Games,
-                                                                     query: $"""
+                                       .QueryAsync<IgdbGame>(IGDBClient.Endpoints.Games,
+                                                             query: $"""
                                                                      search "{escapedSearchInput}";
                                                                      fields id, name, summary, first_release_date, cover.url,
                                                                             involved_companies.developer,
@@ -462,7 +462,8 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                                               .QueryAsync<IgdbCompany>(
                                                                        IGDBClient.Endpoints.Companies,
                                                                        query: $"""
-                                                                               fields id, name, developed.id, published.id, logo.url;
+                                                                               fields id, name, description, start_date, 
+                                                                               developed.id, published.id, logo.url;
                                                                                where name ~ *"{escapedSearchInput}"*;
                                                                                sort name asc;
                                                                                limit {CompanyCandidateLimit};
@@ -562,44 +563,8 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                .Replace("\"", "\\\"");
     }
 
-    private LocalGame ToLocalGame(IgdbGame igdbGame)
-    {
-        HashSet<int> developerCompanyIDs = [];
-        HashSet<int> publisherCompanyIDs = [];
-
-        if (igdbGame.InvolvedCompanies?.Values is not null)
-        {
-            foreach (IgdbInvolvedCompany? involvedCompany in igdbGame.InvolvedCompanies.Values)
-            {
-                if (involvedCompany?.Developer is true)
-                {
-                    AddGameCompanyId(developerCompanyIDs, involvedCompany);
-                }
-
-                if (involvedCompany?.Publisher is true)
-                {
-                    AddGameCompanyId(publisherCompanyIDs, involvedCompany);
-                }
-            }
-        }
-
-        LocalGame localGame = new(igdbGame.Name)
-                              {
-                                  Summary = igdbGame.Summary,
-                                  ReleaseDate = ToDateOnly(igdbGame.FirstReleaseDate?.ToUnixTimeSeconds()),
-                                  Cover = ToLocalCover(igdbGame.Cover?.Value),
-                                  
-                                  IGDB = igdbGame.Id ?? 0,
-                              };
-        localGame.AddCompaniesByID(GameCompanyRole.Developer, developerCompanyIDs.Order().ToList());
-        localGame.AddCompaniesByID(GameCompanyRole.Publisher, publisherCompanyIDs.Order().ToList());
-
-        return localGame;
-    }
-
-    private void AddGameCompanyId(
-        HashSet<int> companyIds,
-        IgdbInvolvedCompany involvedCompany)
+    private void AddGameCompanyID(HashSet<int> companyIds,
+                                  IgdbInvolvedCompany involvedCompany)
     {
         long? companyIgdbId = involvedCompany.Company?.Id
                               ?? involvedCompany.Company?.Value?.Id;
@@ -613,7 +578,79 @@ public partial class IGDBSearch : ComponentBase, IDisposable
 
         companyIds.Add(company.ID);
     }
+    
+    #region To Local
+    
+    private LocalGame ToLocalGame(IgdbGame igdbGame)
+    {
+        HashSet<int> developerCompanyIDs = [];
+        HashSet<int> publisherCompanyIDs = [];
 
+        if (igdbGame.InvolvedCompanies?.Values is not null)
+        {
+            foreach (IgdbInvolvedCompany? involvedCompany in igdbGame.InvolvedCompanies.Values)
+            {
+                if (involvedCompany?.Developer is true)
+                {
+                    AddGameCompanyID(developerCompanyIDs, involvedCompany);
+                }
+
+                if (involvedCompany?.Publisher is true)
+                {
+                    AddGameCompanyID(publisherCompanyIDs, involvedCompany);
+                }
+            }
+        }
+
+        LocalGame localGame = new(igdbGame.Name)
+                              {
+                                  Summary = igdbGame.Summary,
+                                  ReleaseDate = ToDateOnly(igdbGame.FirstReleaseDate?.ToUnixTimeSeconds()),
+                                  Cover = ToLocalCover(igdbGame.Cover?.Value),
+                                  
+                                  IGDB = igdbGame.Id ?? 0,
+                              };
+        if (localGame == null) throw new ArgumentNullException(nameof(localGame));
+        localGame.AddCompaniesByID(GameCompanyRole.Developer, developerCompanyIDs.Order().ToList());
+        localGame.AddCompaniesByID(GameCompanyRole.Publisher, publisherCompanyIDs.Order().ToList());
+
+        return localGame;
+    }
+
+    private LocalCompany ToLocalCompany(IgdbCompany igdbCompany)
+    {
+        return new LocalCompany
+               {
+                   IGDB = igdbCompany.Id,
+                   Name = igdbCompany.Name ?? string.Empty,
+                   Summary = igdbCompany.Description,
+                   FoundedDate = igdbCompany.StartDate.HasValue 
+                                     ? DateOnly.FromDateTime(igdbCompany.StartDate.Value.Date) 
+                                     : null,
+                   PendingImageUrl = ToPendingImageUrl(igdbCompany.Logo?.Value),
+                   
+                   LastSyncedAt = DateTimeOffset.UtcNow,
+               };
+    }
+    
+    private static ImageRef? ToLocalCover(IgdbCover? igdbCover)
+    {
+        if (igdbCover?.Url is null)
+        {
+            return null;
+        }
+
+        return new ImageRef
+               {
+                   PendingUrl = ToBigCoverUrl(igdbCover.Url)
+               };
+    }
+
+    
+    #endregion
+    
+    #region Resolve
+    
     private LocalCompany? ResolveLocalCompany(long? igdbId, string? companyName)
     {
         if (igdbId.HasValue)
@@ -635,30 +672,8 @@ public partial class IGDBSearch : ComponentBase, IDisposable
                                                                companyName,
                                                                StringComparison.OrdinalIgnoreCase));
     }
-
-    private static ImageRef? ToLocalCover(IgdbCover? igdbCover)
-    {
-        if (igdbCover?.Url is null)
-        {
-            return null;
-        }
-
-        return new ImageRef
-               {
-                   PendingUrl = ToBigCoverUrl(igdbCover.Url)
-               };
-    }
-
-    private LocalCompany ToLocalCompany(IgdbCompany igdbCompany)
-    {
-        return new LocalCompany
-               {
-                   IGDB = igdbCompany.Id,
-                   Name = igdbCompany.Name ?? string.Empty,
-                   PendingImageUrl = ToPendingImageUrl(igdbCompany.Logo?.Value),
-                   LastSyncedAt = DateTimeOffset.UtcNow
-               };
-    }
+    
+    #endregion
 
     private static PlatformSearchProjection ToPlatformProjection(IgdbPlatform igdbPlatform)
     {

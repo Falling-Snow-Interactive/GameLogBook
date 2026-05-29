@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using IGDB;
 using Microsoft.AspNetCore.Components;
 using VGL.Components.Elements.IGDBSearch;
@@ -133,22 +134,22 @@ public partial class AddPlatformPopup : ComponentBase
         Platform platform = result.Platform;
         
         // Information
-        name = platform.Name;
-        nameShort = platform.ShortName;
-        releaseDate = platform.ReleaseDate;
-        summary = platform.Summary;
+        name = string.IsNullOrWhiteSpace(platform.Name) ? name : platform.Name;
+        nameShort = string.IsNullOrWhiteSpace(platform.ShortName) ? nameShort : platform.ShortName;
+        summary = string.IsNullOrWhiteSpace(platform.Summary) ? summary : platform.Summary;
         
         // Images
-        cover = null;
-        hero = null;
-        logo = null;
-        icon = null;
+        cover = CheckOverrideImage(cover, platform.Cover);
+        hero = CheckOverrideImage(hero, platform.Hero);
+        logo = CheckOverrideImage(logo, platform.Logo);
+        icon = CheckOverrideImage(icon, platform.Icon);
         
         // APIs
-        igdb = platform.IGDB;
+        igdb = platform.IGDB > 0 ? platform.IGDB : igdb;
 
         // Companies
-        developerIDs = GetMatchingCompanyIds(result.ManufacturerNames);
+        List<int> localD = GetMatchingCompanyIds(result.ManufacturerNames);
+        developerIDs = localD.Count > 0 ? localD : developerIDs;
         
         // Errors
         searchErrorMessage = null;
@@ -157,6 +158,21 @@ public partial class AddPlatformPopup : ComponentBase
     }
     
     #endregion
+    
+    private ImageRef? CheckOverrideImage(ImageRef? imageRef, ImageRef? newRef)
+    {
+        if (newRef == null)
+        {
+            return imageRef;
+        }
+        
+        if (imageRef == null)
+        {
+            return newRef;
+        }
+
+        return newRef.IsValid() ? newRef : imageRef;
+    }
     
     #region Input Handlers
 

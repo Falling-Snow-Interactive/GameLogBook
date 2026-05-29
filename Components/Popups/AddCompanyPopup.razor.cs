@@ -135,19 +135,34 @@ public partial class AddCompanyPopup
 
     private Task LoadCompany(Company company)
     {
-        igdb = company.IGDB;
+        igdb = company.IGDB ?? igdb;
         name = company.Name;
-        summary = company.Summary ?? string.Empty;
-        foundedDate = company.FoundedDate;
+        summary = company.Summary ?? summary;
+        foundedDate = company.FoundedDate ?? foundedDate;
 
-        cover = company.Cover;
-        hero = company.Hero;
-        logo = GetLogoImageRef(company);
-        icon = company.Icon;
+        cover = CheckOverrideImage(cover, company.Cover);
+        // hero = CheckOverrideImage(hero, company.Cover);
+        // logo = CheckOverrideImage(cover, company.Cover);
+        // icon = CheckOverrideImage(cover, company.Cover);
 
         imageErrorMessage = null;
 
         return Task.CompletedTask;
+    }
+
+    private ImageRef? CheckOverrideImage(ImageRef? imageRef, ImageRef? newRef)
+    {
+        if (newRef == null)
+        {
+            return imageRef;
+        }
+        
+        if (imageRef == null)
+        {
+            return newRef;
+        }
+
+        return newRef.IsValid() ? newRef : imageRef;
     }
 
     private void ResetForm()

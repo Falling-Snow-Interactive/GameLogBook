@@ -84,9 +84,22 @@
                                     <button class="igdb-search-result"
                                             type="button"
                                             @onclick="() => SelectPlatform(result)">
-                                        <span class="igdb-search-result-icon bi bi-tv"
-                                              aria-hidden="true"></span>
+                                        @* <span class="igdb-search-result-icon bi bi-tv" *@
+                                        @*       aria-hidden="true"></span> *@
 
+                                        @if (!string.IsNullOrWhiteSpace(result.Platform.Cover?.PendingUrl))
+                                        {
+                                        <img class="igdb-search-result-cover"
+                                             src="@result.Platform.Cover.PendingUrl"
+                                             alt="@result.Platform.Name cover" />
+                                        }
+                                        else
+                                        {
+                                        <span class="igdb-search-result-cover-placeholder">
+                                                No cover
+                                            </span>
+                                        }
+                                        
                                         <span class="igdb-search-result-copy">
                                             <strong>@result.Platform.Name</strong>
                                             <small>@GetPlatformSummary(result)</small>

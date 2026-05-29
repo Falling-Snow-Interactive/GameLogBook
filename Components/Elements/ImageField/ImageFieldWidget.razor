@@ -21,25 +21,18 @@
                        value="@urlInput"
                        @oninput="HandleUrlChanged"
                        placeholder="@UrlPlaceholder" />
-                <button class="image-field-action-button"
+                @* <button class="image-field-action-button" *@
+                <button class="image-field-button image-field-action-button"
                         type="button"
                         disabled="@isBusy"
                         @onclick="DownloadUrlImage">
-                    @(isBusy ? "Working..." : "Download")
+                    @* @(isBusy ? "Working..." : "Download") *@
+                    <span class="bi bi-download"></span>
                 </button>
-            </div>
 
-            <label class="image-field-action-button image-field-upload-button">
-                <InputFile class="image-field-upload-input"
-                           OnChange="UploadImage"
-                           accept="@Accept" />
-                <span>Upload</span>
-            </label>
-
-            <div class="image-field-action-row">
                 @if (SteamGridDbSearchEnabled && SteamGridDbImageType is not null)
                 {
-                    <button class="button-dot button-colors-info image-field-steamgriddb-button"
+                    <button class="image-field-button button-colors-info image-field-steamgriddb-button"
                             type="button"
                             title="Search SteamGridDB"
                             aria-label="@($"Search SteamGridDB for {Label}")"
@@ -48,7 +41,16 @@
                         <span class="bi bi-search" aria-hidden="true"></span>
                     </button>
                 }
+            </div>
 
+            <label class="image-field-button-wide image-field-action-button image-field-upload-button">
+                <InputFile class="image-field-upload-input"
+                           OnChange="UploadImage"
+                           accept="@Accept"></InputFile>
+                <span>Upload</span>
+            </label>
+
+            <div class="image-field-action-row">
                 <button class="image-field-reset-button"
                         type="button"
                         disabled="@isBusy"
