@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using VGL.Models.Games.Platforms;
 using Platform = VGL.Models.Platforms.Platform;
 
@@ -24,6 +25,19 @@ public partial class OwnershipInputWidget : ComponentBase
     {
         return Ownerships.FirstOrDefault(ownership => ownership.PlatformID == platformId)?.Ownership
                ?? OwnershipType.Digital;
+    }
+
+    private Task TogglePlatform(int platformId)
+    {
+        return TogglePlatform(platformId, !IsSelected(platformId));
+    }
+
+    private async Task HandleRowKeyDown(int platformId, KeyboardEventArgs args)
+    {
+        if (args.Key is " " or "Enter")
+        {
+            await TogglePlatform(platformId);
+        }
     }
 
     private async Task TogglePlatform(int platformId, bool isSelected)

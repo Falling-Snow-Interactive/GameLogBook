@@ -11,22 +11,37 @@
         {
             bool isSelected = IsSelected(platform.ID);
 
-            <div class="ownership-row" @key="platform.ID">
-                <label>
+            <div class="ownership-row @(isSelected ? "ownership-row-selected" : null)"
+                 role="checkbox"
+                 tabindex="0"
+                 aria-checked="@isSelected"
+                 aria-label="@platform.Name"
+                 @key="platform.ID"
+                 @onclick="() => TogglePlatform(platform.ID)"
+                 @onkeydown="args => HandleRowKeyDown(platform.ID, args)">
+                <div class="ownership-platform">
                     <input type="checkbox"
+                           class="ownership-checkbox"
+                           tabindex="-1"
+                           aria-hidden="true"
                            checked="@isSelected"
-                           @onchange="args => TogglePlatform(platform.ID, args.Value is true)" />
-                    <span>@platform.Name</span>
-                </label>
+                           readonly />
+                    <span class="ownership-platform-name">@platform.Name</span>
+                </div>
 
-                <select class="detail-input"
-                        disabled="@(!isSelected)"
-                        value="@GetOwnershipType(platform.ID)"
-                        @onchange="args => ChangeOwnershipType(platform.ID, args.Value?.ToString())">
-                    <option value="@OwnershipType.Digital">Digital</option>
-                    <option value="@OwnershipType.Physical">Physical</option>
-                    <option value="@OwnershipType.Subscription">Subscription</option>
-                </select>
+                <div class="ownership-select-shell"
+                     @onclick:stopPropagation="true"
+                     @onpointerdown:stopPropagation="true"
+                     @onkeydown:stopPropagation="true">
+                    <select class="detail-input ownership-type-select"
+                            disabled="@(!isSelected)"
+                            value="@GetOwnershipType(platform.ID)"
+                            @onchange="args => ChangeOwnershipType(platform.ID, args.Value?.ToString())">
+                        <option value="@OwnershipType.Digital">Digital</option>
+                        <option value="@OwnershipType.Physical">Physical</option>
+                        <option value="@OwnershipType.Subscription">Subscription</option>
+                    </select>
+                </div>
             </div>
         }
     }

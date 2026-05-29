@@ -1,34 +1,111 @@
 .ownership-input-widget {
     display: grid;
-    gap: 0.55rem;
+    gap: var(--space-2);
 }
 
 .ownership-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(8rem, 12rem);
-    gap: 0.65rem;
+    grid-template-columns: minmax(0, 1fr) minmax(8rem, 11rem);
+    gap: var(--space-3);
     align-items: center;
+    min-width: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 0.55rem 0.65rem;
+    background: var(--color-surface);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    cursor: pointer;
+    transition:
+        border-color var(--transition-fast),
+        background var(--transition-fast),
+        box-shadow var(--transition-fast);
 }
 
-.ownership-row label {
+.ownership-row:hover {
+    border-color: var(--color-border-hover);
+    background: var(--color-surface-hover);
+    box-shadow: var(--shadow-sm);
+}
+
+.ownership-row-selected {
+    border-color: var(--color-border-hover);
+    background: var(--color-primary-soft);
+}
+
+.ownership-row-selected:hover {
+    border-color: var(--color-primary);
+    background: var(--color-primary-soft-hover);
+}
+
+.ownership-row:focus-visible {
+    border-color: var(--color-primary);
+    box-shadow: var(--focus-ring);
+    outline: none;
+}
+
+.ownership-platform {
     min-width: 0;
     display: inline-flex;
     align-items: center;
-    gap: 0.45rem;
+    gap: var(--space-2);
     color: var(--color-text);
     font-size: 0.9rem;
     font-weight: 700;
+    line-height: 1.25;
 }
 
-.ownership-row label span {
+.ownership-checkbox {
+    flex: 0 0 auto;
+    width: 1.05rem;
+    height: 1.05rem;
+    margin: 0;
+    accent-color: var(--color-primary);
+    pointer-events: none;
+}
+
+.ownership-platform-name {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
+.ownership-select-shell {
+    min-width: 0;
+    cursor: default;
+}
+
+.ownership-type-select {
+    min-height: 2.4rem;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.875rem;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.ownership-type-select:disabled {
+    opacity: 0.52;
+    cursor: not-allowed;
+}
+
 @media (max-width: 700px) {
     .ownership-row {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr) minmax(7.25rem, 9rem);
+        gap: var(--space-2);
+        padding: 0.5rem;
+    }
+
+    .ownership-platform {
+        align-items: flex-start;
+    }
+
+    .ownership-platform-name {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .ownership-type-select {
+        min-height: 2.25rem;
+        padding-inline: 0.6rem;
     }
 }
