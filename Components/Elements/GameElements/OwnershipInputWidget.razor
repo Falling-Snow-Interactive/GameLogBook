@@ -10,6 +10,7 @@
         @foreach (var platform in Platforms)
         {
             bool isSelected = IsSelected(platform.ID);
+            bool hasLogo = !string.IsNullOrWhiteSpace(platform.Logo?.Path);
 
             <div class="ownership-row @(isSelected ? "ownership-row-selected" : null)"
                  role="checkbox"
@@ -20,27 +21,54 @@
                  @onclick="() => TogglePlatform(platform.ID)"
                  @onkeydown="args => HandleRowKeyDown(platform.ID, args)">
                 <div class="ownership-platform">
-                    <input type="checkbox"
-                           class="ownership-checkbox"
-                           tabindex="-1"
-                           aria-hidden="true"
-                           checked="@isSelected"
-                           readonly />
-                    <span class="ownership-platform-name">@platform.Name</span>
+                    @if (hasLogo)
+                    {
+                        <span class="ownership-platform-logo-frame">
+                            <LocalImage ImagePath="@platform.Logo?.Path"
+                                        ImageClass="ownership-platform-logo"
+                                        AltText="@($"{platform.Name} logo")"
+                                        MissingText="@platform.Name"
+                                        MaxWidth="220"
+                                        MaxHeight="72">
+                                <Placeholder>
+                                    <span class="ownership-platform-name">@platform.Name</span>
+                                </Placeholder>
+                            </LocalImage>
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="ownership-platform-name">@platform.Name</span>
+                    }
                 </div>
 
                 <div class="ownership-select-shell"
                      @onclick:stopPropagation="true"
                      @onpointerdown:stopPropagation="true"
                      @onkeydown:stopPropagation="true">
-                    <select class="detail-input ownership-type-select"
-                            disabled="@(!isSelected)"
-                            value="@GetOwnershipType(platform.ID)"
-                            @onchange="args => ChangeOwnershipType(platform.ID, args.Value?.ToString())">
-                        <option value="@OwnershipType.Digital">Digital</option>
-                        <option value="@OwnershipType.Physical">Physical</option>
-                        <option value="@OwnershipType.Subscription">Subscription</option>
-                    </select>
+                    <div class="ownership-type-toggle" role="group" aria-label="@($"{platform.Name} ownership type")">
+                        <button type="button"
+                                class="@GetOwnershipOptionClass(platform.ID, OwnershipType.Physical)"
+                                disabled="@(!isSelected)"
+                                aria-pressed="@HasOwnershipType(platform.ID, OwnershipType.Physical)"
+                                @onclick="() => ToggleOwnershipType(platform.ID, OwnershipType.Physical)">
+                            Physical
+                        </button>
+                        <button type="button"
+                                class="@GetOwnershipOptionClass(platform.ID, OwnershipType.Digital)"
+                                disabled="@(!isSelected)"
+                                aria-pressed="@HasOwnershipType(platform.ID, OwnershipType.Digital)"
+                                @onclick="() => ToggleOwnershipType(platform.ID, OwnershipType.Digital)">
+                            Digital
+                        </button>
+                        <button type="button"
+                                class="@GetOwnershipOptionClass(platform.ID, OwnershipType.Subscription)"
+                                disabled="@(!isSelected)"
+                                aria-pressed="@HasOwnershipType(platform.ID, OwnershipType.Subscription)"
+                                @onclick="() => ToggleOwnershipType(platform.ID, OwnershipType.Subscription)">
+                            Subscription
+                        </button>
+                    </div>
                 </div>
             </div>
         }

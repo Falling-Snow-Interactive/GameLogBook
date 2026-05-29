@@ -6,5 +6,12 @@
 }
 else
 {
-    <label>@MissingText</label>
+    @if (Placeholder is not null)
+    {
+        @Placeholder
+    }
+    else
+    {
+        <label>@MissingText</label>
+    }
 }

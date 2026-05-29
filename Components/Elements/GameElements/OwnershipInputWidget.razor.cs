@@ -21,10 +21,17 @@ public partial class OwnershipInputWidget : ComponentBase
         return Ownerships.Any(ownership => ownership.PlatformID == platformId);
     }
 
-    private OwnershipType GetOwnershipType(int platformId)
+    private bool HasOwnershipType(int platformId, OwnershipType ownershipType)
     {
-        return Ownerships.FirstOrDefault(ownership => ownership.PlatformID == platformId)?.Ownership
-               ?? OwnershipType.Digital;
+        return Ownerships.Any(ownership => ownership.PlatformID == platformId
+                                           && ownership.Ownership == ownershipType);
+    }
+
+    private string GetOwnershipOptionClass(int platformId, OwnershipType ownershipType)
+    {
+        return HasOwnershipType(platformId, ownershipType)
+                   ? "ownership-type-option ownership-type-option-selected"
+                   : "ownership-type-option";
     }
 
     private Task TogglePlatform(int platformId)
@@ -58,14 +65,10 @@ public partial class OwnershipInputWidget : ComponentBase
         await NotifyChanged();
     }
 
-    private async Task ChangeOwnershipType(int platformId, string? value)
+    private async Task ToggleOwnershipType(int platformId, OwnershipType ownershipType)
     {
-        if (!Enum.TryParse(value, out OwnershipType ownershipType))
-        {
-            return;
-        }
-
-        GamePlatformRelation? ownership = Ownerships.FirstOrDefault(item => item.PlatformID == platformId);
+        GamePlatformRelation? ownership = Ownerships.FirstOrDefault(item => item.PlatformID == platformId
+                                                                            && item.Ownership == ownershipType);
 
         if (ownership is null)
         {
@@ -77,7 +80,7 @@ public partial class OwnershipInputWidget : ComponentBase
         }
         else
         {
-            ownership.Ownership = ownershipType;
+            Ownerships.Remove(ownership);
         }
 
         await NotifyChanged();
@@ -87,9 +90,15 @@ public partial class OwnershipInputWidget : ComponentBase
     {
         Ownerships = Ownerships
                      .Where(ownership => ownership.PlatformID > 0)
-                     .GroupBy(ownership => ownership.PlatformID)
+                     .Where(ownership => ownership.Ownership != OwnershipType.None)
+                     .GroupBy(ownership => new
+                                           {
+                                               ownership.PlatformID,
+                                               ownership.Ownership
+                                           })
                      .Select(group => group.First())
                      .OrderBy(ownership => ownership.PlatformID)
+                     .ThenBy(ownership => ownership.Ownership)
                      .ToList();
 
         await OwnershipsChanged.InvokeAsync(Ownerships);

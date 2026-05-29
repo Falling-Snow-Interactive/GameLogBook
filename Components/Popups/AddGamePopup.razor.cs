@@ -164,10 +164,10 @@ public partial class AddGamePopup
                             Summary = string.IsNullOrWhiteSpace(summary) ? null : summary.Trim(),
                         
                             // Images
-                            Cover = coverRef,
-                            Hero = heroRef,
-                            Logo = logoRef,
-                            Icon = iconRef,
+                            Cover = CopyImageRef(coverRef),
+                            Hero = CopyImageRef(heroRef),
+                            Logo = CopyImageRef(logoRef),
+                            Icon = CopyImageRef(iconRef),
                             
                             // IGDB
                             IGDB = igdb,
@@ -211,9 +211,9 @@ public partial class AddGamePopup
 
         // Images
         cover = CheckOverrideImage(cover, game.Cover);
-        hero = CheckOverrideImage(cover, game.Hero);
-        logo = CheckOverrideImage(cover, game.Logo);
-        icon = CheckOverrideImage(cover, game.Icon);
+        hero = CheckOverrideImage(hero, game.Hero);
+        logo = CheckOverrideImage(logo, game.Logo);
+        icon = CheckOverrideImage(icon, game.Icon);
         
         // IGDB
         igdb = game.IGDB;
@@ -330,5 +330,15 @@ public partial class AddGamePopup
         }
 
         return newRef.IsValid() ? newRef : imageRef;
+    }
+
+    private static ImageRef? CopyImageRef(ImageRef? image)
+    {
+        return string.IsNullOrWhiteSpace(image?.Path)
+                   ? null
+                   : new ImageRef
+                     {
+                         Path = image.Path.Trim()
+                     };
     }
 }
