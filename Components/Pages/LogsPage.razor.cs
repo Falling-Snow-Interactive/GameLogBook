@@ -71,8 +71,8 @@ public partial class LogsPage : LogbookPageBase<GameLog>
     private async Task UpdateLog(GameLog updatedLog)
     {
         GameLog? existingLog = await DbContext.GameLogs
-                                             .FirstOrDefaultAsync(log => log.ID == updatedLog.ID
-                                                                         && log.UserProfileID == UserSession.CurrentUserID);
+                                              .FirstOrDefaultAsync(log => log.ID == updatedLog.ID
+                                                                          && log.UserProfileID == UserSession.CurrentUserID);
 
         if (existingLog is null)
         {
@@ -204,15 +204,15 @@ public partial class LogsPage : LogbookPageBase<GameLog>
                               };
 
         GameLog? updatedLog = await PopupService.ShowAsync<AddGameLogPopup, GameLog>(
-            new Dictionary<string, object?>
-            {
-                [nameof(AddGameLogPopup.InitialLog)] = editableLog,
-                [nameof(AddGameLogPopup.Playthroughs)] = Playthroughs,
-                [nameof(AddGameLogPopup.LibraryGames)] = Games,
-                [nameof(AddGameLogPopup.Platforms)] = Platforms,
-                [nameof(AddGameLogPopup.OnGameAdded)] = new Func<Task<Game?>>(AddGameFromPicker),
-                [nameof(AddGameLogPopup.OnPlatformAdded)] = new Func<Task<PlatformModel?>>(AddPlatformFromPicker)
-            });
+                                                                                     new Dictionary<string, object?>
+                                                                                     {
+                                                                                         [nameof(AddGameLogPopup.InitialLog)] = editableLog,
+                                                                                         [nameof(AddGameLogPopup.Playthroughs)] = Playthroughs,
+                                                                                         [nameof(AddGameLogPopup.LibraryGames)] = Games,
+                                                                                         [nameof(AddGameLogPopup.Platforms)] = Platforms,
+                                                                                         [nameof(AddGameLogPopup.OnGameAdded)] = new Func<Task<Game?>>(AddGameFromPicker),
+                                                                                         [nameof(AddGameLogPopup.OnPlatformAdded)] = new Func<Task<PlatformModel?>>(AddPlatformFromPicker)
+                                                                                     });
 
         if (updatedLog is not null)
         {
