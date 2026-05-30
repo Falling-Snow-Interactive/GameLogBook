@@ -336,19 +336,22 @@ public partial class LogsPage : LogbookPageBase<GameLog>
 
         List<string> parts = [];
 
-        if (duration.Days > 0)
-        {
-            parts.Add($"{duration.Days} {(duration.Days == 1 ? "Day" : "Days")}");
-        }
+        // if (duration.Days > 0)
+        // {
+        //     parts.Add($"{duration.Days} {(duration.Days == 1 ? "Day" : "Days")}");
+        // }
 
-        if (duration.Hours > 0)
+        int h = duration.Hours + duration.Days * 24;
+        if (h > 0)
         {
-            parts.Add($"{duration.Hours} {(duration.Hours == 1 ? "Hour" : "Hours")}");
+            // parts.Add($"{h} {(h == 1 ? "Hour" : "Hours")}");
+            parts.Add($"{h}h");
         }
 
         if (duration.Minutes > 0 || parts.Count == 0)
         {
-            parts.Add($"{duration.Minutes} {(duration.Minutes == 1 ? "Minute" : "Minutes")}");
+            // parts.Add($"{duration.Minutes} {(duration.Minutes == 1 ? "Minute" : "Minutes")}");
+            parts.Add($"{duration.Minutes}m");
         }
 
         return string.Join(' ', parts);
