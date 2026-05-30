@@ -1,0 +1,124 @@
+@page "/now-playing"
+@page "/now-playing/{LogId:int}"
+@implements IDisposable
+
+<PageTitle>Now Playing</PageTitle>
+
+@if (isLoading)
+{
+    <div class="now-playing-empty">
+        <i class="bi bi-hourglass-split" aria-hidden="true"></i>
+        <h3>Loading session</h3>
+    </div>
+}
+else if (session is null)
+{
+    <div class="now-playing-empty">
+        <i class="bi bi-play-circle" aria-hidden="true"></i>
+        <h3>No active session</h3>
+        <p>Start a session from a game or playthrough to open the Now Playing hub.</p>
+    </div>
+}
+else
+{
+    <div class="now-playing-page">
+        <section class="now-playing-hero">
+            <LocalImage ImagePath="@(session.Game.Hero?.Path ?? session.Game.Cover?.Path)"
+                        ImageClass="now-playing-hero-image"
+                        AltText="@($"{session.Game.Name} artwork")"
+                        MaxWidth="1200"
+                        MaxHeight="520">
+                <Placeholder>
+                    <div class="now-playing-art-fallback">
+                        <i class="bi bi-controller" aria-hidden="true"></i>
+                    </div>
+                </Placeholder>
+            </LocalImage>
+        </section>
+
+        <section class="now-playing-panel">
+            <div class="now-playing-cover">
+                <LocalImage ImagePath="@session.Game.Cover?.Path"
+                            ImageClass="now-playing-cover-image"
+                            AltText="@($"{session.Game.Name} cover")"
+                            MaxWidth="320"
+                            MaxHeight="480">
+                    <Placeholder>
+                        <div class="now-playing-cover-fallback">
+                            <i class="bi bi-controller" aria-hidden="true"></i>
+                        </div>
+                    </Placeholder>
+                </LocalImage>
+            </div>
+
+            <div class="now-playing-main">
+                <div class="now-playing-title-group">
+                    <span class="now-playing-label">Now Playing</span>
+                    <h3>@GetSessionTitle(session)</h3>
+                    <p>
+                        <span>@session.Game.Name</span>
+                        <span aria-hidden="true">·</span>
+                        <span>@session.Playthrough.Name</span>
+                        <span aria-hidden="true">·</span>
+                        <span>@session.Platform.Name</span>
+                    </p>
+                </div>
+
+                <div class="now-playing-stats">
+                    <div>
+                        <span>Started</span>
+                        <strong>@FormatDateTime(session.StartedAt)</strong>
+                    </div>
+                    <div>
+                        <span>Duration</span>
+                        <strong>@FormatElapsed(session)</strong>
+                    </div>
+                    <div>
+                        <span>Status</span>
+                        <strong>@(session.StatusChange?.ToString() ?? session.Playthrough.Status.ToString())</strong>
+                    </div>
+                </div>
+
+                <div class="now-playing-form">
+                    <label class="form-field">
+                        <span>Status Change</span>
+                        <select class="playthrough-detail-input"
+                                value="@statusChangeValue"
+                                disabled="@IsEnded"
+                                @onchange="HandleStatusChanged">
+                            <option value="">No change</option>
+                            @foreach (PlaythroughStatus option in Enum.GetValues<PlaythroughStatus>())
+                            {
+                                <option value="@option">@option</option>
+                            }
+                        </select>
+                    </label>
+
+                    <label class="form-field now-playing-notes-field">
+                        <span>Notes</span>
+                        <textarea class="playthrough-detail-textarea now-playing-notes"
+                                  value="@notes"
+                                  disabled="@IsEnded"
+                                  @oninput="HandleNotesInput"
+                                  placeholder="Thoughts, goals, discoveries, next steps..."></textarea>
+                    </label>
+                </div>
+
+                <div class="now-playing-actions">
+                    @if (!string.IsNullOrWhiteSpace(saveStatus))
+                    {
+                        <span class="now-playing-save-status">@saveStatus</span>
+                    }
+
+                    <button class="now-playing-end-button"
+                            type="button"
+                            disabled="@IsEnded"
+                            @onclick="HandleEndSession">
+                        <i class="bi bi-stop-fill" aria-hidden="true"></i>
+                        <span>@(IsEnded ? "Session Ended" : "End Session")</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+}

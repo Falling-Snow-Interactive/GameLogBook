@@ -4,6 +4,7 @@ using VGL.Components.Popups;
 using VGL.Models;
 using VGL.Models.Companies;
 using VGL.Models.Games;
+using VGL.Services.NowPlaying;
 using PlatformModel = VGL.Models.Platforms.Platform;
 
 namespace VGL.Components.Pages;
@@ -14,6 +15,9 @@ public partial class LogsPage : LogbookPageBase<GameLog>
     public IReadOnlyList<Game> Games { get; set; } = [];
     public IReadOnlyList<PlatformModel> Platforms { get; set; } = [];
     private IReadOnlyList<Company> companies = [];
+
+    [Inject]
+    private NowPlayingSessionService NowPlaying { get; set; } = null!;
 
     protected override DbSet<GameLog> EntitySet => DbContext.GameLogs;
 
@@ -59,7 +63,7 @@ public partial class LogsPage : LogbookPageBase<GameLog>
         log.UserProfileID = UserSession.CurrentUserID.Value;
         DbContext.GameLogs.Add(log);
         await DbContext.SaveChangesAsync();
-        await RecalculatePlaythroughStatusAsync(log.PlaythroughID);
+        await NowPlaying.RecalculatePlaythroughStatusAsync(log.PlaythroughID);
         await LoadItemsAsync();
         await LoadPickerDataAsync();
     }
@@ -88,11 +92,11 @@ public partial class LogsPage : LogbookPageBase<GameLog>
         existingLog.StatusChange = updatedLog.StatusChange;
 
         await DbContext.SaveChangesAsync();
-        await RecalculatePlaythroughStatusAsync(originalPlaythroughId);
+        await NowPlaying.RecalculatePlaythroughStatusAsync(originalPlaythroughId);
 
         if (originalPlaythroughId != updatedLog.PlaythroughID)
         {
-            await RecalculatePlaythroughStatusAsync(updatedLog.PlaythroughID);
+            await NowPlaying.RecalculatePlaythroughStatusAsync(updatedLog.PlaythroughID);
         }
 
         await LoadItemsAsync();
@@ -113,7 +117,7 @@ public partial class LogsPage : LogbookPageBase<GameLog>
         int playthroughId = existingLog.PlaythroughID;
         DbContext.GameLogs.Remove(existingLog);
         await DbContext.SaveChangesAsync();
-        await RecalculatePlaythroughStatusAsync(playthroughId);
+        await NowPlaying.RecalculatePlaythroughStatusAsync(playthroughId);
         await LoadItemsAsync();
         await LoadPickerDataAsync();
     }
@@ -132,7 +136,7 @@ public partial class LogsPage : LogbookPageBase<GameLog>
         DateTimeOffset now = DateTimeOffset.Now;
         existingLog.StartedAt = now;
 
-        if (existingLog.EndedAt < existingLog.StartedAt)
+        if (existingLog.EndedAt is null || existingLog.EndedAt.Value < existingLog.StartedAt)
         {
             existingLog.EndedAt = existingLog.StartedAt;
         }
@@ -155,9 +159,9 @@ public partial class LogsPage : LogbookPageBase<GameLog>
         DateTimeOffset now = DateTimeOffset.Now;
         existingLog.EndedAt = now;
 
-        if (existingLog.StartedAt > existingLog.EndedAt)
+        if (existingLog.EndedAt is not null && existingLog.StartedAt > existingLog.EndedAt.Value)
         {
-            existingLog.StartedAt = existingLog.EndedAt;
+            existingLog.StartedAt = existingLog.EndedAt.Value;
         }
 
         await DbContext.SaveChangesAsync();
@@ -256,37 +260,6 @@ public partial class LogsPage : LogbookPageBase<GameLog>
         return platform;
     }
 
-    private async Task RecalculatePlaythroughStatusAsync(int playthroughId)
-    {
-        Playthrough? playthrough = await DbContext.Playthroughs
-                                                 .FirstOrDefaultAsync(item => item.ID == playthroughId
-                                                                              && item.UserProfileID == UserSession.CurrentUserID);
-
-        if (playthrough is null)
-        {
-            return;
-        }
-
-        List<GameLog> statusLogs = await DbContext.GameLogs
-                                                  .AsNoTracking()
-                                                  .Where(log => log.PlaythroughID == playthroughId
-                                                                && log.UserProfileID == UserSession.CurrentUserID
-                                                                && log.StatusChange != null)
-                                                  .ToListAsync();
-
-        PlaythroughStatus? latestStatus = statusLogs
-                                          .OrderByDescending(log => log.StartedAt)
-                                          .ThenByDescending(log => log.ID)
-                                          .Select(log => log.StatusChange)
-                                          .FirstOrDefault();
-
-        if (latestStatus is not null)
-        {
-            playthrough.Status = latestStatus.Value;
-            await DbContext.SaveChangesAsync();
-        }
-    }
-
     private static string GetLogTitle(GameLog log)
     {
         return string.IsNullOrWhiteSpace(log.Title)
@@ -315,6 +288,11 @@ public partial class LogsPage : LogbookPageBase<GameLog>
         return value.LocalDateTime.ToString("MMM d, yyyy h:mm tt");
     }
 
+    private static string FormatDateTime(DateTimeOffset? value)
+    {
+        return value is null ? "In progress" : FormatDateTime(value.Value);
+    }
+
     private static string FormatShortDate(DateTimeOffset value)
     {
         return value.LocalDateTime.ToString("MMM d, yyyy");
@@ -322,12 +300,19 @@ public partial class LogsPage : LogbookPageBase<GameLog>
 
     private static string FormatTimeRange(GameLog log)
     {
-        return $"{log.StartedAt.LocalDateTime:h:mm tt} - {log.EndedAt.LocalDateTime:h:mm tt}";
+        return log.EndedAt is null
+                   ? $"{log.StartedAt.LocalDateTime:h:mm tt} - In progress"
+                   : $"{log.StartedAt.LocalDateTime:h:mm tt} - {log.EndedAt.Value.LocalDateTime:h:mm tt}";
     }
 
     private static string FormatDuration(GameLog log)
     {
-        TimeSpan duration = log.EndedAt >= log.StartedAt ? log.EndedAt - log.StartedAt : TimeSpan.Zero;
+        if (log.EndedAt is null)
+        {
+            return "In progress";
+        }
+
+        TimeSpan duration = log.EndedAt.Value >= log.StartedAt ? log.EndedAt.Value - log.StartedAt : TimeSpan.Zero;
 
         if (duration.TotalMinutes < 1)
         {

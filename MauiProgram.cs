@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using VGL.Data;
 using VGL.Models.Configuration;
 using VGL.Services;
+using VGL.Services.NowPlaying;
 using VGL.Services.UserProfiles;
 
 namespace VGL;
@@ -37,6 +38,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<LocalImageService>();
         builder.Services.AddScoped<PopupService>();
         builder.Services.AddScoped<UserProfileSession>();
+        builder.Services.AddScoped<NowPlayingSessionService>();
 
         string databasePath = DatabasePathResolver.GetRuntimeDatabasePath();
 

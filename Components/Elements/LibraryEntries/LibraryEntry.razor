@@ -123,6 +123,17 @@
 
         <div class="library-entry-footer">
             <div class="library-entry-buttons">
+                @if (OnStart.HasDelegate)
+                {
+                    <button class="button-dot button-colors-success library-entry-button"
+                            type="button"
+                            title="Start session for @Entry.Name"
+                            aria-label="Start session for @Entry.Name"
+                            @onclick="HandleStart"
+                            @onclick:stopPropagation="true">
+                        <i class="bi bi-play-fill" aria-hidden="true"></i>
+                    </button>
+                }
 
                 <button class="button-dot button-colors-info library-entry-button"
                         type="button" >

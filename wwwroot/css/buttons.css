@@ -301,6 +301,14 @@
 .button-colors-info:hover {
 }
 
+.button-colors-success {
+    color: var(--color-success-ink);
+    background: var(--color-success-soft);
+}
+
+.button-colors-success:hover {
+}
+
 .button-color-primary {
     color: var(--color-primary);
     background: var(--color-primary-soft);

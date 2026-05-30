@@ -2,6 +2,7 @@
 @implements IAsyncDisposable
 @using Microsoft.JSInterop
 @inject UserProfileSession UserSession
+@inject NowPlayingSessionService NowPlaying
 @inject NavigationManager Navigation
 @inject IJSRuntime JsRuntime
 
@@ -34,6 +35,22 @@
         </div>
 
         <div class="nav-spacer" aria-hidden="true"></div>
+
+        @if (activeSession is not null)
+        {
+            <button class="now-playing-widget"
+                    type="button"
+                    @onclick="GoToNowPlaying">
+                <span class="now-playing-widget-icon bi bi-play-fill" aria-hidden="true"></span>
+                <span class="now-playing-widget-copy">
+                    <strong>@GetSessionTitle(activeSession)</strong>
+                    <span>@activeSession.Game.Name</span>
+                    <span>@FormatElapsed(activeSession)</span>
+                </span>
+            </button>
+
+            <div class="nav-spacer" aria-hidden="true"></div>
+        }
 
         <div class="navbar-section">
             <span class="bi bi-collection" aria-hidden="true"></span>
@@ -143,10 +160,16 @@
     private ElementReference profileMenuElement;
     private DotNetObjectReference<NavMenu>? dotNetReference;
     private bool clickAwayConnected;
+    private GameLog? activeSession;
+    private PeriodicTimer? durationTimer;
+    private CancellationTokenSource? durationTimerCts;
+    private bool isDisposed;
 
     protected override void OnInitialized()
     {
         UserSession.Changed += HandleUserSessionChanged;
+        NowPlaying.ActiveSessionChanged += HandleActiveSessionChanged;
+        _ = LoadActiveSessionAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -205,6 +228,17 @@
         NavigateAndClose("/admin/settings");
     }
 
+    private void GoToNowPlaying()
+    {
+        if (activeSession is null)
+        {
+            NavigateAndClose("/now-playing");
+            return;
+        }
+
+        NavigateAndClose($"/now-playing/{activeSession.ID}");
+    }
+
     private void NavigateAndClose(string uri)
     {
         isProfileMenuOpen = false;
@@ -213,12 +247,92 @@
 
     private void HandleUserSessionChanged()
     {
+        _ = LoadActiveSessionAsync();
         _ = InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleActiveSessionChanged()
+    {
+        _ = LoadActiveSessionAsync();
+    }
+
+    private async Task LoadActiveSessionAsync()
+    {
+        activeSession = await NowPlaying.GetLatestActiveSessionAsync();
+        StartDurationTimer();
+
+        if (!isDisposed)
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void StartDurationTimer()
+    {
+        durationTimerCts?.Cancel();
+        durationTimerCts?.Dispose();
+        durationTimer?.Dispose();
+        durationTimerCts = null;
+        durationTimer = null;
+
+        if (activeSession is null)
+        {
+            return;
+        }
+
+        durationTimerCts = new CancellationTokenSource();
+        durationTimer = new PeriodicTimer(TimeSpan.FromSeconds(1));
+        _ = RunDurationTimerAsync(durationTimerCts.Token);
+    }
+
+    private async Task RunDurationTimerAsync(CancellationToken cancellationToken)
+    {
+        if (durationTimer is null)
+        {
+            return;
+        }
+
+        try
+        {
+            while (await durationTimer.WaitForNextTickAsync(cancellationToken))
+            {
+                if (!isDisposed)
+                {
+                    await InvokeAsync(StateHasChanged);
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private static string GetSessionTitle(GameLog log)
+    {
+        return string.IsNullOrWhiteSpace(log.Title) ? log.Playthrough.Name : log.Title;
+    }
+
+    private static string FormatElapsed(GameLog log)
+    {
+        TimeSpan duration = DateTimeOffset.Now >= log.StartedAt ? DateTimeOffset.Now - log.StartedAt : TimeSpan.Zero;
+        int hours = duration.Days * 24 + duration.Hours;
+
+        if (hours > 0)
+        {
+            return $"{hours}h {duration.Minutes}m";
+        }
+
+        return $"{duration.Minutes}m {duration.Seconds}s";
     }
 
     public void Dispose()
     {
+        isDisposed = true;
         UserSession.Changed -= HandleUserSessionChanged;
+        NowPlaying.ActiveSessionChanged -= HandleActiveSessionChanged;
+        durationTimerCts?.Cancel();
+        durationTimerCts?.Dispose();
+        durationTimer?.Dispose();
         dotNetReference?.Dispose();
     }
 

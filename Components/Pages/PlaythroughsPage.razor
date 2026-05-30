@@ -118,6 +118,15 @@
                             </div>
 
                             <div class="playthrough-card-actions">
+                                <button class="playthrough-start-button"
+                                        type="button"
+                                        title="Start session for @playthrough.Name"
+                                        aria-label="Start session for @playthrough.Name"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => StartSession(playthrough)">
+                                    <i class="bi bi-play-fill" aria-hidden="true"></i>
+                                    <span>Start Session</span>
+                                </button>
                                 <button class="button-dot button-colors-info playthrough-card-action"
                                         type="button"
                                         title="Edit @playthrough.Name"
@@ -189,6 +198,14 @@
                         <td>@(playthrough.PlaythroughRun?.Name ?? "None")</td>
                         <td>
                             <div class="collection-table-actions">
+                                <button class="collection-table-action collection-table-action-start"
+                                        type="button"
+                                        title="Start session for @playthrough.Name"
+                                        aria-label="Start session for @playthrough.Name"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => StartSession(playthrough)">
+                                    <i class="bi bi-play-fill" aria-hidden="true"></i>
+                                </button>
                                 <button class="collection-table-action collection-table-action-edit"
                                         type="button"
                                         title="Edit @playthrough.Name"

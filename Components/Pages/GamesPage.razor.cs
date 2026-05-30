@@ -9,6 +9,7 @@ using VGL.Models.Games.Company;
 using VGL.Models.Games.Platforms;
 using VGL.Models.Users;
 using VGL.Services;
+using VGL.Services.NowPlaying;
 using Company = VGL.Models.Companies.Company;
 using GameView = VGL.Components.Elements.GameElements.GameView;
 using PlatformModel = VGL.Models.Platforms.Platform;
@@ -20,9 +21,13 @@ public partial class GamesPage : CollectionPageBase<Game>
 {
     private List<Company> companies = [];
     private List<PlatformModel> platforms = [];
+    private List<Playthrough> playthroughs = [];
 
     [Inject]
     private PopupService PopupService { get; set; } = null!;
+
+    [Inject]
+    private NowPlayingSessionService NowPlaying { get; set; } = null!;
 
     protected override DbSet<Game> EntitySet => DbContext.Games;
 
@@ -42,6 +47,7 @@ public partial class GamesPage : CollectionPageBase<Game>
         await base.OnInitializedAsync();
         await LoadCompaniesAsync();
         await LoadPlatformsAsync();
+        await LoadPlaythroughsAsync();
     }
 
     protected override async Task LoadItemsAsync()
@@ -238,6 +244,23 @@ public partial class GamesPage : CollectionPageBase<Game>
                                    .ToListAsync();
     }
 
+    private async Task LoadPlaythroughsAsync()
+    {
+        if (UserSession.CurrentUserID is null)
+        {
+            playthroughs = [];
+            return;
+        }
+
+        playthroughs = await DbContext.Playthroughs
+                                      .AsNoTracking()
+                                      .Where(playthrough => playthrough.UserProfileID == UserSession.CurrentUserID.Value)
+                                      .Include(playthrough => playthrough.Game)
+                                      .Include(playthrough => playthrough.Platform)
+                                      .OrderBy(playthrough => playthrough.Name)
+                                      .ToListAsync();
+    }
+
     protected override async Task OpenAddPopup()
     {
         Game? game = await PopupService.ShowAsync<AddGamePopup, Game>(
@@ -266,6 +289,51 @@ public partial class GamesPage : CollectionPageBase<Game>
         if (shouldEdit == true)
         {
             await OpenEditPopup(selectedGame);
+        }
+    }
+
+    private async Task StartSession(Game game)
+    {
+        List<Playthrough> gamePlaythroughs = playthroughs
+                                             .Where(playthrough => playthrough.GameID == game.ID)
+                                             .OrderBy(playthrough => playthrough.Name)
+                                             .ToList();
+
+        StartSessionRequest? request;
+        Playthrough? obviousPlaythrough = gamePlaythroughs.Count == 1 && gamePlaythroughs[0].PlatformID is not null
+                                              ? gamePlaythroughs[0]
+                                              : null;
+
+        if (obviousPlaythrough is not null)
+        {
+            request = new StartSessionRequest
+                      {
+                          ExistingPlaythroughID = obviousPlaythrough.ID,
+                      };
+        }
+        else
+        {
+            request = await PopupService.ShowAsync<StartSessionPopup, StartSessionRequest>(
+                new Dictionary<string, object?>
+                {
+                    [nameof(StartSessionPopup.InitialGame)] = game,
+                    [nameof(StartSessionPopup.Playthroughs)] = gamePlaythroughs,
+                    [nameof(StartSessionPopup.LibraryGames)] = Items,
+                    [nameof(StartSessionPopup.Platforms)] = platforms,
+                });
+        }
+
+        if (request is null)
+        {
+            return;
+        }
+
+        GameLog? session = await NowPlaying.StartSessionAsync(request);
+
+        if (session is not null)
+        {
+            await LoadPlaythroughsAsync();
+            Navigation.NavigateTo($"/now-playing/{session.ID}");
         }
     }
 

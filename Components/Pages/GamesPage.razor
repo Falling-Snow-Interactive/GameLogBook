@@ -23,6 +23,7 @@
                     <LibraryEntry Entry="game"
                                   RelatedCompanies="GetRelatedCompanies(game)"
                                   OnClick="() => OpenEditPopup(game)"
+                                  OnStart="() => StartSession(game)"
                                   OnRemove="() => RemoveGame(game)"/>
                 </li>
             }
@@ -70,6 +71,14 @@
                         <td>@FormatNames(GetPlatformNames(game))</td>
                         <td>
                             <div class="collection-table-actions">
+                                <button class="collection-table-action collection-table-action-start"
+                                        type="button"
+                                        title="Start session for @game.Name"
+                                        aria-label="Start session for @game.Name"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => StartSession(game)">
+                                    <i class="bi bi-play-fill" aria-hidden="true"></i>
+                                </button>
                                 <button class="collection-table-action collection-table-action-edit"
                                         type="button"
                                         title="Edit @game.Name"

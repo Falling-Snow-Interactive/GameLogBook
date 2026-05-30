@@ -59,8 +59,7 @@ public partial class AddGameLogPopup : ComponentBase
     private bool CanSave => selectedPlaythroughId is not null
                             && selectedGameId is not null
                             && selectedPlatformId is not null
-                            && startedAt is not null
-                            && endedAt is not null;
+                            && startedAt is not null;
 
     protected override void OnParametersSet()
     {
@@ -132,11 +131,11 @@ public partial class AddGameLogPopup : ComponentBase
 
         if (!CanSave)
         {
-            errorMessage = "Choose a playthrough, game, platform, start, and end time.";
+            errorMessage = "Choose a playthrough, game, platform, and start time.";
             return;
         }
 
-        if (endedAt < startedAt)
+        if (endedAt is not null && endedAt < startedAt)
         {
             errorMessage = "End time must be after start time.";
             return;
@@ -150,7 +149,7 @@ public partial class AddGameLogPopup : ComponentBase
                           PlatformID = selectedPlatformId!.Value,
                           Title = Normalize(title),
                           StartedAt = ToDateTimeOffset(startedAt!.Value),
-                          EndedAt = ToDateTimeOffset(endedAt!.Value),
+                          EndedAt = endedAt is null ? null : ToDateTimeOffset(endedAt.Value),
                           Location = Normalize(location),
                           Notes = Normalize(notes),
                           StatusChange = statusChange
@@ -175,7 +174,7 @@ public partial class AddGameLogPopup : ComponentBase
         selectedGameId = log.GameID;
         selectedPlatformId = log.PlatformID;
         startedAt = log.StartedAt.LocalDateTime;
-        endedAt = log.EndedAt.LocalDateTime;
+        endedAt = log.EndedAt?.LocalDateTime;
         statusChange = log.StatusChange;
         errorMessage = null;
     }

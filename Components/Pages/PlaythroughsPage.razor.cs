@@ -4,6 +4,7 @@ using VGL.Components.Popups;
 using VGL.Models;
 using VGL.Models.Companies;
 using VGL.Models.Games;
+using VGL.Services.NowPlaying;
 using PlatformModel = VGL.Models.Platforms.Platform;
 
 namespace VGL.Components.Pages;
@@ -14,6 +15,9 @@ public partial class PlaythroughsPage : LogbookPageBase<Playthrough>
     public IReadOnlyList<PlatformModel> Platforms { get; set; } = [];
     public IReadOnlyList<PlaythroughRun> PlaythroughRuns { get; set; } = [];
     private IReadOnlyList<Company> companies = [];
+
+    [Inject]
+    private NowPlayingSessionService NowPlaying { get; set; } = null!;
 
     protected override DbSet<Playthrough> EntitySet => DbContext.Playthroughs;
 
@@ -100,6 +104,44 @@ public partial class PlaythroughsPage : LogbookPageBase<Playthrough>
 
         await RemoveItemAsync(existingPlaythrough);
         await LoadItemsAsync();
+    }
+
+    private async Task StartSession(Playthrough playthrough)
+    {
+        StartSessionRequest? request;
+
+        if (playthrough.GameID is not null && playthrough.PlatformID is not null)
+        {
+            request = new StartSessionRequest
+                      {
+                          ExistingPlaythroughID = playthrough.ID,
+                      };
+        }
+        else
+        {
+            request = await PopupService.ShowAsync<StartSessionPopup, StartSessionRequest>(
+                new Dictionary<string, object?>
+                {
+                    [nameof(StartSessionPopup.InitialPlaythrough)] = playthrough,
+                    [nameof(StartSessionPopup.InitialGame)] = playthrough.Game,
+                    [nameof(StartSessionPopup.Playthroughs)] = new[] { playthrough },
+                    [nameof(StartSessionPopup.LibraryGames)] = Games,
+                    [nameof(StartSessionPopup.Platforms)] = Platforms,
+                });
+        }
+
+        if (request is null)
+        {
+            return;
+        }
+
+        GameLog? session = await NowPlaying.StartSessionAsync(request);
+
+        if (session is not null)
+        {
+            await LoadItemsAsync();
+            Navigation.NavigateTo($"/now-playing/{session.ID}");
+        }
     }
 
     protected override async Task OpenAddPopup()

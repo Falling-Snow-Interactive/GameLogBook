@@ -39,8 +39,8 @@ public class Playthrough
 
     [NotMapped]
     public TimeSpan TotalPlaytime => Logs
-                                     .Where(log => log.EndedAt >= log.StartedAt)
-                                     .Aggregate(TimeSpan.Zero, (total, log) => total + (log.EndedAt - log.StartedAt));
+                                     .Where(log => log.EndedAt is not null && log.EndedAt.Value >= log.StartedAt)
+                                     .Aggregate(TimeSpan.Zero, (total, log) => total + (log.EndedAt!.Value - log.StartedAt));
 
     [NotMapped]
     public DateTimeOffset? DerivedStartedAt => Logs.Count == 0 ? null : Logs.Min(log => log.StartedAt);
@@ -69,15 +69,26 @@ public class Playthrough
     public DateTimeOffset? MasteredAt => ManualMasteredAt ?? DerivedMasteredAt;
 
     [NotMapped]
-    public DateTimeOffset? LastPlayedAt => Logs.Count == 0 ? null : Logs.Max(log => log.EndedAt);
+    public DateTimeOffset? LastPlayedAt => Logs
+                                           .Where(log => log.EndedAt is not null)
+                                           .Select(log => log.EndedAt)
+                                           .DefaultIfEmpty()
+                                           .Max();
 
     [NotMapped]
-    public TimeSpan? AverageSessionLength => Logs.Count == 0 ? null : TotalPlaytime / Logs.Count;
+    public TimeSpan? AverageSessionLength
+    {
+        get
+        {
+            int completedLogCount = Logs.Count(log => log.EndedAt is not null);
+            return completedLogCount == 0 ? null : TotalPlaytime / completedLogCount;
+        }
+    }
 
     [NotMapped]
     public TimeSpan? LongestSession => Logs
-                                       .Where(log => log.EndedAt >= log.StartedAt)
-                                       .Select(log => log.EndedAt - log.StartedAt)
+                                       .Where(log => log.EndedAt is not null && log.EndedAt.Value >= log.StartedAt)
+                                       .Select(log => log.EndedAt!.Value - log.StartedAt)
                                        .DefaultIfEmpty()
                                        .Max();
 }

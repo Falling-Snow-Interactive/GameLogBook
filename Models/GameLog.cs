@@ -28,7 +28,7 @@ public class GameLog
 
     public DateTimeOffset StartedAt { get; set; }
 
-    public DateTimeOffset EndedAt { get; set; }
+    public DateTimeOffset? EndedAt { get; set; }
 
     public string? Location { get; set; }
 

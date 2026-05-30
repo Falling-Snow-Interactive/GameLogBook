@@ -340,6 +340,11 @@
     color: var(--color-info);
 }
 
+.collection-table-action-start {
+    background: var(--color-success-soft);
+    color: var(--color-success-ink);
+}
+
 .collection-table-action-remove {
     background: var(--color-danger-soft);
     color: var(--color-danger-ink);

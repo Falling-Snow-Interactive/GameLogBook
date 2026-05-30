@@ -1,0 +1,58 @@
+@using VGL.Models.Games
+@using PlatformModel = VGL.Models.Platforms.Platform
+
+<AddPopup Title="Start Session"
+          ShowSearch="false"
+          OnClose="HandleClose">
+    <div class="playthrough-details-form">
+        <AddPopupSection Title="Session">
+            <EntryField Label="Playthrough">
+                <select class="playthrough-detail-input"
+                        value="@selectedPlaythroughId"
+                        @onchange="HandlePlaythroughChanged">
+                    <option value="">Create new playthrough</option>
+                    @foreach (Playthrough playthrough in Playthroughs)
+                    {
+                        <option value="@playthrough.ID">@playthrough.Name</option>
+                    }
+                </select>
+            </EntryField>
+
+            @if (selectedPlaythroughId is null)
+            {
+                <EntryField Label="New Playthrough" Class="form-span-wide">
+                    <input class="playthrough-detail-input"
+                           @bind="newPlaythroughName"
+                           @bind:event="oninput"
+                           placeholder="Playthrough name" />
+                </EntryField>
+            }
+
+            <EntryField Label="Game">
+                <GameSearch Games="LibraryGames"
+                            Placeholder="Search games..."
+                            @bind-SelectedGameId="selectedGameId" />
+            </EntryField>
+
+            <EntryField Label="Platform">
+                <PlatformSearch Platforms="Platforms"
+                                Placeholder="Search platforms..."
+                                @bind-SelectedPlatformId="selectedPlatformId" />
+            </EntryField>
+        </AddPopupSection>
+
+        <AddPopupActions>
+            <button class="save-button"
+                    type="button"
+                    disabled="@(!CanStart)"
+                    @onclick="HandleStart">
+                Start Session
+            </button>
+        </AddPopupActions>
+
+        @if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            <p class="error-message">@errorMessage</p>
+        }
+    </div>
+</AddPopup>

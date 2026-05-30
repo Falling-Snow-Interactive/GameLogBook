@@ -24,6 +24,9 @@ public partial class LibraryEntry : ComponentBase
     [Parameter]
     public EventCallback<ILibraryEntry> OnRemove { get; set; }
 
+    [Parameter]
+    public EventCallback<ILibraryEntry> OnStart { get; set; }
+
     private IReadOnlyList<Company> DeveloperCompanies => GetRoleCompanies(GameCompanyRole.Developer);
 
     private IReadOnlyList<Company> PublisherCompanies => GetRoleCompanies(GameCompanyRole.Publisher);
@@ -39,6 +42,11 @@ public partial class LibraryEntry : ComponentBase
     private async Task HandleRemove()
     {
         await OnRemove.InvokeAsync(Entry);
+    }
+
+    private async Task HandleStart()
+    {
+        await OnStart.InvokeAsync(Entry);
     }
 
     private IReadOnlyList<Company> GetRoleCompanies(GameCompanyRole role)
