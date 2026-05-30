@@ -41,6 +41,13 @@
     z-index: 0;
 }
 
+.library-entry-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--gradient-linear-vertical);
+}
+
 .library-entry-cover {
     aspect-ratio: 2/3;
     flex-shrink: 1;

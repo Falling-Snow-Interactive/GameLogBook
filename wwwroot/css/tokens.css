@@ -168,4 +168,9 @@
     --debug-border-size-sm: 0.1rem;
     --debug-border-size-md: 0.2rem;
     --debug-border-size-lg: 0.3rem;
+    
+    /* ----- Gradients ----- */
+    --gradient-color-start:rgba(0, 0, 0, 0);
+    --gradient-color-end: var(--color-surface);
+    --gradient-linear-vertical: linear-gradient(180deg, var(--gradient-color-start) 0%, var(--gradient-color-end) 88%);
 }
