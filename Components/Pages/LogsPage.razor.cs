@@ -118,6 +118,52 @@ public partial class LogsPage : LogbookPageBase<GameLog>
         await LoadPickerDataAsync();
     }
 
+    private async Task SetLogStartToNow(GameLog log)
+    {
+        GameLog? existingLog = await DbContext.GameLogs
+                                             .FirstOrDefaultAsync(item => item.ID == log.ID
+                                                                         && item.UserProfileID == UserSession.CurrentUserID);
+
+        if (existingLog is null)
+        {
+            return;
+        }
+
+        DateTimeOffset now = DateTimeOffset.Now;
+        existingLog.StartedAt = now;
+
+        if (existingLog.EndedAt < existingLog.StartedAt)
+        {
+            existingLog.EndedAt = existingLog.StartedAt;
+        }
+
+        await DbContext.SaveChangesAsync();
+        await LoadItemsAsync();
+    }
+
+    private async Task SetLogEndToNow(GameLog log)
+    {
+        GameLog? existingLog = await DbContext.GameLogs
+                                             .FirstOrDefaultAsync(item => item.ID == log.ID
+                                                                         && item.UserProfileID == UserSession.CurrentUserID);
+
+        if (existingLog is null)
+        {
+            return;
+        }
+
+        DateTimeOffset now = DateTimeOffset.Now;
+        existingLog.EndedAt = now;
+
+        if (existingLog.StartedAt > existingLog.EndedAt)
+        {
+            existingLog.StartedAt = existingLog.EndedAt;
+        }
+
+        await DbContext.SaveChangesAsync();
+        await LoadItemsAsync();
+    }
+
     protected override async Task OpenAddPopup()
     {
         GameLog? log = await PopupService.ShowAsync<AddGameLogPopup, GameLog>(
@@ -267,6 +313,16 @@ public partial class LogsPage : LogbookPageBase<GameLog>
     private static string FormatDateTime(DateTimeOffset value)
     {
         return value.LocalDateTime.ToString("MMM d, yyyy h:mm tt");
+    }
+
+    private static string FormatShortDate(DateTimeOffset value)
+    {
+        return value.LocalDateTime.ToString("MMM d, yyyy");
+    }
+
+    private static string FormatTimeRange(GameLog log)
+    {
+        return $"{log.StartedAt.LocalDateTime:h:mm tt} - {log.EndedAt.LocalDateTime:h:mm tt}";
     }
 
     private static string FormatDuration(GameLog log)

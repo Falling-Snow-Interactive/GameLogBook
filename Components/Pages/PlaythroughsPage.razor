@@ -2,7 +2,6 @@
 
 @using VGL.Models
 @using VGL.Components.Elements.CollectionPageShell
-@using VGL.Components.Elements.NamedCollectionEntry
 
 @inherits LogbookPageBase<VGL.Models.Playthrough>
 
@@ -19,15 +18,129 @@
                      EmptyDescription="Add a playthrough to start grouping your game sessions.">
     @if (ViewMode == CollectionViewMode.Card)
     {
-        <ul class="collection-list">
+        <ul class="playthrough-card-grid">
             @foreach (Playthrough playthrough in Items)
             {
-                <NamedCollectionEntry TItem="Playthrough"
-                                      Item="playthrough"
-                                      Title="@playthrough.Name"
-                                      Description="@GetPlaythroughSummary(playthrough)"
-                                      OnClick="OpenEditPopup"
-                                      OnRemove="RemovePlaythrough" />
+                <li>
+                    <article class="playthrough-card"
+                             role="button"
+                             tabindex="0"
+                             @onclick="() => OpenEditPopup(playthrough)">
+                        <div class="playthrough-card-hero">
+                            <LocalImage ImagePath="@(playthrough.Game?.Hero?.Path ?? playthrough.Game?.Cover?.Path)"
+                                        ImageClass="playthrough-card-hero-image"
+                                        AltText="@($"{playthrough.Game?.Name ?? playthrough.Name} artwork")"
+                                        MaxWidth="640"
+                                        MaxHeight="320">
+                                <Placeholder>
+                                    <div class="playthrough-card-hero-fallback">
+                                        <i class="bi bi-controller" aria-hidden="true"></i>
+                                    </div>
+                                </Placeholder>
+                            </LocalImage>
+                        </div>
+
+                        <div class="playthrough-card-content">
+                            <div class="playthrough-card-topline">
+                                <span class="@($"status-badge status-badge-{playthrough.Status.ToString().ToLowerInvariant()}")">
+                                    @playthrough.Status
+                                </span>
+
+                                @if (playthrough.PlaythroughRun is not null)
+                                {
+                                    <span class="playthrough-run-pill">
+                                        <i class="bi bi-signpost-split" aria-hidden="true"></i>
+                                        @playthrough.PlaythroughRun.Name
+                                    </span>
+                                }
+                            </div>
+
+                            <div class="playthrough-card-main">
+                                <div class="playthrough-card-cover">
+                                    <LocalImage ImagePath="@playthrough.Game?.Cover?.Path"
+                                                ImageClass="playthrough-card-cover-image"
+                                                AltText="@($"{playthrough.Game?.Name ?? playthrough.Name} cover")"
+                                                MaxWidth="240"
+                                                MaxHeight="360">
+                                        <Placeholder>
+                                            <div class="playthrough-card-cover-fallback">
+                                                <i class="bi bi-controller" aria-hidden="true"></i>
+                                            </div>
+                                        </Placeholder>
+                                    </LocalImage>
+                                </div>
+
+                                <div class="playthrough-card-copy">
+                                    <div class="playthrough-card-logo">
+                                        <LocalImage ImagePath="@playthrough.Game?.Logo?.Path"
+                                                    ImageClass="playthrough-card-logo-image"
+                                                    AltText="@($"{playthrough.Game?.Name ?? playthrough.Name} logo")"
+                                                    MaxWidth="320"
+                                                    MaxHeight="120">
+                                            <Placeholder>
+                                                <h4>@playthrough.Name</h4>
+                                            </Placeholder>
+                                        </LocalImage>
+                                    </div>
+
+                                    <div class="playthrough-card-title-block">
+                                        <h4>@playthrough.Name</h4>
+                                        <p>
+                                            <span>@(playthrough.Game?.Name ?? "No game")</span>
+                                            <span aria-hidden="true">·</span>
+                                            <span>@(playthrough.Platform?.Name ?? "No platform")</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="playthrough-card-stats" aria-label="@($"{playthrough.Name} stats")">
+                                <div>
+                                    <strong>@FormatPlaytime(playthrough.TotalPlaytime)</strong>
+                                    <span>Playtime</span>
+                                </div>
+                                <div>
+                                    <strong>@playthrough.Logs.Count</strong>
+                                    <span>@(playthrough.Logs.Count == 1 ? "Log" : "Logs")</span>
+                                </div>
+                                <div>
+                                    <strong>@FormatPlaytime(playthrough.AverageSessionLength ?? TimeSpan.Zero)</strong>
+                                    <span>Average</span>
+                                </div>
+                            </div>
+
+                            <div class="playthrough-card-dates">
+                                <span>
+                                    <i class="bi bi-play-circle" aria-hidden="true"></i>
+                                    @FormatShortDate(playthrough.StartedAt)
+                                </span>
+                                <span>
+                                    <i class="bi bi-clock-history" aria-hidden="true"></i>
+                                    @FormatShortDate(playthrough.LastPlayedAt)
+                                </span>
+                            </div>
+
+                            <div class="playthrough-card-actions">
+                                <button class="button-dot button-colors-info playthrough-card-action"
+                                        type="button"
+                                        title="Edit @playthrough.Name"
+                                        aria-label="Edit @playthrough.Name"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => OpenEditPopup(playthrough)">
+                                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                </button>
+                                <button class="button-dot button-colors-danger playthrough-card-action"
+                                        type="button"
+                                        title="Remove @playthrough.Name"
+                                        aria-label="Remove @playthrough.Name"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => RemovePlaythrough(playthrough)">
+                                    <i class="bi bi-trash" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                </li>
             }
         </ul>
     }

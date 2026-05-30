@@ -236,6 +236,11 @@ public partial class PlaythroughsPage : LogbookPageBase<Playthrough>
         return value?.LocalDateTime.ToString("MMM d, yyyy h:mm tt") ?? "Not set";
     }
 
+    private static string FormatShortDate(DateTimeOffset? value)
+    {
+        return value?.LocalDateTime.ToString("MMM d, yyyy") ?? "Not set";
+    }
+
     private static string FormatPlaytime(TimeSpan playtime)
     {
         if (playtime <= TimeSpan.Zero)

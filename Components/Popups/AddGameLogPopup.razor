@@ -57,15 +57,15 @@
             <EntryField Label="Started">
                 <input class="playthrough-detail-input"
                        type="datetime-local"
-                       @bind="startedAt"
-                       @bind:format="yyyy-MM-ddTHH:mm" />
+                       value="@FormatDateTimeInput(startedAt)"
+                       @oninput="HandleStartedAtChanged" />
             </EntryField>
 
             <EntryField Label="Ended">
                 <input class="playthrough-detail-input"
                        type="datetime-local"
-                       @bind="endedAt"
-                       @bind:format="yyyy-MM-ddTHH:mm" />
+                       value="@FormatDateTimeInput(endedAt)"
+                       @oninput="HandleEndedAtChanged" />
             </EntryField>
 
             <EntryField Label="Location">

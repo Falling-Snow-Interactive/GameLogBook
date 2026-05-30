@@ -2,7 +2,6 @@
 
 @using VGL.Models
 @using VGL.Components.Elements.CollectionPageShell
-@using VGL.Components.Elements.NamedCollectionEntry
 
 @inherits LogbookPageBase<VGL.Models.GameLog>
 
@@ -19,15 +18,145 @@
                      EmptyDescription="Add a log after a play session to build your history.">
     @if (ViewMode == CollectionViewMode.Card)
     {
-        <ul class="collection-list">
+        <ul class="log-card-grid">
             @foreach (GameLog log in Items)
             {
-                <NamedCollectionEntry TItem="GameLog"
-                                      Item="log"
-                                      Title="@GetLogTitle(log)"
-                                      Description="@GetLogSummary(log)"
-                                      OnClick="OpenEditPopup"
-                                      OnRemove="RemoveLog" />
+                <li>
+                    <article class="log-card"
+                             role="button"
+                             tabindex="0"
+                             @onclick="() => OpenEditPopup(log)">
+                        <div class="log-card-art">
+                            <LocalImage ImagePath="@(log.Game.Hero?.Path ?? log.Game.Cover?.Path)"
+                                        ImageClass="log-card-art-image"
+                                        AltText="@($"{log.Game.Name} artwork")"
+                                        MaxWidth="640"
+                                        MaxHeight="300">
+                                <Placeholder>
+                                    <div class="log-card-art-fallback">
+                                        <i class="bi bi-journal-text" aria-hidden="true"></i>
+                                    </div>
+                                </Placeholder>
+                            </LocalImage>
+                        </div>
+
+                        <div class="log-card-content">
+                            <div class="log-card-header">
+                                <div class="log-card-cover">
+                                    <LocalImage ImagePath="@log.Game.Cover?.Path"
+                                                ImageClass="log-card-cover-image"
+                                                AltText="@($"{log.Game.Name} cover")"
+                                                MaxWidth="180"
+                                                MaxHeight="270">
+                                        <Placeholder>
+                                            <div class="log-card-cover-fallback">
+                                                <i class="bi bi-controller" aria-hidden="true"></i>
+                                            </div>
+                                        </Placeholder>
+                                    </LocalImage>
+                                </div>
+
+                                <div class="log-card-title-wrap">
+                                    <div class="log-card-logo">
+                                        <LocalImage ImagePath="@log.Game.Logo?.Path"
+                                                    ImageClass="log-card-logo-image"
+                                                    AltText="@($"{log.Game.Name} logo")"
+                                                    MaxWidth="320"
+                                                    MaxHeight="100">
+                                            <Placeholder>
+                                                <span>@log.Game.Name</span>
+                                            </Placeholder>
+                                        </LocalImage>
+                                    </div>
+
+                                    <div class="log-card-title">
+                                        <h4>@GetLogTitle(log)</h4>
+                                        <p>
+                                            <span>@log.Playthrough.Name</span>
+                                            <span aria-hidden="true">·</span>
+                                            <span>@log.Platform.Name</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="log-card-meta">
+                                <span class="log-card-date">
+                                    <i class="bi bi-calendar-event" aria-hidden="true"></i>
+                                    @FormatShortDate(log.StartedAt)
+                                </span>
+
+                                @if (log.StatusChange is null)
+                                {
+                                    <span class="log-status-pill log-status-none">No Status Change</span>
+                                }
+                                else
+                                {
+                                    <span class="@($"status-badge status-badge-{log.StatusChange.Value.ToString().ToLowerInvariant()}")">
+                                        @log.StatusChange
+                                    </span>
+                                }
+                            </div>
+
+                            <div class="log-card-stats" aria-label="@($"{GetLogTitle(log)} stats")">
+                                <div>
+                                    <strong>@FormatDuration(log)</strong>
+                                    <span>Duration</span>
+                                </div>
+                                <div>
+                                    <strong>@FormatTimeRange(log)</strong>
+                                    <span>Time</span>
+                                </div>
+                                <div>
+                                    <strong>@(log.Location ?? "Not set")</strong>
+                                    <span>Location</span>
+                                </div>
+                            </div>
+
+                            <div class="log-card-notes">
+                                <span>Notes</span>
+                                <p>@GetNotesPreview(log)</p>
+                            </div>
+
+                            <div class="log-card-actions">
+                                <button class="log-card-time-action log-card-start-action"
+                                        type="button"
+                                        title="Set start time to now"
+                                        aria-label="Set start time to now for @GetLogTitle(log)"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => SetLogStartToNow(log)">
+                                    <i class="bi bi-play-fill" aria-hidden="true"></i>
+                                    <span>Start</span>
+                                </button>
+                                <button class="log-card-time-action log-card-end-action"
+                                        type="button"
+                                        title="Set end time to now"
+                                        aria-label="Set end time to now for @GetLogTitle(log)"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => SetLogEndToNow(log)">
+                                    <i class="bi bi-stop-fill" aria-hidden="true"></i>
+                                    <span>End</span>
+                                </button>
+                                <button class="button-dot button-colors-info log-card-action"
+                                        type="button"
+                                        title="Edit @GetLogTitle(log)"
+                                        aria-label="Edit @GetLogTitle(log)"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => OpenEditPopup(log)">
+                                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                </button>
+                                <button class="button-dot button-colors-danger log-card-action"
+                                        type="button"
+                                        title="Remove @GetLogTitle(log)"
+                                        aria-label="Remove @GetLogTitle(log)"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => RemoveLog(log)">
+                                    <i class="bi bi-trash" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                </li>
             }
         </ul>
     }

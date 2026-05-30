@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using System.Globalization;
 using VGL.Models;
 using VGL.Models.Games;
 using VGL.Services;
@@ -8,6 +9,8 @@ namespace VGL.Components.Popups;
 
 public partial class AddGameLogPopup : ComponentBase
 {
+    private const string DateTimeInputFormat = "yyyy-MM-ddTHH:mm";
+
     private GameLog? previousInitialLog;
     private string title = string.Empty;
     private string location = string.Empty;
@@ -113,6 +116,16 @@ public partial class AddGameLogPopup : ComponentBase
         statusChange = Enum.TryParse(value, out PlaythroughStatus parsed) ? parsed : null;
     }
 
+    private void HandleStartedAtChanged(ChangeEventArgs args)
+    {
+        startedAt = ParseDateTimeInput(args.Value?.ToString());
+    }
+
+    private void HandleEndedAtChanged(ChangeEventArgs args)
+    {
+        endedAt = ParseDateTimeInput(args.Value?.ToString());
+    }
+
     private async Task HandleSaveLog()
     {
         errorMessage = null;
@@ -194,5 +207,32 @@ public partial class AddGameLogPopup : ComponentBase
     private static DateTimeOffset ToDateTimeOffset(DateTime value)
     {
         return new DateTimeOffset(DateTime.SpecifyKind(value, DateTimeKind.Local));
+    }
+
+    private static string FormatDateTimeInput(DateTime? value)
+    {
+        return value?.ToString(DateTimeInputFormat, CultureInfo.InvariantCulture) ?? string.Empty;
+    }
+
+    private static DateTime? ParseDateTimeInput(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        string[] supportedFormats =
+        [
+            DateTimeInputFormat,
+            "yyyy-MM-ddTHH:mm:ss"
+        ];
+
+        return DateTime.TryParseExact(value,
+                                      supportedFormats,
+                                      CultureInfo.InvariantCulture,
+                                      DateTimeStyles.None,
+                                      out DateTime parsed)
+                   ? parsed
+                   : null;
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using System.Globalization;
 using VGL.Models;
 using VGL.Models.Games;
 using VGL.Services;
@@ -8,6 +9,8 @@ namespace VGL.Components.Popups;
 
 public partial class AddPlaythroughPopup : ComponentBase
 {
+    private const string DateTimeInputFormat = "yyyy-MM-ddTHH:mm";
+
     private Playthrough? previousInitialPlaythrough;
     private string playthroughName = string.Empty;
     private string? errorMessage;
@@ -87,6 +90,21 @@ public partial class AddPlaythroughPopup : ComponentBase
     private void HandleRunChanged(ChangeEventArgs args)
     {
         selectedRunId = ParseNullableInt(args.Value);
+    }
+
+    private void HandleManualStartedAtChanged(ChangeEventArgs args)
+    {
+        manualStartedAt = ParseDateTimeInput(args.Value?.ToString());
+    }
+
+    private void HandleManualFinishedAtChanged(ChangeEventArgs args)
+    {
+        manualFinishedAt = ParseDateTimeInput(args.Value?.ToString());
+    }
+
+    private void HandleManualMasteredAtChanged(ChangeEventArgs args)
+    {
+        manualMasteredAt = ParseDateTimeInput(args.Value?.ToString());
     }
 
     private async Task HandleSavePlaythrough()
@@ -171,5 +189,32 @@ public partial class AddPlaythroughPopup : ComponentBase
     private static DateTime? ToLocalDateTime(DateTimeOffset? value)
     {
         return value?.LocalDateTime;
+    }
+
+    private static string FormatDateTimeInput(DateTime? value)
+    {
+        return value?.ToString(DateTimeInputFormat, CultureInfo.InvariantCulture) ?? string.Empty;
+    }
+
+    private static DateTime? ParseDateTimeInput(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        string[] supportedFormats =
+        [
+            DateTimeInputFormat,
+            "yyyy-MM-ddTHH:mm:ss"
+        ];
+
+        return DateTime.TryParseExact(value,
+                                      supportedFormats,
+                                      CultureInfo.InvariantCulture,
+                                      DateTimeStyles.None,
+                                      out DateTime parsed)
+                   ? parsed
+                   : null;
     }
 }

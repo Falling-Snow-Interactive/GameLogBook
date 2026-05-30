@@ -1,0 +1,272 @@
+.playthrough-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr));
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.playthrough-card-grid > li {
+    min-width: 0;
+}
+
+.playthrough-card {
+    position: relative;
+    min-width: 0;
+    min-height: 30rem;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition:
+        transform var(--transition-fast),
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.playthrough-card:hover {
+    border-color: var(--color-border-hover);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.playthrough-card:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring), var(--shadow-md);
+}
+
+.playthrough-card-hero {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 12rem;
+    overflow: hidden;
+    background: var(--color-surface-subtle);
+}
+
+.playthrough-card-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.08) 0%, rgba(255, 255, 255, 0.96) 88%);
+}
+
+::deep .playthrough-card-hero-image,
+.playthrough-card-hero-fallback {
+    width: 100%;
+    height: 100%;
+}
+
+::deep .playthrough-card-hero-image {
+    display: block;
+    object-fit: cover;
+}
+
+.playthrough-card-hero-fallback {
+    display: grid;
+    place-items: center;
+    color: var(--color-primary);
+    font-size: 3rem;
+}
+
+.playthrough-card-content {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    min-width: 0;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.playthrough-card-topline {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    min-width: 0;
+    min-height: 2rem;
+    gap: 0.75rem;
+}
+
+.playthrough-run-pill {
+    display: inline-flex;
+    max-width: 55%;
+    min-height: 1.75rem;
+    align-items: center;
+    gap: 0.35rem;
+    overflow: hidden;
+    border: 1px solid rgba(103, 80, 164, 0.18);
+    border-radius: var(--radius-pill);
+    padding: 0.25rem 0.625rem;
+    background: rgba(255, 255, 255, 0.86);
+    color: var(--color-text-soft);
+    font-size: 0.78rem;
+    font-weight: 800;
+    line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.playthrough-card-main {
+    display: grid;
+    grid-template-columns: 6.75rem minmax(0, 1fr);
+    min-width: 0;
+    gap: 1rem;
+    align-items: end;
+}
+
+.playthrough-card-cover {
+    aspect-ratio: 2 / 3;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-md);
+}
+
+::deep .playthrough-card-cover-image,
+.playthrough-card-cover-fallback {
+    width: 100%;
+    height: 100%;
+}
+
+::deep .playthrough-card-cover-image {
+    display: block;
+    object-fit: cover;
+}
+
+.playthrough-card-cover-fallback {
+    display: grid;
+    place-items: center;
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+    font-size: 2rem;
+}
+
+.playthrough-card-copy {
+    display: grid;
+    min-width: 0;
+    gap: 0.65rem;
+    padding-bottom: 0.15rem;
+}
+
+.playthrough-card-logo {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    min-height: 3rem;
+    max-height: 4.5rem;
+    align-items: flex-end;
+}
+
+::deep .playthrough-card-logo-image {
+    display: block;
+    max-width: 100%;
+    max-height: 4.5rem;
+    object-fit: contain;
+    filter: drop-shadow(0 0.35rem 0.55rem rgba(15, 23, 42, 0.24));
+}
+
+.playthrough-card-logo h4,
+.playthrough-card-title-block h4 {
+    margin: 0;
+    color: var(--color-text);
+    font-size: 1.2rem;
+    font-weight: 850;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+
+.playthrough-card-title-block {
+    display: grid;
+    min-width: 0;
+    gap: 0.25rem;
+}
+
+.playthrough-card-title-block p {
+    display: flex;
+    min-width: 0;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.88rem;
+    font-weight: 650;
+    line-height: 1.3;
+}
+
+.playthrough-card-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.55rem;
+}
+
+.playthrough-card-stats > div {
+    display: grid;
+    min-width: 0;
+    gap: 0.2rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 0.65rem;
+    background: rgba(255, 255, 255, 0.78);
+}
+
+.playthrough-card-stats strong {
+    overflow: hidden;
+    color: var(--color-text);
+    font-size: 0.94rem;
+    font-weight: 850;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.playthrough-card-stats span {
+    color: var(--color-text-muted);
+    font-size: 0.72rem;
+    font-weight: 800;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.playthrough-card-dates {
+    display: grid;
+    gap: 0.45rem;
+    color: var(--color-text-soft);
+    font-size: 0.84rem;
+    font-weight: 700;
+}
+
+.playthrough-card-dates span {
+    display: inline-flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.playthrough-card-dates i {
+    color: var(--color-primary);
+}
+
+.playthrough-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.playthrough-card-action {
+    width: 2.5rem;
+    height: 2.5rem;
+    flex: 0 0 auto;
+}
+
+@media (max-width: 520px) {
+    .playthrough-card-main {
+        grid-template-columns: 5.5rem minmax(0, 1fr);
+    }
+
+    .playthrough-card-stats {
+        grid-template-columns: 1fr;
+    }
+}
