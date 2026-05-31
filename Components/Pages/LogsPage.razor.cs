@@ -9,29 +9,40 @@ using PlatformModel = VGL.Models.Platforms.Platform;
 
 namespace VGL.Components.Pages;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 public partial class LogsPage : LogbookPageBase<GameLog>
 {
-    public IReadOnlyList<Playthrough> Playthroughs { get; set; } = [];
-    public IReadOnlyList<Game> Games { get; set; } = [];
-    public IReadOnlyList<PlatformModel> Platforms { get; set; } = [];
-    private IReadOnlyList<Company> companies = [];
-
+    protected override DbSet<GameLog> EntitySet => DbContext.GameLogs;
+    
     [Inject]
     private NowPlayingSessionService NowPlaying { get; set; } = null!;
-
-    protected override DbSet<GameLog> EntitySet => DbContext.GameLogs;
-
+    
+    private IReadOnlyList<Playthrough> playthroughs = [];
+    private IReadOnlyList<Game> games = [];
+    private IReadOnlyList<PlatformModel> platforms = [];
+    private IReadOnlyList<Company> companies = [];
+    
+    #region Sorting
+    
     protected override string GetSortKey(GameLog item)
     {
         return item.StartedAt.ToString("O");
     }
+    
+    #endregion
+    
+    #region Initialize
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         await LoadPickerDataAsync();
     }
+    
+    #endregion
 
+    #region Load
+    
     protected override async Task LoadItemsAsync()
     {
         if (UserSession.CurrentUserID is null)
@@ -52,6 +63,36 @@ public partial class LogsPage : LogbookPageBase<GameLog>
                 .OrderByDescending(log => log.StartedAt)
                 .ToList();
     }
+    
+    private async Task LoadPickerDataAsync()
+    {
+        if (UserSession.CurrentUserID is null)
+        {
+            playthroughs = [];
+            games = [];
+            platforms = [];
+            companies = [];
+            return;
+        }
+
+        int userProfileId = UserSession.CurrentUserID.Value;
+
+        playthroughs = await DbContext.Playthroughs
+                                      .AsNoTracking()
+                                      .Where(playthrough => playthrough.UserProfileID == userProfileId)
+                                      .Include(playthrough => playthrough.Game)
+                                      .Include(playthrough => playthrough.Platform)
+                                      .OrderBy(playthrough => playthrough.Name)
+                                      .ToListAsync();
+
+        games = await LoadLibraryGamesAsync();
+        platforms = await LoadLibraryPlatformsAsync();
+        companies = await LoadCompaniesAsync();
+    }
+    
+    #endregion
+    
+    #region Log Control
 
     private async Task AddLog(GameLog log)
     {
@@ -71,8 +112,8 @@ public partial class LogsPage : LogbookPageBase<GameLog>
     private async Task UpdateLog(GameLog updatedLog)
     {
         GameLog? existingLog = await DbContext.GameLogs
-                                             .FirstOrDefaultAsync(log => log.ID == updatedLog.ID
-                                                                         && log.UserProfileID == UserSession.CurrentUserID);
+                                              .FirstOrDefaultAsync(log => log.ID == updatedLog.ID
+                                                                          && log.UserProfileID == UserSession.CurrentUserID);
 
         if (existingLog is null)
         {
@@ -106,8 +147,8 @@ public partial class LogsPage : LogbookPageBase<GameLog>
     private async Task RemoveLog(GameLog log)
     {
         GameLog? existingLog = await DbContext.GameLogs
-                                             .FirstOrDefaultAsync(item => item.ID == log.ID
-                                                                         && item.UserProfileID == UserSession.CurrentUserID);
+                                              .FirstOrDefaultAsync(item => item.ID == log.ID
+                                                                           && item.UserProfileID == UserSession.CurrentUserID);
 
         if (existingLog is null)
         {
@@ -122,25 +163,8 @@ public partial class LogsPage : LogbookPageBase<GameLog>
         await LoadPickerDataAsync();
     }
 
-    private async Task SetLogStartToNow(GameLog log)
+    private async Task Refresh()
     {
-        GameLog? existingLog = await DbContext.GameLogs
-                                             .FirstOrDefaultAsync(item => item.ID == log.ID
-                                                                         && item.UserProfileID == UserSession.CurrentUserID);
-
-        if (existingLog is null)
-        {
-            return;
-        }
-
-        DateTimeOffset now = DateTimeOffset.Now;
-        existingLog.StartedAt = now;
-
-        if (existingLog.EndedAt is null || existingLog.EndedAt.Value < existingLog.StartedAt)
-        {
-            existingLog.EndedAt = existingLog.StartedAt;
-        }
-
         await DbContext.SaveChangesAsync();
         await LoadItemsAsync();
     }
@@ -148,8 +172,8 @@ public partial class LogsPage : LogbookPageBase<GameLog>
     private async Task SetLogEndToNow(GameLog log)
     {
         GameLog? existingLog = await DbContext.GameLogs
-                                             .FirstOrDefaultAsync(item => item.ID == log.ID
-                                                                         && item.UserProfileID == UserSession.CurrentUserID);
+                                              .FirstOrDefaultAsync(item => item.ID == log.ID
+                                                                           && item.UserProfileID == UserSession.CurrentUserID);
 
         if (existingLog is null)
         {
@@ -167,18 +191,21 @@ public partial class LogsPage : LogbookPageBase<GameLog>
         await DbContext.SaveChangesAsync();
         await LoadItemsAsync();
     }
+    
+    #endregion
+    
+    #region Popups
 
     protected override async Task OpenAddPopup()
     {
-        GameLog? log = await PopupService.ShowAsync<AddGameLogPopup, GameLog>(
-            new Dictionary<string, object?>
-            {
-                [nameof(AddGameLogPopup.Playthroughs)] = Playthroughs,
-                [nameof(AddGameLogPopup.LibraryGames)] = Games,
-                [nameof(AddGameLogPopup.Platforms)] = Platforms,
-                [nameof(AddGameLogPopup.OnGameAdded)] = new Func<Task<Game?>>(AddGameFromPicker),
-                [nameof(AddGameLogPopup.OnPlatformAdded)] = new Func<Task<PlatformModel?>>(AddPlatformFromPicker)
-            });
+        GameLog? log = await PopupService.ShowAsync<AddGameLogPopup, GameLog>(new Dictionary<string, object?>
+                                                                              {
+                                                                                  [nameof(AddGameLogPopup.Playthroughs)] = playthroughs,
+                                                                                  [nameof(AddGameLogPopup.LibraryGames)] = games,
+                                                                                  [nameof(AddGameLogPopup.Platforms)] = platforms,
+                                                                                  [nameof(AddGameLogPopup.OnGameAdded)] = new Func<Task<Game?>>(AddGameFromPicker),
+                                                                                  [nameof(AddGameLogPopup.OnPlatformAdded)] = new Func<Task<PlatformModel?>>(AddPlatformFromPicker)
+                                                                              });
 
         if (log is not null)
         {
@@ -204,141 +231,39 @@ public partial class LogsPage : LogbookPageBase<GameLog>
                               };
 
         GameLog? updatedLog = await PopupService.ShowAsync<AddGameLogPopup, GameLog>(
-            new Dictionary<string, object?>
-            {
-                [nameof(AddGameLogPopup.InitialLog)] = editableLog,
-                [nameof(AddGameLogPopup.Playthroughs)] = Playthroughs,
-                [nameof(AddGameLogPopup.LibraryGames)] = Games,
-                [nameof(AddGameLogPopup.Platforms)] = Platforms,
-                [nameof(AddGameLogPopup.OnGameAdded)] = new Func<Task<Game?>>(AddGameFromPicker),
-                [nameof(AddGameLogPopup.OnPlatformAdded)] = new Func<Task<PlatformModel?>>(AddPlatformFromPicker)
-            });
+                                                                                     new Dictionary<string, object?>
+                                                                                     {
+                                                                                         [nameof(AddGameLogPopup.InitialLog)] = editableLog,
+                                                                                         [nameof(AddGameLogPopup.Playthroughs)] = playthroughs,
+                                                                                         [nameof(AddGameLogPopup.LibraryGames)] = games,
+                                                                                         [nameof(AddGameLogPopup.Platforms)] = platforms,
+                                                                                         [nameof(AddGameLogPopup.OnGameAdded)] = new Func<Task<Game?>>(AddGameFromPicker),
+                                                                                         [nameof(AddGameLogPopup.OnPlatformAdded)] = new Func<Task<PlatformModel?>>(AddPlatformFromPicker)
+                                                                                     });
 
         if (updatedLog is not null)
         {
             await UpdateLog(updatedLog);
         }
     }
-
-    private async Task LoadPickerDataAsync()
-    {
-        if (UserSession.CurrentUserID is null)
-        {
-            Playthroughs = [];
-            Games = [];
-            Platforms = [];
-            companies = [];
-            return;
-        }
-
-        int userProfileId = UserSession.CurrentUserID.Value;
-
-        Playthroughs = await DbContext.Playthroughs
-                                      .AsNoTracking()
-                                      .Where(playthrough => playthrough.UserProfileID == userProfileId)
-                                      .Include(playthrough => playthrough.Game)
-                                      .Include(playthrough => playthrough.Platform)
-                                      .OrderBy(playthrough => playthrough.Name)
-                                      .ToListAsync();
-
-        Games = await LoadLibraryGamesAsync();
-        Platforms = await LoadLibraryPlatformsAsync();
-        companies = await LoadCompaniesAsync();
-    }
+    
+    #endregion
+    
+    #region Pickers
 
     private async Task<Game?> AddGameFromPicker()
     {
-        Game? game = await OpenAddGameToLibraryPopupAsync(companies, Platforms);
+        Game? game = await OpenAddGameToLibraryPopupAsync(companies, platforms);
         await LoadPickerDataAsync();
         return game;
     }
 
     private async Task<PlatformModel?> AddPlatformFromPicker()
     {
-        PlatformModel? platform = await OpenAddPlatformToLibraryPopupAsync(Games, companies);
+        PlatformModel? platform = await OpenAddPlatformToLibraryPopupAsync(games, companies);
         await LoadPickerDataAsync();
         return platform;
     }
-
-    private static string GetLogTitle(GameLog log)
-    {
-        return string.IsNullOrWhiteSpace(log.Title)
-                   ? $"{log.Game.Name} session"
-                   : log.Title;
-    }
-
-    private static string GetLogSummary(GameLog log)
-    {
-        string status = log.StatusChange is null ? "No status change" : $"Changed to {log.StatusChange}";
-        return $"{log.Playthrough.Name} · {FormatDuration(log)} · {status}";
-    }
-
-    private static string GetNotesPreview(GameLog log)
-    {
-        if (string.IsNullOrWhiteSpace(log.Notes))
-        {
-            return "None";
-        }
-
-        return log.Notes.Length <= 80 ? log.Notes : $"{log.Notes[..80]}...";
-    }
-
-    private static string FormatDateTime(DateTimeOffset value)
-    {
-        return value.LocalDateTime.ToString("MMM d, yyyy h:mm tt");
-    }
-
-    private static string FormatDateTime(DateTimeOffset? value)
-    {
-        return value is null ? "In progress" : FormatDateTime(value.Value);
-    }
-
-    private static string FormatShortDate(DateTimeOffset value)
-    {
-        return value.LocalDateTime.ToString("MMM d, yyyy");
-    }
-
-    private static string FormatTimeRange(GameLog log)
-    {
-        return log.EndedAt is null
-                   ? $"{log.StartedAt.LocalDateTime:h:mm tt} - In progress"
-                   : $"{log.StartedAt.LocalDateTime:h:mm tt} - {log.EndedAt.Value.LocalDateTime:h:mm tt}";
-    }
-
-    private static string FormatDuration(GameLog log)
-    {
-        if (log.EndedAt is null)
-        {
-            return "In progress";
-        }
-
-        TimeSpan duration = log.EndedAt.Value >= log.StartedAt ? log.EndedAt.Value - log.StartedAt : TimeSpan.Zero;
-
-        if (duration.TotalMinutes < 1)
-        {
-            return "0 Minutes";
-        }
-
-        List<string> parts = [];
-
-        // if (duration.Days > 0)
-        // {
-        //     parts.Add($"{duration.Days} {(duration.Days == 1 ? "Day" : "Days")}");
-        // }
-
-        int h = duration.Hours + duration.Days * 24;
-        if (h > 0)
-        {
-            // parts.Add($"{h} {(h == 1 ? "Hour" : "Hours")}");
-            parts.Add($"{h}h");
-        }
-
-        if (duration.Minutes > 0 || parts.Count == 0)
-        {
-            // parts.Add($"{duration.Minutes} {(duration.Minutes == 1 ? "Minute" : "Minutes")}");
-            parts.Add($"{duration.Minutes}m");
-        }
-
-        return string.Join(' ', parts);
-    }
+    
+    #endregion
 }

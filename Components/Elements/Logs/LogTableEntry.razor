@@ -1,0 +1,41 @@
+<h1>Coming soon</h1>
+
+@* <tr role="button" *@
+@*     tabindex="0" *@
+@*     @onclick="() => OpenEditPopup(log)"> *@
+@*     <td> *@
+@*         <div class="collection-table-primary-cell"> *@
+@*             <span>@GetLogTitle(log)</span> *@
+@*             <small>@FormatDateTime(log.StartedAt)</small> *@
+@*         </div> *@
+@*     </td> *@
+@*     <td>@log.Game.Name</td> *@
+@*     <td>@log.Playthrough.Name</td> *@
+@*     <td>@log.Platform.Name</td> *@
+@*     <td>@(log.StatusChange?.ToString() ?? "None")</td> *@
+@*     <td>@FormatDateTime(log.StartedAt)</td> *@
+@*     <td>@FormatDateTime(log.EndedAt)</td> *@
+@*     <td>@FormatDuration(log)</td> *@
+@*     <td>@(log.Location ?? "Not set")</td> *@
+@*     <td>@GetNotesPreview(log)</td> *@
+@*     <td> *@
+@*         <div class="collection-table-actions"> *@
+@*             <button class="collection-table-action collection-table-action-edit" *@
+@*                     type="button" *@
+@*                     title="Edit @GetLogTitle(log)" *@
+@*                     aria-label="Edit @GetLogTitle(log)" *@
+@*                     @onclick:stopPropagation="true" *@
+@*                     @onclick="() => OpenEditPopup(log)"> *@
+@*                 <i class="bi bi-pencil-square" aria-hidden="true"></i> *@
+@*             </button> *@
+@*             <button class="collection-table-action collection-table-action-remove" *@
+@*                     type="button" *@
+@*                     title="Remove @GetLogTitle(log)" *@
+@*                     aria-label="Remove @GetLogTitle(log)" *@
+@*                     @onclick:stopPropagation="true" *@
+@*                     @onclick="() => RemoveLog(log)"> *@
+@*                 <i class="bi bi-trash" aria-hidden="true"></i> *@
+@*             </button> *@
+@*         </div> *@
+@*     </td> *@
+@* </tr> *@
