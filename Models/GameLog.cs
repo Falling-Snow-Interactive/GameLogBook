@@ -35,19 +35,4 @@ public class GameLog
     public string? Notes { get; set; }
 
     public PlaythroughStatus? StatusChange { get; set; }
-
-    public GameLog(GameLog copy)
-    {
-        ID = copy.ID;
-        UserProfileID = copy.UserProfileID;
-        GameID = copy.GameID;
-        PlaythroughID = copy.PlaythroughID;
-        PlatformID = copy.PlatformID;
-        Title = copy.Title;
-        StartedAt = copy.StartedAt;
-        EndedAt = copy.EndedAt;
-        Location = copy.Location;
-        Notes = copy.Notes;
-        StatusChange = copy.StatusChange;
-    }
 }

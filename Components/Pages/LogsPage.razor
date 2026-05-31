@@ -1,6 +1,5 @@
 @page "/logs"
 
-@using VGL.Components.Elements.Logs
 @inherits LogbookPageBase<VGL.Models.GameLog>
 
 <PageTitle>Logs</PageTitle>
@@ -20,9 +19,6 @@
             @foreach (GameLog log in Items)
             {
                 <li>
-                    <LogCard/>
-                    
-                    
                     <article class="log-card"
                              role="button"
                              tabindex="0"
@@ -40,7 +36,7 @@
                                 </Placeholder>
                             </LocalImage>
                         </div>
-                    
+
                         <div class="log-card-content">
                             <div class="log-card-header">
                                 <div class="log-card-cover">
@@ -56,7 +52,7 @@
                                         </Placeholder>
                                     </LocalImage>
                                 </div>
-                    
+
                                 <div class="log-card-title-wrap">
                                     <div class="log-card-logo">
                                         <LocalImage ImagePath="@log.Game.Logo?.Path"
@@ -69,7 +65,7 @@
                                             </Placeholder>
                                         </LocalImage>
                                     </div>
-                    
+
                                     <div class="log-card-title">
                                         <h4>@GetLogTitle(log)</h4>
                                         <p>
@@ -80,13 +76,13 @@
                                     </div>
                                 </div>
                             </div>
-                    
+
                             <div class="log-card-meta">
                                 <span class="log-card-date">
                                     <i class="bi bi-calendar-event" aria-hidden="true"></i>
                                     @FormatShortDate(log.StartedAt)
                                 </span>
-                    
+
                                 @if (log.StatusChange is null)
                                 {
                                     <span class="log-status-pill log-status-none">No Status Change</span>
@@ -98,7 +94,7 @@
                                     </span>
                                 }
                             </div>
-                    
+
                             <div class="log-card-stats" aria-label="@($"{GetLogTitle(log)} stats")">
                                 <div>
                                     <strong>@FormatDuration(log)</strong>
@@ -113,12 +109,12 @@
                                     <span>Location</span>
                                 </div>
                             </div>
-                    
+
                             <div class="log-card-notes">
                                 <span>Notes</span>
                                 <p>@GetNotesPreview(log)</p>
                             </div>
-                    
+
                             <div class="log-card-actions">
                                 <button class="log-card-time-action log-card-start-action"
                                         type="button"
